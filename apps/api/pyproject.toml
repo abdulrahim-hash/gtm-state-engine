@@ -1,0 +1,45 @@
+[project]
+name = "gtm-state-api"
+version = "0.1.0"
+description = "API foundation for the GTM State & Signal Engine."
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "alembic>=1.16,<2",
+  "fastapi>=0.116,<1",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic-settings>=2.10,<3",
+  "sqlalchemy>=2.0,<3",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[dependency-groups]
+dev = [
+  "httpx2>=2.13,<3",
+  "mypy>=1.17,<2",
+  "pytest>=8.4,<10",
+  "ruff>=0.12,<1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gtm_state_api"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+markers = ["integration: requires a running PostgreSQL database"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["src", "tests", "scripts"]
