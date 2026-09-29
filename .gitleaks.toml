@@ -1,0 +1,12 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Ignore generated dependency, cache, environment, and build directories."
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/).cache/''',
+  '''(^|/)apps/api/.venv/''',
+  '''(^|/)apps/web/.next/''',
+]
+
