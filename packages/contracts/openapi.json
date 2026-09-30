@@ -1,6 +1,465 @@
 {
   "components": {
     "schemas": {
+      "AccountDetailResponse": {
+        "additionalProperties": false,
+        "description": "Account detail envelope for the read-only product view.",
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/AccountResponse"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "account"
+        ],
+        "title": "AccountDetailResponse",
+        "type": "object"
+      },
+      "AccountListResponse": {
+        "additionalProperties": false,
+        "description": "Paginated workspace-scoped account read model.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AccountResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "items",
+          "limit",
+          "offset"
+        ],
+        "title": "AccountListResponse",
+        "type": "object"
+      },
+      "AccountResponse": {
+        "additionalProperties": false,
+        "description": "Canonical account identity, explicitly free of derived state.",
+        "properties": {
+          "canonical_name": {
+            "title": "Canonical Name",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_synthetic": {
+            "title": "Is Synthetic",
+            "type": "boolean"
+          },
+          "segment": {
+            "title": "Segment",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workspace_id",
+          "slug",
+          "canonical_name",
+          "domain",
+          "segment",
+          "is_synthetic",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "AccountResponse",
+        "type": "object"
+      },
+      "AccountSignalEvaluationListResponse": {
+        "additionalProperties": false,
+        "description": "All preserved deterministic results for one account.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SignalEvaluationTraceResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "account_id",
+          "items"
+        ],
+        "title": "AccountSignalEvaluationListResponse",
+        "type": "object"
+      },
+      "AccountSignalListResponse": {
+        "additionalProperties": false,
+        "description": "Canonical events for one account at the workspace snapshot.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SignalReadModel"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "account_id",
+          "items"
+        ],
+        "title": "AccountSignalListResponse",
+        "type": "object"
+      },
+      "ActiveStrategyResponse": {
+        "additionalProperties": false,
+        "description": "Envelope preserving workspace demo-time semantics.",
+        "properties": {
+          "strategy": {
+            "$ref": "#/components/schemas/StrategyResponse"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "strategy"
+        ],
+        "title": "ActiveStrategyResponse",
+        "type": "object"
+      },
+      "CanonicalSignalResponse": {
+        "additionalProperties": false,
+        "description": "Stable commercial-event identity independent of evaluation time.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "event_fingerprint": {
+            "title": "Event Fingerprint",
+            "type": "string"
+          },
+          "first_detected_at": {
+            "format": "date-time",
+            "title": "First Detected At",
+            "type": "string"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "origin_evaluation_id": {
+            "format": "uuid",
+            "title": "Origin Evaluation Id",
+            "type": "string"
+          },
+          "signal_definition_id": {
+            "format": "uuid",
+            "title": "Signal Definition Id",
+            "type": "string"
+          },
+          "signal_id": {
+            "format": "uuid",
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "workspace_id",
+          "account_id",
+          "signal_definition_id",
+          "strategy_version_id",
+          "event_fingerprint",
+          "observed_at",
+          "first_detected_at",
+          "origin_evaluation_id",
+          "created_at"
+        ],
+        "title": "CanonicalSignalResponse",
+        "type": "object"
+      },
+      "EvidenceAssertion": {
+        "description": "Machine-readable assertion carried by normalized account evidence.",
+        "enum": [
+          "PRESENT",
+          "ABSENT",
+          "INCONCLUSIVE"
+        ],
+        "title": "EvidenceAssertion",
+        "type": "string"
+      },
+      "EvidenceClassification": {
+        "description": "Epistemic status of an evidence record.",
+        "enum": [
+          "FACT",
+          "INFERENCE",
+          "HYPOTHESIS"
+        ],
+        "title": "EvidenceClassification",
+        "type": "string"
+      },
+      "EvidenceFreshness": {
+        "description": "Fixture-declared freshness relative to the workspace demo snapshot.",
+        "enum": [
+          "CURRENT",
+          "STALE",
+          "UNKNOWN"
+        ],
+        "title": "EvidenceFreshness",
+        "type": "string"
+      },
+      "EvidenceListResponse": {
+        "additionalProperties": false,
+        "description": "Evidence list for one supported M1A target.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "EvidenceListResponse",
+        "type": "object"
+      },
+      "EvidenceResponse": {
+        "additionalProperties": false,
+        "description": "Provenance-bearing evidence, with epistemic confidence only where applicable.",
+        "properties": {
+          "account_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
+          "classification": {
+            "$ref": "#/components/schemas/EvidenceClassification"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "fact_assertion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceAssertion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fact_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fact Key"
+          },
+          "freshness": {
+            "$ref": "#/components/schemas/EvidenceFreshness"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "ingested_at": {
+            "format": "date-time",
+            "title": "Ingested At",
+            "type": "string"
+          },
+          "normalized_fact": {
+            "title": "Normalized Fact",
+            "type": "string"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "raw_payload_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Payload Hash"
+          },
+          "source_provider": {
+            "title": "Source Provider",
+            "type": "string"
+          },
+          "source_reference": {
+            "title": "Source Reference",
+            "type": "string"
+          },
+          "source_uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Uri"
+          },
+          "strategy_topic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrategyTopic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strategy_version_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strategy Version Id"
+          }
+        },
+        "required": [
+          "id",
+          "strategy_version_id",
+          "account_id",
+          "strategy_topic",
+          "classification",
+          "source_provider",
+          "source_reference",
+          "source_uri",
+          "observed_at",
+          "ingested_at",
+          "normalized_fact",
+          "raw_payload_hash",
+          "freshness",
+          "confidence"
+        ],
+        "title": "EvidenceResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "LivenessResponse": {
         "additionalProperties": false,
         "description": "Process-level liveness without infrastructure details.",
@@ -46,6 +505,514 @@
         ],
         "title": "ReadinessResponse",
         "type": "object"
+      },
+      "SignalCategory": {
+        "description": "Commercial-event families supported by signal definitions.",
+        "enum": [
+          "LEADERSHIP",
+          "HIRING",
+          "FUNDING",
+          "EXPANSION",
+          "TECHNOLOGY",
+          "ENGAGEMENT"
+        ],
+        "title": "SignalCategory",
+        "type": "string"
+      },
+      "SignalDefinitionListResponse": {
+        "additionalProperties": false,
+        "description": "Definitions governed by the active workspace strategy.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SignalDefinitionResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "strategy_version_id",
+          "items"
+        ],
+        "title": "SignalDefinitionListResponse",
+        "type": "object"
+      },
+      "SignalDefinitionResponse": {
+        "additionalProperties": false,
+        "description": "Versioned deterministic signal definition.",
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/SignalCategory"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "evaluator_key": {
+            "title": "Evaluator Key",
+            "type": "string"
+          },
+          "freshness_window_days": {
+            "title": "Freshness Window Days",
+            "type": "integer"
+          },
+          "input_fact_key": {
+            "title": "Input Fact Key",
+            "type": "string"
+          },
+          "rule_version": {
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "signal_definition_id": {
+            "format": "uuid",
+            "title": "Signal Definition Id",
+            "type": "string"
+          },
+          "stable_key": {
+            "title": "Stable Key",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SignalDefinitionStatus"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_definition_id",
+          "workspace_id",
+          "strategy_version_id",
+          "stable_key",
+          "display_name",
+          "description",
+          "category",
+          "input_fact_key",
+          "evaluator_key",
+          "freshness_window_days",
+          "rule_version",
+          "status",
+          "created_at"
+        ],
+        "title": "SignalDefinitionResponse",
+        "type": "object"
+      },
+      "SignalDefinitionStatus": {
+        "description": "Lifecycle status for an immutable signal-definition version.",
+        "enum": [
+          "ENABLED",
+          "DISABLED"
+        ],
+        "title": "SignalDefinitionStatus",
+        "type": "string"
+      },
+      "SignalEvaluationResponse": {
+        "additionalProperties": false,
+        "description": "One reproducible deterministic evaluation at a semantic time.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "evaluation_as_of": {
+            "format": "date-time",
+            "title": "Evaluation As Of",
+            "type": "string"
+          },
+          "evaluation_id": {
+            "format": "uuid",
+            "title": "Evaluation Id",
+            "type": "string"
+          },
+          "input_hash": {
+            "title": "Input Hash",
+            "type": "string"
+          },
+          "reason_code": {
+            "$ref": "#/components/schemas/SignalReasonCode"
+          },
+          "result": {
+            "$ref": "#/components/schemas/SignalEvaluationResult"
+          },
+          "rule_version": {
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "signal_definition_id": {
+            "format": "uuid",
+            "title": "Signal Definition Id",
+            "type": "string"
+          },
+          "signal_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal Id"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evaluation_id",
+          "workspace_id",
+          "account_id",
+          "signal_definition_id",
+          "strategy_version_id",
+          "signal_id",
+          "evaluation_as_of",
+          "evaluated_at",
+          "input_hash",
+          "result",
+          "reason_code",
+          "rule_version",
+          "created_at"
+        ],
+        "title": "SignalEvaluationResponse",
+        "type": "object"
+      },
+      "SignalEvaluationResult": {
+        "description": "Exhaustive deterministic evaluation outcomes.",
+        "enum": [
+          "DETECTED",
+          "NO_MATCH",
+          "INCONCLUSIVE",
+          "STALE"
+        ],
+        "title": "SignalEvaluationResult",
+        "type": "string"
+      },
+      "SignalEvaluationTraceResponse": {
+        "additionalProperties": false,
+        "description": "Evaluation result and its complete relational evidence trace.",
+        "properties": {
+          "definition": {
+            "$ref": "#/components/schemas/SignalDefinitionResponse"
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/SignalEvaluationResponse"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceResponse"
+            },
+            "title": "Evidence",
+            "type": "array"
+          }
+        },
+        "required": [
+          "evaluation",
+          "definition",
+          "evidence"
+        ],
+        "title": "SignalEvaluationTraceResponse",
+        "type": "object"
+      },
+      "SignalReadModel": {
+        "additionalProperties": false,
+        "description": "Canonical signal with status resolved from its latest evaluation.",
+        "properties": {
+          "current_evaluation": {
+            "$ref": "#/components/schemas/SignalEvaluationResponse"
+          },
+          "current_freshness": {
+            "$ref": "#/components/schemas/SignalResolvedFreshness"
+          },
+          "current_status": {
+            "$ref": "#/components/schemas/SignalResolvedStatus"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/SignalDefinitionResponse"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceResponse"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "signal": {
+            "$ref": "#/components/schemas/CanonicalSignalResponse"
+          }
+        },
+        "required": [
+          "signal",
+          "definition",
+          "current_evaluation",
+          "current_status",
+          "current_freshness",
+          "evidence"
+        ],
+        "title": "SignalReadModel",
+        "type": "object"
+      },
+      "SignalReasonCode": {
+        "description": "Stable explanations emitted by deterministic evaluators.",
+        "enum": [
+          "QUALIFYING_EVENT_WITHIN_WINDOW",
+          "QUALIFYING_EVENT_OUTSIDE_WINDOW",
+          "SUFFICIENT_EVIDENCE_NO_EVENT",
+          "REQUIRED_EVIDENCE_MISSING",
+          "EVIDENCE_AMBIGUOUS",
+          "EVIDENCE_CONTRADICTORY"
+        ],
+        "title": "SignalReasonCode",
+        "type": "string"
+      },
+      "SignalResolvedFreshness": {
+        "description": "Current presentation freshness derived rather than stored on a signal.",
+        "enum": [
+          "CURRENT",
+          "STALE"
+        ],
+        "title": "SignalResolvedFreshness",
+        "type": "string"
+      },
+      "SignalResolvedStatus": {
+        "description": "Current presentation status derived from the latest linked evaluation.",
+        "enum": [
+          "ACTIVE",
+          "EXPIRED"
+        ],
+        "title": "SignalResolvedStatus",
+        "type": "string"
+      },
+      "StrategyResponse": {
+        "additionalProperties": false,
+        "description": "The active strategy plus synthetic hypothesis evidence.",
+        "properties": {
+          "activated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activated At"
+          },
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceResponse"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "semantic_version": {
+            "title": "Semantic Version",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StrategyStatus"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "synthetic_disclaimer": {
+            "title": "Synthetic Disclaimer",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workspace_id",
+          "semantic_version",
+          "status",
+          "name",
+          "summary",
+          "synthetic_disclaimer",
+          "created_at",
+          "activated_at",
+          "claims"
+        ],
+        "title": "StrategyResponse",
+        "type": "object"
+      },
+      "StrategyStatus": {
+        "description": "Lifecycle statuses for a versioned strategy.",
+        "enum": [
+          "DRAFT",
+          "ACTIVE",
+          "RETIRED"
+        ],
+        "title": "StrategyStatus",
+        "type": "string"
+      },
+      "StrategyTopic": {
+        "description": "Required synthetic strategy coverage areas.",
+        "enum": [
+          "MARKET",
+          "SEGMENTATION",
+          "ICP",
+          "BUYER_HYPOTHESES",
+          "PROBLEM_HYPOTHESIS",
+          "VALUE_PROPOSITION_HYPOTHESIS",
+          "OFFER_HYPOTHESIS",
+          "PRICING_HYPOTHESIS",
+          "MESSAGING_FRAMEWORK",
+          "CHANNELS",
+          "GTM_MOTION",
+          "EXPERIMENT_ASSUMPTIONS"
+        ],
+        "title": "StrategyTopic",
+        "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "WorkspaceResponse": {
+        "additionalProperties": false,
+        "description": "Public workspace boundary for the synthetic demo.",
+        "properties": {
+          "demo_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demo As Of"
+          },
+          "demo_mode": {
+            "title": "Demo Mode",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "slug",
+          "name",
+          "demo_mode",
+          "demo_as_of"
+        ],
+        "title": "WorkspaceResponse",
+        "type": "object"
       }
     }
   },
@@ -56,6 +1023,367 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/accounts": {
+      "get": {
+        "description": "List canonical accounts belonging to the active strategy's workspace.",
+        "operationId": "list_accounts_api_v1_accounts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Accounts",
+        "tags": [
+          "M1A read model"
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}": {
+      "get": {
+        "description": "Return one canonical account without deriving state or policy.",
+        "operationId": "get_account_api_v1_accounts__account_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Account",
+        "tags": [
+          "M1A read model"
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/signal-evaluations": {
+      "get": {
+        "description": "Return affirmative, negative, stale, and inconclusive evaluation history.",
+        "operationId": "list_account_signal_evaluations_api_v1_accounts__account_id__signal_evaluations_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "result",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SignalEvaluationResult"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Result"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountSignalEvaluationListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Account Signal Evaluations",
+        "tags": [
+          "M1B.1 signal read model"
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/signals": {
+      "get": {
+        "description": "Return canonical commercial events with status resolved from latest evaluations.",
+        "operationId": "list_account_signals_api_v1_accounts__account_id__signals_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountSignalListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Account Signals",
+        "tags": [
+          "M1B.1 signal read model"
+        ]
+      }
+    },
+    "/api/v1/evidence": {
+      "get": {
+        "description": "List provenance for exactly one account or strategy-version target.",
+        "operationId": "list_evidence_api_v1_evidence_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "account_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Account Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "strategy_version_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Strategy Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Evidence",
+        "tags": [
+          "M1A read model"
+        ]
+      }
+    },
+    "/api/v1/signal-definitions": {
+      "get": {
+        "description": "List deterministic definitions governed by the active strategy.",
+        "operationId": "list_signal_definitions_api_v1_signal_definitions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalDefinitionListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Signal Definitions",
+        "tags": [
+          "M1B.1 signal read model"
+        ]
+      }
+    },
+    "/api/v1/signal-evaluations/{evaluation_id}": {
+      "get": {
+        "description": "Return one reproducible evaluation and its relational evidence trace.",
+        "operationId": "get_signal_evaluation_api_v1_signal_evaluations__evaluation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "evaluation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Evaluation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalEvaluationTraceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Signal Evaluation",
+        "tags": [
+          "M1B.1 signal read model"
+        ]
+      }
+    },
+    "/api/v1/strategy/active": {
+      "get": {
+        "description": "Return the workspace's active synthetic strategy and its evidence-backed claims.",
+        "operationId": "get_active_strategy_api_v1_strategy_active_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveStrategyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Active Strategy",
+        "tags": [
+          "M1A read model"
+        ]
+      }
+    },
     "/health/live": {
       "get": {
         "description": "Report process liveness without checking external dependencies.",

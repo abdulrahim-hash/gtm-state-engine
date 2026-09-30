@@ -20,6 +20,7 @@
     "db:current": "uv run --cache-dir .cache/uv --project apps/api alembic -c apps/api/alembic.ini current",
     "db:downgrade": "uv run --cache-dir .cache/uv --project apps/api alembic -c apps/api/alembic.ini downgrade -1",
     "db:migrate": "uv run --cache-dir .cache/uv --project apps/api alembic -c apps/api/alembic.ini upgrade head",
+    "db:seed-demo": "uv run --cache-dir .cache/uv --project apps/api python apps/api/scripts/seed_demo.py",
     "format:check": "npm run api:format:check && npm --workspace @gtm-state/web run format:check",
     "lint": "npm run api:lint && npm --workspace @gtm-state/web run lint",
     "test": "npm run api:test && npm --workspace @gtm-state/web run test",

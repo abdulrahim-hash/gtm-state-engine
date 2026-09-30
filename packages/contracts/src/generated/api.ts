@@ -4,6 +4,166 @@
  */
 
 export interface paths {
+    "/api/v1/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Accounts
+         * @description List canonical accounts belonging to the active strategy's workspace.
+         */
+        get: operations["list_accounts_api_v1_accounts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{account_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Account
+         * @description Return one canonical account without deriving state or policy.
+         */
+        get: operations["get_account_api_v1_accounts__account_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{account_id}/signal-evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Account Signal Evaluations
+         * @description Return affirmative, negative, stale, and inconclusive evaluation history.
+         */
+        get: operations["list_account_signal_evaluations_api_v1_accounts__account_id__signal_evaluations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{account_id}/signals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Account Signals
+         * @description Return canonical commercial events with status resolved from latest evaluations.
+         */
+        get: operations["list_account_signals_api_v1_accounts__account_id__signals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Evidence
+         * @description List provenance for exactly one account or strategy-version target.
+         */
+        get: operations["list_evidence_api_v1_evidence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/signal-definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Signal Definitions
+         * @description List deterministic definitions governed by the active strategy.
+         */
+        get: operations["list_signal_definitions_api_v1_signal_definitions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/signal-evaluations/{evaluation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Signal Evaluation
+         * @description Return one reproducible evaluation and its relational evidence trace.
+         */
+        get: operations["get_signal_evaluation_api_v1_signal_evaluations__evaluation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/strategy/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Active Strategy
+         * @description Return the workspace's active synthetic strategy and its evidence-backed claims.
+         */
+        get: operations["get_active_strategy_api_v1_strategy_active_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -49,6 +209,226 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * AccountDetailResponse
+         * @description Account detail envelope for the read-only product view.
+         */
+        AccountDetailResponse: {
+            account: components["schemas"]["AccountResponse"];
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * AccountListResponse
+         * @description Paginated workspace-scoped account read model.
+         */
+        AccountListResponse: {
+            /** Items */
+            items: components["schemas"]["AccountResponse"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * AccountResponse
+         * @description Canonical account identity, explicitly free of derived state.
+         */
+        AccountResponse: {
+            /** Canonical Name */
+            canonical_name: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Domain */
+            domain: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Is Synthetic */
+            is_synthetic: boolean;
+            /** Segment */
+            segment: string;
+            /** Slug */
+            slug: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * AccountSignalEvaluationListResponse
+         * @description All preserved deterministic results for one account.
+         */
+        AccountSignalEvaluationListResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Items */
+            items: components["schemas"]["SignalEvaluationTraceResponse"][];
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * AccountSignalListResponse
+         * @description Canonical events for one account at the workspace snapshot.
+         */
+        AccountSignalListResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Items */
+            items: components["schemas"]["SignalReadModel"][];
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * ActiveStrategyResponse
+         * @description Envelope preserving workspace demo-time semantics.
+         */
+        ActiveStrategyResponse: {
+            strategy: components["schemas"]["StrategyResponse"];
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * CanonicalSignalResponse
+         * @description Stable commercial-event identity independent of evaluation time.
+         */
+        CanonicalSignalResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Event Fingerprint */
+            event_fingerprint: string;
+            /**
+             * First Detected At
+             * Format: date-time
+             */
+            first_detected_at: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /**
+             * Origin Evaluation Id
+             * Format: uuid
+             */
+            origin_evaluation_id: string;
+            /**
+             * Signal Definition Id
+             * Format: uuid
+             */
+            signal_definition_id: string;
+            /**
+             * Signal Id
+             * Format: uuid
+             */
+            signal_id: string;
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * EvidenceAssertion
+         * @description Machine-readable assertion carried by normalized account evidence.
+         * @enum {string}
+         */
+        EvidenceAssertion: "PRESENT" | "ABSENT" | "INCONCLUSIVE";
+        /**
+         * EvidenceClassification
+         * @description Epistemic status of an evidence record.
+         * @enum {string}
+         */
+        EvidenceClassification: "FACT" | "INFERENCE" | "HYPOTHESIS";
+        /**
+         * EvidenceFreshness
+         * @description Fixture-declared freshness relative to the workspace demo snapshot.
+         * @enum {string}
+         */
+        EvidenceFreshness: "CURRENT" | "STALE" | "UNKNOWN";
+        /**
+         * EvidenceListResponse
+         * @description Evidence list for one supported M1A target.
+         */
+        EvidenceListResponse: {
+            /** Items */
+            items: components["schemas"]["EvidenceResponse"][];
+        };
+        /**
+         * EvidenceResponse
+         * @description Provenance-bearing evidence, with epistemic confidence only where applicable.
+         */
+        EvidenceResponse: {
+            /** Account Id */
+            account_id: string | null;
+            classification: components["schemas"]["EvidenceClassification"];
+            /** Confidence */
+            confidence: string | null;
+            fact_assertion?: components["schemas"]["EvidenceAssertion"] | null;
+            /** Fact Key */
+            fact_key?: string | null;
+            freshness: components["schemas"]["EvidenceFreshness"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ingested At
+             * Format: date-time
+             */
+            ingested_at: string;
+            /** Normalized Fact */
+            normalized_fact: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Raw Payload Hash */
+            raw_payload_hash: string | null;
+            /** Source Provider */
+            source_provider: string;
+            /** Source Reference */
+            source_reference: string;
+            /** Source Uri */
+            source_uri: string | null;
+            strategy_topic: components["schemas"]["StrategyTopic"] | null;
+            /** Strategy Version Id */
+            strategy_version_id: string | null;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
          * LivenessResponse
          * @description Process-level liveness without infrastructure details.
          */
@@ -79,6 +459,253 @@ export interface components {
              */
             status: "ready" | "not_ready";
         };
+        /**
+         * SignalCategory
+         * @description Commercial-event families supported by signal definitions.
+         * @enum {string}
+         */
+        SignalCategory: "LEADERSHIP" | "HIRING" | "FUNDING" | "EXPANSION" | "TECHNOLOGY" | "ENGAGEMENT";
+        /**
+         * SignalDefinitionListResponse
+         * @description Definitions governed by the active workspace strategy.
+         */
+        SignalDefinitionListResponse: {
+            /** Items */
+            items: components["schemas"]["SignalDefinitionResponse"][];
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * SignalDefinitionResponse
+         * @description Versioned deterministic signal definition.
+         */
+        SignalDefinitionResponse: {
+            category: components["schemas"]["SignalCategory"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Description */
+            description: string;
+            /** Display Name */
+            display_name: string;
+            /** Evaluator Key */
+            evaluator_key: string;
+            /** Freshness Window Days */
+            freshness_window_days: number;
+            /** Input Fact Key */
+            input_fact_key: string;
+            /** Rule Version */
+            rule_version: string;
+            /**
+             * Signal Definition Id
+             * Format: uuid
+             */
+            signal_definition_id: string;
+            /** Stable Key */
+            stable_key: string;
+            status: components["schemas"]["SignalDefinitionStatus"];
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * SignalDefinitionStatus
+         * @description Lifecycle status for an immutable signal-definition version.
+         * @enum {string}
+         */
+        SignalDefinitionStatus: "ENABLED" | "DISABLED";
+        /**
+         * SignalEvaluationResponse
+         * @description One reproducible deterministic evaluation at a semantic time.
+         */
+        SignalEvaluationResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+            /**
+             * Evaluation As Of
+             * Format: date-time
+             */
+            evaluation_as_of: string;
+            /**
+             * Evaluation Id
+             * Format: uuid
+             */
+            evaluation_id: string;
+            /** Input Hash */
+            input_hash: string;
+            reason_code: components["schemas"]["SignalReasonCode"];
+            result: components["schemas"]["SignalEvaluationResult"];
+            /** Rule Version */
+            rule_version: string;
+            /**
+             * Signal Definition Id
+             * Format: uuid
+             */
+            signal_definition_id: string;
+            /** Signal Id */
+            signal_id: string | null;
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * SignalEvaluationResult
+         * @description Exhaustive deterministic evaluation outcomes.
+         * @enum {string}
+         */
+        SignalEvaluationResult: "DETECTED" | "NO_MATCH" | "INCONCLUSIVE" | "STALE";
+        /**
+         * SignalEvaluationTraceResponse
+         * @description Evaluation result and its complete relational evidence trace.
+         */
+        SignalEvaluationTraceResponse: {
+            definition: components["schemas"]["SignalDefinitionResponse"];
+            evaluation: components["schemas"]["SignalEvaluationResponse"];
+            /** Evidence */
+            evidence: components["schemas"]["EvidenceResponse"][];
+        };
+        /**
+         * SignalReadModel
+         * @description Canonical signal with status resolved from its latest evaluation.
+         */
+        SignalReadModel: {
+            current_evaluation: components["schemas"]["SignalEvaluationResponse"];
+            current_freshness: components["schemas"]["SignalResolvedFreshness"];
+            current_status: components["schemas"]["SignalResolvedStatus"];
+            definition: components["schemas"]["SignalDefinitionResponse"];
+            /** Evidence */
+            evidence: components["schemas"]["EvidenceResponse"][];
+            signal: components["schemas"]["CanonicalSignalResponse"];
+        };
+        /**
+         * SignalReasonCode
+         * @description Stable explanations emitted by deterministic evaluators.
+         * @enum {string}
+         */
+        SignalReasonCode: "QUALIFYING_EVENT_WITHIN_WINDOW" | "QUALIFYING_EVENT_OUTSIDE_WINDOW" | "SUFFICIENT_EVIDENCE_NO_EVENT" | "REQUIRED_EVIDENCE_MISSING" | "EVIDENCE_AMBIGUOUS" | "EVIDENCE_CONTRADICTORY";
+        /**
+         * SignalResolvedFreshness
+         * @description Current presentation freshness derived rather than stored on a signal.
+         * @enum {string}
+         */
+        SignalResolvedFreshness: "CURRENT" | "STALE";
+        /**
+         * SignalResolvedStatus
+         * @description Current presentation status derived from the latest linked evaluation.
+         * @enum {string}
+         */
+        SignalResolvedStatus: "ACTIVE" | "EXPIRED";
+        /**
+         * StrategyResponse
+         * @description The active strategy plus synthetic hypothesis evidence.
+         */
+        StrategyResponse: {
+            /** Activated At */
+            activated_at: string | null;
+            /** Claims */
+            claims: components["schemas"]["EvidenceResponse"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Semantic Version */
+            semantic_version: string;
+            status: components["schemas"]["StrategyStatus"];
+            /** Summary */
+            summary: string;
+            /** Synthetic Disclaimer */
+            synthetic_disclaimer: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * StrategyStatus
+         * @description Lifecycle statuses for a versioned strategy.
+         * @enum {string}
+         */
+        StrategyStatus: "DRAFT" | "ACTIVE" | "RETIRED";
+        /**
+         * StrategyTopic
+         * @description Required synthetic strategy coverage areas.
+         * @enum {string}
+         */
+        StrategyTopic: "MARKET" | "SEGMENTATION" | "ICP" | "BUYER_HYPOTHESES" | "PROBLEM_HYPOTHESIS" | "VALUE_PROPOSITION_HYPOTHESIS" | "OFFER_HYPOTHESIS" | "PRICING_HYPOTHESIS" | "MESSAGING_FRAMEWORK" | "CHANNELS" | "GTM_MOTION" | "EXPERIMENT_ASSUMPTIONS";
+        /** ValidationError */
+        ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
+        /**
+         * WorkspaceResponse
+         * @description Public workspace boundary for the synthetic demo.
+         */
+        WorkspaceResponse: {
+            /** Demo As Of */
+            demo_as_of: string | null;
+            /** Demo Mode */
+            demo_mode: boolean;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -88,6 +715,236 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_accounts_api_v1_accounts_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_account_api_v1_accounts__account_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_account_signal_evaluations_api_v1_accounts__account_id__signal_evaluations_get: {
+        parameters: {
+            query?: {
+                result?: components["schemas"]["SignalEvaluationResult"] | null;
+            };
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountSignalEvaluationListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_account_signals_api_v1_accounts__account_id__signals_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountSignalListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_evidence_api_v1_evidence_get: {
+        parameters: {
+            query?: {
+                account_id?: string | null;
+                strategy_version_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_signal_definitions_api_v1_signal_definitions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignalDefinitionListResponse"];
+                };
+            };
+        };
+    };
+    get_signal_evaluation_api_v1_signal_evaluations__evaluation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignalEvaluationTraceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_active_strategy_api_v1_strategy_active_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActiveStrategyResponse"];
+                };
+            };
+        };
+    };
     liveness_health_live_get: {
         parameters: {
             query?: never;

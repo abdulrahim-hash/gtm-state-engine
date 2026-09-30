@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from gtm_state_api import __version__
 from gtm_state_api.config import get_settings
 from gtm_state_api.health import router as health_router
+from gtm_state_api.read_api import router as read_router
+from gtm_state_api.signals_api import router as signals_router
 
 
 def create_app() -> FastAPI:
@@ -21,6 +23,8 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json" if public_docs else None,
     )
     application.include_router(health_router)
+    application.include_router(read_router)
+    application.include_router(signals_router)
     return application
 
 

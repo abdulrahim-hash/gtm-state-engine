@@ -23,12 +23,16 @@ Use `cp .env.example .env` on macOS/Linux.
 ```powershell
 docker-compose --env-file .env -f infra/compose.yaml up -d postgres
 npm run db:migrate
+npm run db:seed-demo
 npm run db:current
 ```
 
 `docker compose` may be used instead of `docker-compose` where the plugin is available.
 
-The M0 migration is a deliberate no-op baseline. Do not add demonstration-only tables.
+The M0 migration is a deliberate no-op baseline. M1A adds workspace, strategy, account, and evidence
+tables. M1B.1 adds typed event facts, signal definitions, immutable evaluations, relational
+provenance, and canonical signal events. `db:seed-demo` is deterministic and idempotent; it seeds
+the fixed Northstar Revenue Systems Demo snapshot and runs the real evaluator outside Alembic.
 
 ## Services
 
@@ -38,6 +42,9 @@ npm run web:dev
 ```
 
 Run those commands in separate terminals.
+
+The frontend proxies read-only `/api/*` requests to `API_BASE_URL` (default
+`http://localhost:8000`). Keep this server-side setting in `.env`; it is not a public credential.
 
 ## Contract workflow
 

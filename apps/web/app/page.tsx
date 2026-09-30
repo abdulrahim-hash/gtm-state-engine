@@ -1,145 +1,83 @@
-const stages = [
-  "Strategy",
-  "Evidence",
-  "Signal",
-  "State",
-  "Decision",
-  "Policy",
-  "Action",
-  "Outcome",
-] as const;
+import Link from "next/link";
 
-const foundations = [
-  {
-    index: "01",
-    title: "Evidence before conclusion",
-    body: "Material decisions will remain traceable to sources, timestamps, versions, and reason codes.",
-  },
-  {
-    index: "02",
-    title: "Policy before action",
-    body: "Deterministic rules and explicit review gates will govern authority—not model confidence.",
-  },
-  {
-    index: "03",
-    title: "Tools remain adapters",
-    body: "PostgreSQL is canonical memory. CRM, enrichment, orchestration, and models plug into it.",
-  },
+import { ProductShell } from "@/components/product-shell";
+
+const boundaries = [
+  ["Strategy", "Versioned synthetic hypotheses with explicit epistemic labels."],
+  ["Accounts", "Canonical workspace-scoped identities with no derived state."],
+  ["Evidence", "Source, time, freshness, and hash provenance retained for inspection."],
+  ["Signals", "Deterministic commercial events with complete evidence traces."],
 ] as const;
 
 export default function Home() {
   return (
-    <div className="site-shell">
-      <div className="demo-banner" role="status">
-        <span className="demo-dot" aria-hidden="true" />
-        Synthetic demo environment
-        <span className="demo-divider" aria-hidden="true" />
-        No prospect or client data
-      </div>
-
-      <header className="site-header">
-        <a className="brand" href="#top" aria-label="GTM State & Signal Engine home">
-          <span className="brand-mark" aria-hidden="true">
-            GS
-          </span>
-          <span>
-            GTM State
-            <small>Signal Engine</small>
-          </span>
-        </a>
-        <span className="phase-badge">M0 · Foundation</span>
-      </header>
-
-      <main id="top">
-        <section className="hero" aria-labelledby="hero-title">
+    <ProductShell active="home">
+      <main>
+        <section className="hero m1a-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <p className="eyebrow">Strategy-aware GTM infrastructure</p>
+            <p className="eyebrow">M1B.1 / Evidence to signal</p>
             <h1 id="hero-title">
-              Know who matters.
+              Start with what is
               <br />
-              See <em>why now.</em>
+              <em>known - and what is not.</em>
             </h1>
             <p className="hero-summary">
-              A trustworthy account-state and decision system that turns fragmented evidence into
-              policy-governed next actions.
+              Deterministic rules now recognize time-bound synthetic commercial events while fit and
+              relationship context remain evidence. No score, state, decision, or action exists.
             </p>
-            <div className="scope-row" aria-label="Current operating boundaries">
-              <span>Evidence-backed</span>
-              <span>Human-governed</span>
-              <span>Vendor-neutral</span>
+            <div className="hero-actions">
+              <Link className="button button-primary" href="/strategy">
+                Inspect strategy
+              </Link>
+              <Link className="button" href="/accounts">
+                Browse accounts
+              </Link>
             </div>
           </div>
-
           <aside className="boundary-card" aria-labelledby="boundary-title">
             <div className="boundary-header">
-              <p id="boundary-title">Current boundary</p>
-              <span>Safe by default</span>
+              <p id="boundary-title">M1B.1 boundary</p>
+              <span>Read only</span>
             </div>
             <div className="boundary-item">
               <span className="status-icon status-ready" aria-hidden="true">
-                ✓
+                OK
               </span>
               <div>
-                <strong>Engineering foundation</strong>
-                <p>
-                  Typed web and API contracts, PostgreSQL migrations, and blocking quality gates.
-                </p>
+                <strong>Deterministic signal trace</strong>
+                <p>Every signal resolves through an evaluation to its underlying evidence.</p>
               </div>
             </div>
             <div className="boundary-item">
               <span className="status-icon status-locked" aria-hidden="true">
-                —
+                -
               </span>
               <div>
-                <strong>External actions disabled</strong>
-                <p>No CRM writes, outbound sends, model authority, or live provider connections.</p>
+                <strong>Downstream logic remains off</strong>
+                <p>No scores, account states, decisions, policy, actions, or outcomes exist.</p>
               </div>
             </div>
-            <p className="boundary-note">GTM domain data begins in M1, not this foundation.</p>
+            <p className="boundary-note">All strategy assertions are synthetic demo hypotheses.</p>
           </aside>
         </section>
-
-        <section className="system-flow" aria-labelledby="flow-title">
+        <section className="principles m1a-foundations" aria-labelledby="foundations-title">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">The system spine</p>
-              <h2 id="flow-title">One auditable operating loop</h2>
-            </div>
-            <p>Strategy governs the loop. Evidence supports every material transition.</p>
-          </div>
-          <ol className="stage-list">
-            {stages.map((stage, index) => (
-              <li key={stage}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{stage}</strong>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="principles" aria-labelledby="principles-title">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Control plane principles</p>
-              <h2 id="principles-title">Trust is an architectural feature</h2>
+              <p className="eyebrow">M1B.1 foundations</p>
+              <h2 id="foundations-title">The trace begins before the conclusion.</h2>
             </div>
           </div>
           <div className="principle-grid">
-            {foundations.map((foundation) => (
-              <article key={foundation.index}>
-                <span>{foundation.index}</span>
-                <h3>{foundation.title}</h3>
-                <p>{foundation.body}</p>
+            {boundaries.map(([title, body], index) => (
+              <article key={title}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <h3>{title}</h3>
+                <p>{body}</p>
               </article>
             ))}
           </div>
         </section>
       </main>
-
-      <footer>
-        <p>GTM State &amp; Signal Engine</p>
-        <p>Foundation only · Synthetic data · External actions off</p>
-      </footer>
-    </div>
+    </ProductShell>
   );
 }

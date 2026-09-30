@@ -8,9 +8,9 @@ trustworthy account state and producing auditable, policy-governed GTM decisions
 This repository is intentionally not an AI SDR, lead scraper, CRM replacement, email generator, or
 vendor workflow showcase.
 
-## Current status: M0 foundation
+## Current status: M1B.1 deterministic evidence-to-signal slice
 
-M0 provides:
+M0 established:
 
 - a minimal recruiter-facing Next.js shell;
 - a synchronous FastAPI service using typed Pydantic boundaries;
@@ -21,7 +21,24 @@ M0 provides:
 - blocking test, lint, format, type, build, migration, contract, and secret-detection gates;
 - architecture, security, source-of-truth, ADR, and build-journal documentation.
 
-GTM domain entities, synthetic accounts, signals, decisions, actions, and outcomes begin in M1.
+M1A adds:
+
+- one fixed synthetic workspace with a deterministic demo snapshot date;
+- a versioned synthetic GTM strategy whose assertions are visible hypotheses;
+- canonical workspace-scoped accounts and provenance-bearing evidence;
+- read-only strategy, account, and evidence APIs with committed typed contracts;
+- strategy, account list, account detail, and provenance product views.
+
+M1B.1 adds:
+
+- versioned, strategy-aware deterministic signal definitions;
+- immutable evaluation history for detected, stale, negative, and inconclusive results;
+- canonical commercial-event identities that remain stable across reevaluation time;
+- normalized relational evidence traces;
+- read-only signal and evaluation APIs plus restrained account-detail signal views.
+
+M1B.1 does not implement contacts, fit or priority scoring, account state, relationship state,
+decisions, policy, actions, outcomes, models, workers, or external providers.
 
 ## System spine
 
@@ -80,6 +97,7 @@ See [Security](docs/security.md) and [Source of truth](docs/source-of-truth.md).
 
    ```powershell
    npm run db:migrate
+   npm run db:seed-demo
    npm run db:current
    ```
 
@@ -111,12 +129,12 @@ npm run api:test:integration
 npm run web:build
 ```
 
-CI additionally regenerates committed contracts and fails on drift, validates the baseline
-migration on PostgreSQL, and runs blocking secret detection.
+CI additionally regenerates committed contracts and fails on drift, validates migrations and
+seed on PostgreSQL, and runs blocking secret detection.
 
 ## Repository map
 
-- `apps/web`: read-mostly M0 product shell
+- `apps/web`: read-only strategy, account, evidence, signal, and evaluation views
 - `apps/api`: FastAPI service, migration configuration, and tests
 - `packages/contracts`: committed OpenAPI artifact and generated TypeScript types
 - `infra`: local PostgreSQL configuration

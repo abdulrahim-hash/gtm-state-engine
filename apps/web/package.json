@@ -7,8 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint app lib tests next.config.ts vitest.config.ts eslint.config.mjs --max-warnings=0",
-    "format:check": "prettier --check \"app/**/*.{ts,tsx,css}\" \"lib/**/*.ts\" \"tests/**/*.{ts,tsx}\" \"*.{ts,mjs,json}\"",
+    "lint": "eslint app components lib tests next.config.ts vitest.config.ts eslint.config.mjs --max-warnings=0",
+    "format:check": "prettier --check \"app/**/*.{ts,tsx,css}\" \"components/**/*.{ts,tsx}\" \"lib/**/*.ts\" \"tests/**/*.{ts,tsx}\" \"*.{ts,mjs,json}\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

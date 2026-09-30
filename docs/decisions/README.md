@@ -10,4 +10,4 @@
 - [ADR-008: Core logic stays outside vendor UIs](008-core-logic-outside-vendor-uis.md)
 - [ADR-009: Learning changes require promotion](009-controlled-learning-promotion.md)
 - [ADR-010: Jev is optional and provider-abstracted](010-jev-optional.md)
-
+- [ADR-011: Deterministic evaluations and canonical signal events](011-deterministic-signal-events.md)

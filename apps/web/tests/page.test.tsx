@@ -3,39 +3,25 @@ import { describe, expect, it } from "vitest";
 
 import Home from "@/app/page";
 
-describe("M0 product shell", () => {
-  it("clearly labels the synthetic demo environment", () => {
+describe("M1B.1 product shell", () => {
+  it("clearly labels the synthetic demo and M1B.1 boundary", () => {
     render(<Home />);
 
-    const banner = screen.getByRole("status");
-    expect(banner).toHaveTextContent("Synthetic demo environment");
-    expect(banner).toHaveTextContent("No prospect or client data");
+    expect(screen.getByRole("status")).toHaveTextContent("Synthetic public demo");
+    expect(screen.getByRole("status")).toHaveTextContent("No prospect or client data");
+    expect(screen.getByText("Downstream logic remains off")).toBeInTheDocument();
   });
 
-  it("communicates the product purpose and safety boundary", () => {
+  it("links to the strategy and account evidence foundations", () => {
     render(<Home />);
 
-    expect(
-      screen.getByRole("heading", { name: /know who matters.*see why now/i }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("External actions disabled")).toBeInTheDocument();
-    expect(screen.getByText(/GTM domain data begins in M1/i)).toBeInTheDocument();
-  });
-
-  it("shows the complete auditable operating loop without fabricated metrics", () => {
-    render(<Home />);
-
-    for (const stage of [
-      "Strategy",
-      "Evidence",
-      "Signal",
-      "State",
-      "Decision",
-      "Policy",
-      "Action",
-      "Outcome",
-    ]) {
-      expect(screen.getByText(stage)).toBeInTheDocument();
-    }
+    expect(screen.getByRole("link", { name: "Inspect strategy" })).toHaveAttribute(
+      "href",
+      "/strategy",
+    );
+    expect(screen.getByRole("link", { name: "Browse accounts" })).toHaveAttribute(
+      "href",
+      "/accounts",
+    );
   });
 });

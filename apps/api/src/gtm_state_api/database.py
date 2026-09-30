@@ -1,9 +1,11 @@
 """Synchronous PostgreSQL access for the initial service boundary."""
 
+from collections.abc import Generator
 from functools import lru_cache
 
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session, sessionmaker
 
 from gtm_state_api.config import get_settings
 
@@ -18,6 +20,23 @@ def get_engine() -> Engine:
         pool_size=5,
         max_overflow=5,
     )
+
+
+@lru_cache
+def get_session_factory() -> sessionmaker[Session]:
+    """Return a synchronous session factory for request-scoped access."""
+
+    return sessionmaker(bind=get_engine(), expire_on_commit=False)
+
+
+def get_session() -> Generator[Session]:
+    """Yield one synchronous database session and guarantee closure."""
+
+    session = get_session_factory()()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
 def database_is_ready(engine: Engine | None = None) -> bool:

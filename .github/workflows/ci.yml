@@ -70,6 +70,7 @@ jobs:
       - run: npm run db:migrate
       - run: npm run db:downgrade
       - run: npm run db:migrate
+      - run: npm run db:seed-demo
       - run: npm run db:current
       - run: npm run api:test:integration
 
