@@ -153,3 +153,48 @@ seed on PostgreSQL, and runs blocking secret detection.
 ## License
 
 Apache-2.0.
+
+## Current build status
+
+The project is currently at **M1B.1 - Deterministic Evidence -> Signal**.
+
+### Working today
+
+- Versioned synthetic GTM strategy
+- Canonical workspaces and accounts
+- Evidence provenance with FACT / INFERENCE / HYPOTHESIS separation
+- Deterministic signal definitions
+- Reproducible signal evaluations
+- Canonical commercial-event identity
+- DETECTED / STALE / NO_MATCH / INCONCLUSIVE evaluation paths
+- Read-only FastAPI endpoints
+- Strategy, accounts, evidence, and signal UI
+- PostgreSQL migrations
+- Deterministic demo fixtures
+- Contract drift checks
+- Unit, integration, and frontend tests
+- CI and secret scanning
+
+### Current architecture
+
+Strategy
+->
+Evidence
+->
+Deterministic Evaluation
+->
+Canonical Signal
+
+### Next milestone
+
+**M1B.2 - Account State**
+
+Evidence and signals will be combined into a versioned account-state snapshot covering:
+
+- fit context
+- timing state
+- relationship state
+- evidence sufficiency
+
+Scoring, decisions, policy, activation, AI, and external providers remain intentionally out of scope until later milestones.
+
