@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "GTM State & Signal Engine",
   description:
-    "Strategy-aware, evidence-backed infrastructure for trustworthy GTM account state and decisions.",
+    "Strategy-aware, evidence-backed infrastructure for trustworthy descriptive GTM account state.",
   openGraph: {
     title: "GTM State & Signal Engine",
     description: "Know who matters, why now, and what to do next—with evidence.",

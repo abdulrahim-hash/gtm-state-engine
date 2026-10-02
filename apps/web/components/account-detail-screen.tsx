@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { AccountStateSection } from "@/components/account-state-section";
 import { EvidenceCard } from "@/components/evidence-card";
 import { ProductShell } from "@/components/product-shell";
 import { SignalCard } from "@/components/signal-card";
@@ -13,6 +14,8 @@ import {
   getAccountEvidence,
   getAccountSignalEvaluations,
   getAccountSignals,
+  getAccountState,
+  type AccountState,
   type AccountSignalEvaluations,
   type AccountSignals,
   type AccountDetail,
@@ -28,6 +31,7 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
   const [evidenceData, setEvidenceData] = useState<EvidenceList | null>(null);
   const [signalsData, setSignalsData] = useState<AccountSignals | null>(null);
   const [evaluationsData, setEvaluationsData] = useState<AccountSignalEvaluations | null>(null);
+  const [stateData, setStateData] = useState<AccountState | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -37,13 +41,15 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
       getAccountEvidence(accountId),
       getAccountSignals(accountId),
       getAccountSignalEvaluations(accountId),
+      getAccountState(accountId),
     ])
-      .then(([account, evidence, signals, evaluations]) => {
+      .then(([account, evidence, signals, evaluations, state]) => {
         if (!cancelled) {
           setAccountData(account);
           setEvidenceData(evidence);
           setSignalsData(signals);
           setEvaluationsData(evaluations);
+          setStateData(state);
         }
       })
       .catch(() => {
@@ -91,13 +97,18 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
                 </div>
               </dl>
             </section>
+            {stateData === null ? (
+              <p className="data-notice">Loading account state...</p>
+            ) : (
+              <AccountStateSection data={stateData} />
+            )}
             <section className="signal-section" aria-labelledby="account-signals-title">
               <div className="section-heading product-section-heading">
                 <div>
                   <p className="eyebrow">Commercial timing signals</p>
                   <h2 id="account-signals-title">What changed, and when</h2>
                 </div>
-                <p>Signals are time-bound events. Fit and relationship context remain evidence.</p>
+                <p>Signals remain time-bound events with their own complete evaluation history.</p>
               </div>
               {signalsData === null ? <p className="data-notice">Loading signals&</p> : null}
               {signalsData !== null && signalsData.items.length === 0 ? (
@@ -118,7 +129,7 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
                   <p className="eyebrow">Evidence and provenance</p>
                   <h2 id="account-evidence-title">What the record preserves</h2>
                 </div>
-                <p>Relationship context is evidence here—not an account flag or policy decision.</p>
+                <p>Canonical evidence remains inspectable beneath every derived state facet.</p>
               </div>
               {evidenceData === null ? <p className="data-notice">Loading evidence…</p> : null}
               {evidenceData !== null ? (

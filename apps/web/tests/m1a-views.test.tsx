@@ -8,6 +8,7 @@ import type {
   AccountDetail,
   AccountSignalEvaluations,
   AccountSignals,
+  AccountState,
   ActiveStrategy,
   EvidenceList,
   SignalReadModel,
@@ -177,6 +178,89 @@ const evaluationsFixture: AccountSignalEvaluations = {
   ],
 };
 
+const stateFixture: AccountState = {
+  workspace: strategyFixture.workspace,
+  snapshot: {
+    state_snapshot_id: "1a1206b7-243c-4f22-8d7f-53aa00000711",
+    workspace_id: strategyFixture.workspace.workspace_id,
+    account_id: accountFixture.account.id,
+    strategy_version_id: strategyFixture.strategy.id,
+    state_as_of: "2026-09-15T12:00:00Z",
+    computed_at: "2026-09-15T12:10:00Z",
+    input_hash: "d".repeat(64),
+    state_engine_version: "1.0.0",
+    fit_context: "MATCH",
+    timing_state: "ACTIVE",
+    relationship_state: "EXISTING_RELATIONSHIP",
+    evidence_sufficiency: "PARTIAL",
+    created_at: "2026-09-15T12:10:00Z",
+  },
+  evaluator_manifest: {
+    fit: { evaluator_key: "required_fit_criteria", version: "1.0.0" },
+    timing: { evaluator_key: "signal_evaluation_rollup", version: "1.0.0" },
+    relationship: { evaluator_key: "latest_relationship_assertion", version: "1.0.0" },
+    evidence_sufficiency: { evaluator_key: "facet_coverage", version: "1.0.0" },
+  },
+  reasons: [
+    { facet: "FIT_CONTEXT", position: 0, reason_code: "ALL_REQUIRED_FIT_CRITERIA_MATCH" },
+    { facet: "TIMING_STATE", position: 0, reason_code: "CURRENT_SIGNAL_DETECTED" },
+    {
+      facet: "RELATIONSHIP_STATE",
+      position: 0,
+      reason_code: "EXISTING_RELATIONSHIP_PRESENT",
+    },
+    {
+      facet: "EVIDENCE_SUFFICIENCY",
+      position: 0,
+      reason_code: "TIMING_COVERAGE_INCOMPLETE",
+    },
+  ],
+  fit_criteria: [
+    {
+      criterion: {
+        fit_criterion_id: "1a1206b7-243c-4f22-8d7f-53aa00000411",
+        workspace_id: strategyFixture.workspace.workspace_id,
+        strategy_version_id: strategyFixture.strategy.id,
+        stable_key: "target_operating_complexity",
+        display_name: "Target operating-complexity context",
+        description: "Synthetic executable criterion.",
+        input_fact_key: "account_profile.target_operating_complexity",
+        expected_assertion: "PRESENT",
+        source_strategy_evidence_id: "1a1206b7-243c-4f22-8d7f-53aa00000102",
+        created_at: "2026-09-15T12:00:00Z",
+      },
+      fit_criterion_id: "1a1206b7-243c-4f22-8d7f-53aa00000411",
+      criterion_stable_key: "target_operating_complexity",
+      input_fact_key: "account_profile.target_operating_complexity",
+      source_strategy_evidence_id: "1a1206b7-243c-4f22-8d7f-53aa00000102",
+      criterion_result: "MATCH",
+      expected_assertion: "PRESENT",
+      observed_assertion: "PRESENT",
+      source_strategy_evidence: {
+        ...strategyFixture.strategy.claims[0],
+        id: "1a1206b7-243c-4f22-8d7f-53aa00000102",
+        strategy_topic: "SEGMENTATION",
+      },
+      account_evidence: [
+        {
+          ...evidence,
+          id: "1a1206b7-243c-4f22-8d7f-53aa00000205",
+          fact_key: "account_profile.target_operating_complexity",
+          fact_assertion: "PRESENT",
+        },
+      ],
+    },
+  ],
+  relationship_evidence: [
+    {
+      ...evidence,
+      fact_key: "relationship.existing_relationship",
+      fact_assertion: "PRESENT",
+    },
+  ],
+  signal_evaluations: evaluationsFixture.items,
+};
+
 afterEach(() => {
   vi.unstubAllGlobals();
 });
@@ -196,7 +280,7 @@ describe("M1A data views", () => {
     expect(screen.getByText(/not a validated market finding/i)).toBeInTheDocument();
   });
 
-  it("renders account provenance without converting relationship evidence into state", async () => {
+  it("renders descriptive account state with normalized provenance", async () => {
     const evidenceFixture: EvidenceList = { items: [evidence] };
     vi.stubGlobal(
       "fetch",
@@ -205,7 +289,8 @@ describe("M1A data views", () => {
         .mockResolvedValueOnce({ ok: true, json: async () => accountFixture })
         .mockResolvedValueOnce({ ok: true, json: async () => evidenceFixture })
         .mockResolvedValueOnce({ ok: true, json: async () => signalsFixture })
-        .mockResolvedValueOnce({ ok: true, json: async () => evaluationsFixture }),
+        .mockResolvedValueOnce({ ok: true, json: async () => evaluationsFixture })
+        .mockResolvedValueOnce({ ok: true, json: async () => stateFixture }),
     );
 
     render(<AccountDetailScreen accountId={accountFixture.account.id} />);
@@ -213,11 +298,16 @@ describe("M1A data views", () => {
     expect(await screen.findByText("Cinderlake Revenue Studio")).toBeInTheDocument();
     expect(screen.getByText("FACT")).toBeInTheDocument();
     expect(screen.getByText("Payload hash")).toBeInTheDocument();
-    expect(screen.getByText(/relationship context is evidence here/i)).toBeInTheDocument();
-    expect(screen.getAllByText("New revenue leader")).toHaveLength(2);
+    expect(
+      screen.getByRole("heading", { name: /what the record currently supports/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("existing relationship")).toBeInTheDocument();
+    expect(screen.getByText("partial")).toBeInTheDocument();
+    expect(screen.getAllByText("New revenue leader")).toHaveLength(3);
     expect(screen.getByText("ACTIVE")).toBeInTheDocument();
     expect(screen.getByText(/1 inconclusive/i)).toBeInTheDocument();
     expect(screen.getByText("Deterministic events only")).toBeInTheDocument();
+    expect(screen.queryByText(/score|priority|recommended play|policy/i)).not.toBeInTheDocument();
   });
 
   it("renders stale canonical events as expired without adding priority or score", () => {

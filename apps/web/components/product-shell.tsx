@@ -43,12 +43,12 @@ export function ProductShell({ active, children }: ProductShellProps) {
             </Link>
           ))}
         </nav>
-        <span className="phase-badge">M1B.1 / Read only</span>
+        <span className="phase-badge">M1B.2 / Read only</span>
       </header>
       {children}
       <footer>
         <p>Northstar Revenue Systems Demo</p>
-        <p>Synthetic snapshot / No external actions</p>
+        <p>Synthetic snapshot / Read-only product surface</p>
       </footer>
     </div>
   );

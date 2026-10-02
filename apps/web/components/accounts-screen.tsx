@@ -31,8 +31,8 @@ export function AccountsScreen() {
           <p className="eyebrow">Canonical accounts</p>
           <h1 id="accounts-title">A small, inspectable account memory.</h1>
           <p>
-            These are synthetic canonical identities. This view intentionally makes no signal,
-            score, state, decision, or action claim.
+            These are synthetic canonical identities. Open an account to inspect its evidence-backed
+            signals and descriptive state.
           </p>
         </section>
         {data === null && !error ? (

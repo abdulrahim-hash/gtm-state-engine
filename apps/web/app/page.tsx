@@ -4,9 +4,9 @@ import { ProductShell } from "@/components/product-shell";
 
 const boundaries = [
   ["Strategy", "Versioned synthetic hypotheses with explicit epistemic labels."],
-  ["Accounts", "Canonical workspace-scoped identities with no derived state."],
   ["Evidence", "Source, time, freshness, and hash provenance retained for inspection."],
   ["Signals", "Deterministic commercial events with complete evidence traces."],
+  ["Account state", "Versioned descriptive facets with normalized provenance."],
 ] as const;
 
 export default function Home() {
@@ -15,15 +15,15 @@ export default function Home() {
       <main>
         <section className="hero m1a-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <p className="eyebrow">M1B.1 / Evidence to signal</p>
+            <p className="eyebrow">M1B.2 / Evidence to account state</p>
             <h1 id="hero-title">
               Start with what is
               <br />
               <em>known - and what is not.</em>
             </h1>
             <p className="hero-summary">
-              Deterministic rules now recognize time-bound synthetic commercial events while fit and
-              relationship context remain evidence. No score, state, decision, or action exists.
+              Deterministic rules now combine strategy-relative fit, commercial timing, relationship
+              context, and evidence coverage into an inspectable descriptive snapshot.
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/strategy">
@@ -36,7 +36,7 @@ export default function Home() {
           </div>
           <aside className="boundary-card" aria-labelledby="boundary-title">
             <div className="boundary-header">
-              <p id="boundary-title">M1B.1 boundary</p>
+              <p id="boundary-title">M1B.2 boundary</p>
               <span>Read only</span>
             </div>
             <div className="boundary-item">
@@ -44,8 +44,8 @@ export default function Home() {
                 OK
               </span>
               <div>
-                <strong>Deterministic signal trace</strong>
-                <p>Every signal resolves through an evaluation to its underlying evidence.</p>
+                <strong>Deterministic state trace</strong>
+                <p>Every state facet resolves to reasons and normalized source records.</p>
               </div>
             </div>
             <div className="boundary-item">
@@ -53,8 +53,8 @@ export default function Home() {
                 -
               </span>
               <div>
-                <strong>Downstream logic remains off</strong>
-                <p>No scores, account states, decisions, policy, actions, or outcomes exist.</p>
+                <strong>Downstream execution remains off</strong>
+                <p>The system stops at descriptive, versioned account state.</p>
               </div>
             </div>
             <p className="boundary-note">All strategy assertions are synthetic demo hypotheses.</p>
@@ -63,7 +63,7 @@ export default function Home() {
         <section className="principles m1a-foundations" aria-labelledby="foundations-title">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">M1B.1 foundations</p>
+              <p className="eyebrow">M1B.2 foundations</p>
               <h2 id="foundations-title">The trace begins before the conclusion.</h2>
             </div>
           </div>
