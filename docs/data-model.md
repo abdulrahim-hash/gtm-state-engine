@@ -88,3 +88,59 @@ SignalDefinition 1 ---< SignalEvaluation >--- 1 Account
 
 The demo evaluates two definitions across three accounts. Fit, firmographics, and Cinderlake's
 existing-relationship evidence are not signals.
+
+## M1B.2 deterministic account state
+
+M1B.2 adds one descriptive layer after signal evaluation:
+
+```text
+StrategyFitCriterion + Account Evidence + SignalEvaluation
+                         |
+                         v
+                AccountStateSnapshot
+```
+
+### Strategy fit criteria
+
+`strategy_fit_criteria` stores the smallest machine-readable interpretation of a strategy
+hypothesis: an exact input fact key and expected PRESENT or ABSENT assertion. Every criterion belongs
+to a workspace and strategy version and links to the SEGMENTATION or ICP HYPOTHESIS evidence that
+justifies it. There are no weights, scores, prose parsers, or executable expressions.
+
+### Account-state snapshots
+
+`account_state_snapshots` is an immutable ledger with four categorical facets:
+
+- Fit Context: MATCH, PARTIAL, MISMATCH, UNKNOWN, or INCONCLUSIVE.
+- Timing State: ACTIVE, STALE, NONE, UNKNOWN, or INCONCLUSIVE.
+- Relationship State: EXISTING_RELATIONSHIP, NO_EXISTING_RELATIONSHIP, UNKNOWN, or INCONCLUSIVE.
+- Evidence Sufficiency: SUFFICIENT, PARTIAL, INSUFFICIENT, or CONTRADICTORY.
+
+NO_EXISTING_RELATIONSHIP requires explicit current FACT evidence whose relationship assertion is
+ABSENT. A missing relationship row yields UNKNOWN.
+
+`state_as_of` is semantic time and equals `workspace.demo_as_of` in the synthetic workspace.
+`computed_at` is operational materialization time. Multiple snapshots may share the same semantic
+scope when late-arriving relevant evidence changes the known inputs.
+
+The SHA-256 input hash includes only state-relevant criteria, evidence, enabled signal definitions,
+same-time evaluations, semantic scope, and evaluator versions. UUIDv5 derives stable snapshot
+identity from the hash. Operational timestamps, UI presentation, and unrelated evidence are
+excluded.
+
+### State provenance
+
+- `state_snapshot_reasons` stores ordered reason codes per facet.
+- `state_snapshot_fit_criteria` freezes each participating criterion's stable key, input fact key,
+  source strategy-evidence ID, expected assertion, observed assertion, and result.
+- `state_snapshot_evidence` maps fit evidence to the exact criterion and stores direct relationship
+  evidence links.
+- `state_snapshot_signal_evaluations` links every enabled-definition evaluation used by Timing,
+  including negative and inconclusive results.
+
+Canonical signals are reached through affirmative signal evaluations. No duplicate snapshot-to-
+signal relationship is stored.
+
+The demo deliberately contains no explicit relationship-absence evidence for Asterwind or Bramble,
+so both remain UNKNOWN for Relationship. Cinderlake's existing fixture evidence is normalized as
+relationship.existing_relationship = PRESENT and yields EXISTING_RELATIONSHIP.

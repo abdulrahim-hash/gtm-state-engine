@@ -11,3 +11,5 @@ All notable changes to this project will be documented here.
 - Deterministic Northstar Revenue Systems Demo seed and read-only product/API views.
 - M1B.1 deterministic evaluator registry, complete evaluation ledger, canonical signal-event
   identity, relational evidence trace, read-only APIs, and account-detail signal UI.
+- M1B.2 versioned strategy-fit criteria, immutable deterministic account-state snapshots, normalized
+  state provenance, read-only state APIs, and account-detail state UI.

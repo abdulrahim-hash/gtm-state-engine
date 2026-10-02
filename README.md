@@ -8,7 +8,7 @@ trustworthy account state and producing auditable, policy-governed GTM decisions
 This repository is intentionally not an AI SDR, lead scraper, CRM replacement, email generator, or
 vendor workflow showcase.
 
-## Current status: M1B.1 deterministic evidence-to-signal slice
+## Current status: M1B.2 deterministic account-state slice
 
 M0 established:
 
@@ -37,8 +37,17 @@ M1B.1 adds:
 - normalized relational evidence traces;
 - read-only signal and evaluation APIs plus restrained account-detail signal views.
 
-M1B.1 does not implement contacts, fit or priority scoring, account state, relationship state,
-decisions, policy, actions, outcomes, models, workers, or external providers.
+M1B.2 adds:
+
+- explicit strategy-relative fit criteria backed by synthetic strategy hypotheses;
+- immutable account-state snapshots with Fit, Timing, Relationship, and Evidence Sufficiency facets;
+- code-owned, versioned state evaluators and deterministic input-hash identities;
+- normalized reason, evidence, fit-criterion, and signal-evaluation provenance;
+- read-only current, history, and immutable snapshot APIs;
+- a restrained Account State section on account detail.
+
+M1B.2 does not implement contacts, numeric fit or priority scoring, recommendations, downstream
+authorization, external execution, outcomes, models, workers, or providers.
 
 ## System spine
 
@@ -134,7 +143,7 @@ seed on PostgreSQL, and runs blocking secret detection.
 
 ## Repository map
 
-- `apps/web`: read-only strategy, account, evidence, signal, and evaluation views
+- `apps/web`: read-only strategy, account, evidence, signal, evaluation, and state views
 - `apps/api`: FastAPI service, migration configuration, and tests
 - `packages/contracts`: committed OpenAPI artifact and generated TypeScript types
 - `infra`: local PostgreSQL configuration
@@ -156,7 +165,7 @@ Apache-2.0.
 
 ## Current build status
 
-The project is currently at **M1B.1 - Deterministic Evidence -> Signal**.
+The project is currently at **M1B.2 - Deterministic Account State**.
 
 ### Working today
 
@@ -167,6 +176,11 @@ The project is currently at **M1B.1 - Deterministic Evidence -> Signal**.
 - Reproducible signal evaluations
 - Canonical commercial-event identity
 - DETECTED / STALE / NO_MATCH / INCONCLUSIVE evaluation paths
+- Immutable account-state snapshots
+- Strategy-relative categorical fit
+- ACTIVE / STALE / NONE / UNKNOWN / INCONCLUSIVE timing paths
+- Explicit relationship context and evidence sufficiency
+- Normalized state provenance
 - Read-only FastAPI endpoints
 - Strategy, accounts, evidence, and signal UI
 - PostgreSQL migrations
@@ -184,17 +198,11 @@ Evidence
 Deterministic Evaluation
 ->
 Canonical Signal
+->
+Account State
 
-### Next milestone
+### Current boundary
 
-**M1B.2 - Account State**
-
-Evidence and signals will be combined into a versioned account-state snapshot covering:
-
-- fit context
-- timing state
-- relationship state
-- evidence sufficiency
-
-Scoring, decisions, policy, activation, AI, and external providers remain intentionally out of scope until later milestones.
+M1B.2 ends at descriptive account state. Ranking, recommendations, downstream authorization,
+activation, AI, and external providers remain intentionally out of scope.
 

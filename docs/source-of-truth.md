@@ -7,6 +7,5 @@
 - **n8n:** optional future orchestration adapter; irreplaceable business logic remains in code or
   versioned configuration.
 
-M0 implements only the PostgreSQL foundation. Naming future adapters here does not enable or
-configure them.
-
+M1B.2 implements PostgreSQL-backed strategy, account, evidence, signal, evaluation, and immutable
+account-state memory. Naming future adapters here does not enable or configure them.
