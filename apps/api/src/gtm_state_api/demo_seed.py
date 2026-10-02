@@ -1,4 +1,4 @@
-"""Deterministic, idempotent synthetic workspace fixture through M1B.1."""
+"""Deterministic, idempotent synthetic workspace fixture through M1B.2."""
 
 from __future__ import annotations
 
@@ -11,9 +11,16 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from gtm_state_api.models import Account, Evidence, SignalDefinition, StrategyVersion, Workspace
+from gtm_state_api.models import (
+    Account,
+    Evidence,
+    SignalDefinition,
+    StrategyFitCriterion,
+    StrategyVersion,
+    Workspace,
+)
 from gtm_state_api.schemas import EvidenceValidationInput
-from gtm_state_api.signal_engine import recompute_workspace_signals
+from gtm_state_api.state_engine import recompute_workspace_account_states
 from gtm_state_api.types import (
     EvidenceAssertion,
     EvidenceClassification,
@@ -31,6 +38,8 @@ DEMO_INGESTED_AT = datetime(2026, 9, 15, 12, 5, tzinfo=UTC)
 DEMO_EVALUATED_AT = datetime(2026, 9, 15, 12, 10, tzinfo=UTC)
 NEW_REVENUE_LEADER_DEFINITION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000401")
 HIRING_EXPANSION_DEFINITION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000402")
+TARGET_OPERATING_COMPLEXITY_CRITERION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000411")
+SEGMENTATION_EVIDENCE_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000102")
 
 
 class DemoAccount(TypedDict):
@@ -145,7 +154,9 @@ def _hash_payload(payload: dict[str, str]) -> str:
 
 def _merge(
     session: Session,
-    instance: Workspace | StrategyVersion | Account | Evidence | SignalDefinition,
+    instance: (
+        Workspace | StrategyVersion | Account | Evidence | SignalDefinition | StrategyFitCriterion
+    ),
 ) -> None:
     """Merge a stable fixture object without creating duplicate rows."""
 
@@ -164,6 +175,7 @@ def _evidence(
     confidence: Decimal | None = None,
     fact_key: str | None = None,
     fact_assertion: EvidenceAssertion | None = None,
+    include_fact_shape_in_raw_hash: bool = True,
 ) -> Evidence:
     """Validate and construct one deterministic evidence record."""
 
@@ -174,7 +186,7 @@ def _evidence(
         "observed_at": observed_at.isoformat(),
         "source_reference": source_reference,
     }
-    if fact_key is not None and fact_assertion is not None:
+    if include_fact_shape_in_raw_hash and fact_key is not None and fact_assertion is not None:
         hash_payload["fact_key"] = fact_key
         hash_payload["fact_assertion"] = fact_assertion.value
     input_value = EvidenceValidationInput(
@@ -197,7 +209,7 @@ def _evidence(
 
 
 def seed_demo(session: Session) -> None:
-    """Upsert and evaluate the fixed synthetic M1B.1 snapshot atomically."""
+    """Upsert and evaluate the fixed synthetic M1B.2 snapshot atomically."""
 
     _merge(
         session,
@@ -253,6 +265,25 @@ def seed_demo(session: Session) -> None:
             ),
         )
 
+    _merge(
+        session,
+        StrategyFitCriterion(
+            fit_criterion_id=TARGET_OPERATING_COMPLEXITY_CRITERION_ID,
+            workspace_id=DEMO_WORKSPACE_ID,
+            strategy_version_id=DEMO_STRATEGY_ID,
+            stable_key="target_operating_complexity",
+            display_name="Target operating-complexity context",
+            description=(
+                "Synthetic executable criterion: the account shows the operating-complexity "
+                "context described by the active, unvalidated segmentation hypothesis."
+            ),
+            input_fact_key="account_profile.target_operating_complexity",
+            expected_assertion=EvidenceAssertion.PRESENT,
+            source_strategy_evidence_id=SEGMENTATION_EVIDENCE_ID,
+            created_at=DEMO_AS_OF,
+        ),
+    )
+
     account_evidence = (
         (
             UUID("1a1206b7-243c-4f22-8d7f-53aa00000201"),
@@ -260,6 +291,8 @@ def seed_demo(session: Session) -> None:
             "Synthetic demo observation: target operating-complexity cues are present.",
             DEMO_AS_OF - timedelta(days=4),
             EvidenceFreshness.CURRENT,
+            "account_profile.target_operating_complexity",
+            EvidenceAssertion.PRESENT,
         ),
         (
             UUID("1a1206b7-243c-4f22-8d7f-53aa00000202"),
@@ -268,6 +301,8 @@ def seed_demo(session: Session) -> None:
             "signal evaluation.",
             DEMO_AS_OF - timedelta(days=2),
             EvidenceFreshness.CURRENT,
+            None,
+            None,
         ),
         (
             UUID("1a1206b7-243c-4f22-8d7f-53aa00000203"),
@@ -275,6 +310,8 @@ def seed_demo(session: Session) -> None:
             "Synthetic demo observation: target operating-complexity cues are present.",
             DEMO_AS_OF - timedelta(days=5),
             EvidenceFreshness.CURRENT,
+            "account_profile.target_operating_complexity",
+            EvidenceAssertion.PRESENT,
         ),
         (
             UUID("1a1206b7-243c-4f22-8d7f-53aa00000204"),
@@ -282,6 +319,8 @@ def seed_demo(session: Session) -> None:
             "Synthetic demo observation: the only timing reference is stale and inconclusive.",
             DEMO_AS_OF - timedelta(days=190),
             EvidenceFreshness.STALE,
+            None,
+            None,
         ),
         (
             UUID("1a1206b7-243c-4f22-8d7f-53aa00000205"),
@@ -289,6 +328,8 @@ def seed_demo(session: Session) -> None:
             "Synthetic demo observation: target operating-complexity cues are present.",
             DEMO_AS_OF - timedelta(days=3),
             EvidenceFreshness.CURRENT,
+            "account_profile.target_operating_complexity",
+            EvidenceAssertion.PRESENT,
         ),
         (
             UUID("1a1206b7-243c-4f22-8d7f-53aa00000206"),
@@ -297,6 +338,8 @@ def seed_demo(session: Session) -> None:
             "signal evaluation.",
             DEMO_AS_OF - timedelta(days=1),
             EvidenceFreshness.CURRENT,
+            None,
+            None,
         ),
         (
             UUID("1a1206b7-243c-4f22-8d7f-53aa00000207"),
@@ -305,9 +348,19 @@ def seed_demo(session: Session) -> None:
             "as evidence.",
             DEMO_AS_OF - timedelta(days=1),
             EvidenceFreshness.CURRENT,
+            "relationship.existing_relationship",
+            EvidenceAssertion.PRESENT,
         ),
     )
-    for evidence_id, account_id, statement, observed_at, freshness in account_evidence:
+    for (
+        evidence_id,
+        account_id,
+        statement,
+        observed_at,
+        freshness,
+        fact_key,
+        fact_assertion,
+    ) in account_evidence:
         _merge(
             session,
             _evidence(
@@ -316,6 +369,9 @@ def seed_demo(session: Session) -> None:
                 normalized_fact=statement,
                 observed_at=observed_at,
                 freshness=freshness,
+                fact_key=fact_key,
+                fact_assertion=fact_assertion,
+                include_fact_shape_in_raw_hash=False,
             ),
         )
 
@@ -430,9 +486,9 @@ def seed_demo(session: Session) -> None:
         _merge(session, definition)
 
     session.flush()
-    recompute_workspace_signals(
+    recompute_workspace_account_states(
         session,
         DEMO_WORKSPACE_ID,
-        evaluated_at=DEMO_EVALUATED_AT,
+        computed_at=DEMO_EVALUATED_AT,
     )
     session.commit()

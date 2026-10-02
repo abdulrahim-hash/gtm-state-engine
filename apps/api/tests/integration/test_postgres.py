@@ -14,12 +14,12 @@ def test_postgres_readiness_query() -> None:
         assert connection.execute(text("SELECT 1")).scalar_one() == 1
 
 
-def test_m1b1_migration_is_applied() -> None:
+def test_m1b2_migration_is_applied() -> None:
     engine = get_engine()
     inspector = inspect(engine)
 
     assert "alembic_version" in inspector.get_table_names()
     with engine.connect() as connection:
         assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-            "20260930_0003"
+            "20261002_0004"
         )

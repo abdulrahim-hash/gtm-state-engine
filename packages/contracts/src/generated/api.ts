@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/account-state-snapshots/{state_snapshot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Account State Snapshot
+         * @description Return one immutable historical snapshot by stable identity.
+         */
+        get: operations["get_account_state_snapshot_api_v1_account_state_snapshots__state_snapshot_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts": {
         parameters: {
             query?: never;
@@ -76,6 +96,46 @@ export interface paths {
          * @description Return canonical commercial events with status resolved from latest evaluations.
          */
         get: operations["list_account_signals_api_v1_accounts__account_id__signals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{account_id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Current Account State
+         * @description Return the latest materialized snapshot for the semantic state_as_of.
+         */
+        get: operations["get_current_account_state_api_v1_accounts__account_id__state_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{account_id}/state/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Account State History
+         * @description Return immutable semantic snapshots, including same-time knowledge revisions.
+         */
+        get: operations["list_account_state_history_api_v1_accounts__account_id__state_history_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -217,6 +277,18 @@ export interface components {
             workspace: components["schemas"]["WorkspaceResponse"];
         };
         /**
+         * AccountEvidenceSufficiency
+         * @description Categorical state-input coverage, never a probability or score.
+         * @enum {string}
+         */
+        AccountEvidenceSufficiency: "SUFFICIENT" | "PARTIAL" | "INSUFFICIENT" | "CONTRADICTORY";
+        /**
+         * AccountFitContext
+         * @description Descriptive fit relative to one explicit strategy hypothesis.
+         * @enum {string}
+         */
+        AccountFitContext: "MATCH" | "PARTIAL" | "MISMATCH" | "UNKNOWN" | "INCONCLUSIVE";
+        /**
          * AccountListResponse
          * @description Paginated workspace-scoped account read model.
          */
@@ -229,6 +301,12 @@ export interface components {
             offset: number;
             workspace: components["schemas"]["WorkspaceResponse"];
         };
+        /**
+         * AccountRelationshipState
+         * @description Known existing-relationship context without policy implications.
+         * @enum {string}
+         */
+        AccountRelationshipState: "EXISTING_RELATIONSHIP" | "NO_EXISTING_RELATIONSHIP" | "UNKNOWN" | "INCONCLUSIVE";
         /**
          * AccountResponse
          * @description Canonical account identity, explicitly free of derived state.
@@ -293,6 +371,118 @@ export interface components {
             items: components["schemas"]["SignalReadModel"][];
             workspace: components["schemas"]["WorkspaceResponse"];
         };
+        /**
+         * AccountStateDetailResponse
+         * @description One snapshot with normalized explanations and full input traces.
+         */
+        AccountStateDetailResponse: {
+            evaluator_manifest: components["schemas"]["StateEvaluatorManifestResponse"];
+            /** Fit Criteria */
+            fit_criteria: components["schemas"]["FitCriterionTraceResponse"][];
+            /** Reasons */
+            reasons: components["schemas"]["AccountStateReasonResponse"][];
+            /** Relationship Evidence */
+            relationship_evidence: components["schemas"]["EvidenceResponse"][];
+            /** Signal Evaluations */
+            signal_evaluations: components["schemas"]["SignalEvaluationTraceResponse"][];
+            snapshot: components["schemas"]["AccountStateSnapshotResponse"];
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * AccountStateFacet
+         * @description Facet names used by normalized snapshot explanations.
+         * @enum {string}
+         */
+        AccountStateFacet: "FIT_CONTEXT" | "TIMING_STATE" | "RELATIONSHIP_STATE" | "EVIDENCE_SUFFICIENCY";
+        /**
+         * AccountStateHistoryResponse
+         * @description Paginated immutable snapshots for one account.
+         */
+        AccountStateHistoryResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Items */
+            items: components["schemas"]["AccountStateSnapshotResponse"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * AccountStateReasonCode
+         * @description Stable explanations emitted by deterministic account-state evaluators.
+         * @enum {string}
+         */
+        AccountStateReasonCode: "ALL_REQUIRED_FIT_CRITERIA_MATCH" | "FIT_CRITERION_MATCH" | "SOME_REQUIRED_FIT_CRITERIA_MATCH" | "REQUIRED_FIT_CRITERION_MISMATCH" | "FIT_EVIDENCE_MISSING" | "FIT_EVIDENCE_NOT_CURRENT" | "FIT_EVIDENCE_AMBIGUOUS" | "FIT_EVIDENCE_CONTRADICTORY" | "CURRENT_SIGNAL_DETECTED" | "STALE_SIGNAL_PRESENT" | "ALL_SIGNAL_EVALUATIONS_NO_MATCH" | "NO_ENABLED_SIGNAL_DEFINITIONS" | "SIGNAL_EVALUATION_MISSING" | "SIGNAL_EVIDENCE_MISSING" | "SIGNAL_EVIDENCE_AMBIGUOUS" | "SIGNAL_EVIDENCE_CONTRADICTORY" | "EXISTING_RELATIONSHIP_PRESENT" | "EXISTING_RELATIONSHIP_ABSENT" | "RELATIONSHIP_EVIDENCE_MISSING" | "RELATIONSHIP_EVIDENCE_NOT_CURRENT" | "RELATIONSHIP_EVIDENCE_AMBIGUOUS" | "RELATIONSHIP_EVIDENCE_CONTRADICTORY" | "ALL_REQUIRED_STATE_INPUTS_SUPPORTED" | "FIT_COVERAGE_INCOMPLETE" | "TIMING_COVERAGE_INCOMPLETE" | "RELATIONSHIP_COVERAGE_INCOMPLETE" | "CONTRADICTORY_STATE_INPUTS";
+        /**
+         * AccountStateReasonResponse
+         * @description One ordered, facet-scoped explanation.
+         */
+        AccountStateReasonResponse: {
+            facet: components["schemas"]["AccountStateFacet"];
+            /** Position */
+            position: number;
+            reason_code: components["schemas"]["AccountStateReasonCode"];
+        };
+        /**
+         * AccountStateSnapshotResponse
+         * @description Immutable descriptive account-state snapshot.
+         */
+        AccountStateSnapshotResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Computed At
+             * Format: date-time
+             */
+            computed_at: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            evidence_sufficiency: components["schemas"]["AccountEvidenceSufficiency"];
+            fit_context: components["schemas"]["AccountFitContext"];
+            /** Input Hash */
+            input_hash: string;
+            relationship_state: components["schemas"]["AccountRelationshipState"];
+            /**
+             * State As Of
+             * Format: date-time
+             */
+            state_as_of: string;
+            /** State Engine Version */
+            state_engine_version: string;
+            /**
+             * State Snapshot Id
+             * Format: uuid
+             */
+            state_snapshot_id: string;
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            timing_state: components["schemas"]["AccountTimingState"];
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * AccountTimingState
+         * @description Current commercial-change state derived from signal evaluations.
+         * @enum {string}
+         */
+        AccountTimingState: "ACTIVE" | "STALE" | "NONE" | "UNKNOWN" | "INCONCLUSIVE";
         /**
          * ActiveStrategyResponse
          * @description Envelope preserving workspace demo-time semantics.
@@ -422,6 +612,39 @@ export interface components {
             strategy_topic: components["schemas"]["StrategyTopic"] | null;
             /** Strategy Version Id */
             strategy_version_id: string | null;
+        };
+        /**
+         * FitCriterionResult
+         * @description One criterion's non-numeric result inside a fit evaluation.
+         * @enum {string}
+         */
+        FitCriterionResult: "MATCH" | "MISMATCH" | "UNKNOWN" | "INCONCLUSIVE";
+        /**
+         * FitCriterionTraceResponse
+         * @description Frozen criterion result and its strategy/account provenance.
+         */
+        FitCriterionTraceResponse: {
+            /** Account Evidence */
+            account_evidence: components["schemas"]["EvidenceResponse"][];
+            criterion: components["schemas"]["StrategyFitCriterionResponse"];
+            criterion_result: components["schemas"]["FitCriterionResult"];
+            /** Criterion Stable Key */
+            criterion_stable_key: string;
+            expected_assertion: components["schemas"]["EvidenceAssertion"];
+            /**
+             * Fit Criterion Id
+             * Format: uuid
+             */
+            fit_criterion_id: string;
+            /** Input Fact Key */
+            input_fact_key: string;
+            observed_assertion: components["schemas"]["EvidenceAssertion"] | null;
+            source_strategy_evidence: components["schemas"]["EvidenceResponse"];
+            /**
+             * Source Strategy Evidence Id
+             * Format: uuid
+             */
+            source_strategy_evidence_id: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -629,6 +852,66 @@ export interface components {
          */
         SignalResolvedStatus: "ACTIVE" | "EXPIRED";
         /**
+         * StateEvaluatorManifestResponse
+         * @description Exact facet evaluator manifest for a state-engine version.
+         */
+        StateEvaluatorManifestResponse: {
+            evidence_sufficiency: components["schemas"]["StateEvaluatorReferenceResponse"];
+            fit: components["schemas"]["StateEvaluatorReferenceResponse"];
+            relationship: components["schemas"]["StateEvaluatorReferenceResponse"];
+            timing: components["schemas"]["StateEvaluatorReferenceResponse"];
+        };
+        /**
+         * StateEvaluatorReferenceResponse
+         * @description Code-owned evaluator identity.
+         */
+        StateEvaluatorReferenceResponse: {
+            /** Evaluator Key */
+            evaluator_key: string;
+            /** Version */
+            version: string;
+        };
+        /**
+         * StrategyFitCriterionResponse
+         * @description Executable fit criterion tied to one strategy hypothesis.
+         */
+        StrategyFitCriterionResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Description */
+            description: string;
+            /** Display Name */
+            display_name: string;
+            expected_assertion: components["schemas"]["EvidenceAssertion"];
+            /**
+             * Fit Criterion Id
+             * Format: uuid
+             */
+            fit_criterion_id: string;
+            /** Input Fact Key */
+            input_fact_key: string;
+            /**
+             * Source Strategy Evidence Id
+             * Format: uuid
+             */
+            source_strategy_evidence_id: string;
+            /** Stable Key */
+            stable_key: string;
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
          * StrategyResponse
          * @description The active strategy plus synthetic hypothesis evidence.
          */
@@ -715,6 +998,37 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_account_state_snapshot_api_v1_account_state_snapshots__state_snapshot_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                state_snapshot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountStateDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_accounts_api_v1_accounts_get: {
         parameters: {
             query?: {
@@ -829,6 +1143,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccountSignalListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_current_account_state_api_v1_accounts__account_id__state_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountStateDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_account_state_history_api_v1_accounts__account_id__state_history_get: {
+        parameters: {
+            query?: {
+                strategy_version_id?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountStateHistoryResponse"];
                 };
             };
             /** @description Validation Error */

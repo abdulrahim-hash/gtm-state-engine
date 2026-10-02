@@ -19,6 +19,29 @@
         "title": "AccountDetailResponse",
         "type": "object"
       },
+      "AccountEvidenceSufficiency": {
+        "description": "Categorical state-input coverage, never a probability or score.",
+        "enum": [
+          "SUFFICIENT",
+          "PARTIAL",
+          "INSUFFICIENT",
+          "CONTRADICTORY"
+        ],
+        "title": "AccountEvidenceSufficiency",
+        "type": "string"
+      },
+      "AccountFitContext": {
+        "description": "Descriptive fit relative to one explicit strategy hypothesis.",
+        "enum": [
+          "MATCH",
+          "PARTIAL",
+          "MISMATCH",
+          "UNKNOWN",
+          "INCONCLUSIVE"
+        ],
+        "title": "AccountFitContext",
+        "type": "string"
+      },
       "AccountListResponse": {
         "additionalProperties": false,
         "description": "Paginated workspace-scoped account read model.",
@@ -50,6 +73,17 @@
         ],
         "title": "AccountListResponse",
         "type": "object"
+      },
+      "AccountRelationshipState": {
+        "description": "Known existing-relationship context without policy implications.",
+        "enum": [
+          "EXISTING_RELATIONSHIP",
+          "NO_EXISTING_RELATIONSHIP",
+          "UNKNOWN",
+          "INCONCLUSIVE"
+        ],
+        "title": "AccountRelationshipState",
+        "type": "string"
       },
       "AccountResponse": {
         "additionalProperties": false,
@@ -165,6 +199,256 @@
         ],
         "title": "AccountSignalListResponse",
         "type": "object"
+      },
+      "AccountStateDetailResponse": {
+        "additionalProperties": false,
+        "description": "One snapshot with normalized explanations and full input traces.",
+        "properties": {
+          "evaluator_manifest": {
+            "$ref": "#/components/schemas/StateEvaluatorManifestResponse"
+          },
+          "fit_criteria": {
+            "items": {
+              "$ref": "#/components/schemas/FitCriterionTraceResponse"
+            },
+            "title": "Fit Criteria",
+            "type": "array"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/AccountStateReasonResponse"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "relationship_evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceResponse"
+            },
+            "title": "Relationship Evidence",
+            "type": "array"
+          },
+          "signal_evaluations": {
+            "items": {
+              "$ref": "#/components/schemas/SignalEvaluationTraceResponse"
+            },
+            "title": "Signal Evaluations",
+            "type": "array"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/AccountStateSnapshotResponse"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "snapshot",
+          "evaluator_manifest",
+          "reasons",
+          "fit_criteria",
+          "relationship_evidence",
+          "signal_evaluations"
+        ],
+        "title": "AccountStateDetailResponse",
+        "type": "object"
+      },
+      "AccountStateFacet": {
+        "description": "Facet names used by normalized snapshot explanations.",
+        "enum": [
+          "FIT_CONTEXT",
+          "TIMING_STATE",
+          "RELATIONSHIP_STATE",
+          "EVIDENCE_SUFFICIENCY"
+        ],
+        "title": "AccountStateFacet",
+        "type": "string"
+      },
+      "AccountStateHistoryResponse": {
+        "additionalProperties": false,
+        "description": "Paginated immutable snapshots for one account.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AccountStateSnapshotResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "account_id",
+          "items",
+          "limit",
+          "offset"
+        ],
+        "title": "AccountStateHistoryResponse",
+        "type": "object"
+      },
+      "AccountStateReasonCode": {
+        "description": "Stable explanations emitted by deterministic account-state evaluators.",
+        "enum": [
+          "ALL_REQUIRED_FIT_CRITERIA_MATCH",
+          "FIT_CRITERION_MATCH",
+          "SOME_REQUIRED_FIT_CRITERIA_MATCH",
+          "REQUIRED_FIT_CRITERION_MISMATCH",
+          "FIT_EVIDENCE_MISSING",
+          "FIT_EVIDENCE_NOT_CURRENT",
+          "FIT_EVIDENCE_AMBIGUOUS",
+          "FIT_EVIDENCE_CONTRADICTORY",
+          "CURRENT_SIGNAL_DETECTED",
+          "STALE_SIGNAL_PRESENT",
+          "ALL_SIGNAL_EVALUATIONS_NO_MATCH",
+          "NO_ENABLED_SIGNAL_DEFINITIONS",
+          "SIGNAL_EVALUATION_MISSING",
+          "SIGNAL_EVIDENCE_MISSING",
+          "SIGNAL_EVIDENCE_AMBIGUOUS",
+          "SIGNAL_EVIDENCE_CONTRADICTORY",
+          "EXISTING_RELATIONSHIP_PRESENT",
+          "EXISTING_RELATIONSHIP_ABSENT",
+          "RELATIONSHIP_EVIDENCE_MISSING",
+          "RELATIONSHIP_EVIDENCE_NOT_CURRENT",
+          "RELATIONSHIP_EVIDENCE_AMBIGUOUS",
+          "RELATIONSHIP_EVIDENCE_CONTRADICTORY",
+          "ALL_REQUIRED_STATE_INPUTS_SUPPORTED",
+          "FIT_COVERAGE_INCOMPLETE",
+          "TIMING_COVERAGE_INCOMPLETE",
+          "RELATIONSHIP_COVERAGE_INCOMPLETE",
+          "CONTRADICTORY_STATE_INPUTS"
+        ],
+        "title": "AccountStateReasonCode",
+        "type": "string"
+      },
+      "AccountStateReasonResponse": {
+        "additionalProperties": false,
+        "description": "One ordered, facet-scoped explanation.",
+        "properties": {
+          "facet": {
+            "$ref": "#/components/schemas/AccountStateFacet"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "reason_code": {
+            "$ref": "#/components/schemas/AccountStateReasonCode"
+          }
+        },
+        "required": [
+          "facet",
+          "position",
+          "reason_code"
+        ],
+        "title": "AccountStateReasonResponse",
+        "type": "object"
+      },
+      "AccountStateSnapshotResponse": {
+        "additionalProperties": false,
+        "description": "Immutable descriptive account-state snapshot.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "computed_at": {
+            "format": "date-time",
+            "title": "Computed At",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "evidence_sufficiency": {
+            "$ref": "#/components/schemas/AccountEvidenceSufficiency"
+          },
+          "fit_context": {
+            "$ref": "#/components/schemas/AccountFitContext"
+          },
+          "input_hash": {
+            "title": "Input Hash",
+            "type": "string"
+          },
+          "relationship_state": {
+            "$ref": "#/components/schemas/AccountRelationshipState"
+          },
+          "state_as_of": {
+            "format": "date-time",
+            "title": "State As Of",
+            "type": "string"
+          },
+          "state_engine_version": {
+            "title": "State Engine Version",
+            "type": "string"
+          },
+          "state_snapshot_id": {
+            "format": "uuid",
+            "title": "State Snapshot Id",
+            "type": "string"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "timing_state": {
+            "$ref": "#/components/schemas/AccountTimingState"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state_snapshot_id",
+          "workspace_id",
+          "account_id",
+          "strategy_version_id",
+          "state_as_of",
+          "computed_at",
+          "input_hash",
+          "state_engine_version",
+          "fit_context",
+          "timing_state",
+          "relationship_state",
+          "evidence_sufficiency",
+          "created_at"
+        ],
+        "title": "AccountStateSnapshotResponse",
+        "type": "object"
+      },
+      "AccountTimingState": {
+        "description": "Current commercial-change state derived from signal evaluations.",
+        "enum": [
+          "ACTIVE",
+          "STALE",
+          "NONE",
+          "UNKNOWN",
+          "INCONCLUSIVE"
+        ],
+        "title": "AccountTimingState",
+        "type": "string"
       },
       "ActiveStrategyResponse": {
         "additionalProperties": false,
@@ -445,6 +729,84 @@
           "confidence"
         ],
         "title": "EvidenceResponse",
+        "type": "object"
+      },
+      "FitCriterionResult": {
+        "description": "One criterion's non-numeric result inside a fit evaluation.",
+        "enum": [
+          "MATCH",
+          "MISMATCH",
+          "UNKNOWN",
+          "INCONCLUSIVE"
+        ],
+        "title": "FitCriterionResult",
+        "type": "string"
+      },
+      "FitCriterionTraceResponse": {
+        "additionalProperties": false,
+        "description": "Frozen criterion result and its strategy/account provenance.",
+        "properties": {
+          "account_evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceResponse"
+            },
+            "title": "Account Evidence",
+            "type": "array"
+          },
+          "criterion": {
+            "$ref": "#/components/schemas/StrategyFitCriterionResponse"
+          },
+          "criterion_result": {
+            "$ref": "#/components/schemas/FitCriterionResult"
+          },
+          "criterion_stable_key": {
+            "title": "Criterion Stable Key",
+            "type": "string"
+          },
+          "expected_assertion": {
+            "$ref": "#/components/schemas/EvidenceAssertion"
+          },
+          "fit_criterion_id": {
+            "format": "uuid",
+            "title": "Fit Criterion Id",
+            "type": "string"
+          },
+          "input_fact_key": {
+            "title": "Input Fact Key",
+            "type": "string"
+          },
+          "observed_assertion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceAssertion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_strategy_evidence": {
+            "$ref": "#/components/schemas/EvidenceResponse"
+          },
+          "source_strategy_evidence_id": {
+            "format": "uuid",
+            "title": "Source Strategy Evidence Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "criterion",
+          "fit_criterion_id",
+          "criterion_stable_key",
+          "input_fact_key",
+          "source_strategy_evidence_id",
+          "criterion_result",
+          "expected_assertion",
+          "observed_assertion",
+          "source_strategy_evidence",
+          "account_evidence"
+        ],
+        "title": "FitCriterionTraceResponse",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -828,6 +1190,116 @@
         "title": "SignalResolvedStatus",
         "type": "string"
       },
+      "StateEvaluatorManifestResponse": {
+        "additionalProperties": false,
+        "description": "Exact facet evaluator manifest for a state-engine version.",
+        "properties": {
+          "evidence_sufficiency": {
+            "$ref": "#/components/schemas/StateEvaluatorReferenceResponse"
+          },
+          "fit": {
+            "$ref": "#/components/schemas/StateEvaluatorReferenceResponse"
+          },
+          "relationship": {
+            "$ref": "#/components/schemas/StateEvaluatorReferenceResponse"
+          },
+          "timing": {
+            "$ref": "#/components/schemas/StateEvaluatorReferenceResponse"
+          }
+        },
+        "required": [
+          "fit",
+          "timing",
+          "relationship",
+          "evidence_sufficiency"
+        ],
+        "title": "StateEvaluatorManifestResponse",
+        "type": "object"
+      },
+      "StateEvaluatorReferenceResponse": {
+        "additionalProperties": false,
+        "description": "Code-owned evaluator identity.",
+        "properties": {
+          "evaluator_key": {
+            "title": "Evaluator Key",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evaluator_key",
+          "version"
+        ],
+        "title": "StateEvaluatorReferenceResponse",
+        "type": "object"
+      },
+      "StrategyFitCriterionResponse": {
+        "additionalProperties": false,
+        "description": "Executable fit criterion tied to one strategy hypothesis.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "expected_assertion": {
+            "$ref": "#/components/schemas/EvidenceAssertion"
+          },
+          "fit_criterion_id": {
+            "format": "uuid",
+            "title": "Fit Criterion Id",
+            "type": "string"
+          },
+          "input_fact_key": {
+            "title": "Input Fact Key",
+            "type": "string"
+          },
+          "source_strategy_evidence_id": {
+            "format": "uuid",
+            "title": "Source Strategy Evidence Id",
+            "type": "string"
+          },
+          "stable_key": {
+            "title": "Stable Key",
+            "type": "string"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fit_criterion_id",
+          "workspace_id",
+          "strategy_version_id",
+          "stable_key",
+          "display_name",
+          "description",
+          "input_fact_key",
+          "expected_assertion",
+          "source_strategy_evidence_id",
+          "created_at"
+        ],
+        "title": "StrategyFitCriterionResponse",
+        "type": "object"
+      },
       "StrategyResponse": {
         "additionalProperties": false,
         "description": "The active strategy plus synthetic hypothesis evidence.",
@@ -1023,6 +1495,50 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/account-state-snapshots/{state_snapshot_id}": {
+      "get": {
+        "description": "Return one immutable historical snapshot by stable identity.",
+        "operationId": "get_account_state_snapshot_api_v1_account_state_snapshots__state_snapshot_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "state_snapshot_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "State Snapshot Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountStateDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Account State Snapshot",
+        "tags": [
+          "M1B.2 account-state read model"
+        ]
+      }
+    },
     "/api/v1/accounts": {
       "get": {
         "description": "List canonical accounts belonging to the active strategy's workspace.",
@@ -1225,6 +1741,134 @@
         "summary": "List Account Signals",
         "tags": [
           "M1B.1 signal read model"
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/state": {
+      "get": {
+        "description": "Return the latest materialized snapshot for the semantic state_as_of.",
+        "operationId": "get_current_account_state_api_v1_accounts__account_id__state_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountStateDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Current Account State",
+        "tags": [
+          "M1B.2 account-state read model"
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/state/history": {
+      "get": {
+        "description": "Return immutable semantic snapshots, including same-time knowledge revisions.",
+        "operationId": "list_account_state_history_api_v1_accounts__account_id__state_history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "strategy_version_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Strategy Version Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountStateHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Account State History",
+        "tags": [
+          "M1B.2 account-state read model"
         ]
       }
     },

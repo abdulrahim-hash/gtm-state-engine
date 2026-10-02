@@ -8,9 +8,16 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from gtm_state_api.types import (
+    AccountEvidenceSufficiency,
+    AccountFitContext,
+    AccountRelationshipState,
+    AccountStateFacet,
+    AccountStateReasonCode,
+    AccountTimingState,
     EvidenceAssertion,
     EvidenceClassification,
     EvidenceFreshness,
+    FitCriterionResult,
     SignalCategory,
     SignalDefinitionStatus,
     SignalEvaluationResult,
@@ -297,3 +304,113 @@ class AccountSignalEvaluationListResponse(BaseModel):
     workspace: WorkspaceResponse
     account_id: UUID
     items: list[SignalEvaluationTraceResponse]
+
+
+class StrategyFitCriterionResponse(BaseModel):
+    """Executable fit criterion tied to one strategy hypothesis."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    fit_criterion_id: UUID
+    workspace_id: UUID
+    strategy_version_id: UUID
+    stable_key: str
+    display_name: str
+    description: str
+    input_fact_key: str
+    expected_assertion: EvidenceAssertion
+    source_strategy_evidence_id: UUID
+    created_at: datetime
+
+
+class AccountStateSnapshotResponse(BaseModel):
+    """Immutable descriptive account-state snapshot."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    state_snapshot_id: UUID
+    workspace_id: UUID
+    account_id: UUID
+    strategy_version_id: UUID
+    state_as_of: datetime
+    computed_at: datetime
+    input_hash: str
+    state_engine_version: str
+    fit_context: AccountFitContext
+    timing_state: AccountTimingState
+    relationship_state: AccountRelationshipState
+    evidence_sufficiency: AccountEvidenceSufficiency
+    created_at: datetime
+
+
+class AccountStateReasonResponse(BaseModel):
+    """One ordered, facet-scoped explanation."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    facet: AccountStateFacet
+    position: int
+    reason_code: AccountStateReasonCode
+
+
+class StateEvaluatorReferenceResponse(BaseModel):
+    """Code-owned evaluator identity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evaluator_key: str
+    version: str
+
+
+class StateEvaluatorManifestResponse(BaseModel):
+    """Exact facet evaluator manifest for a state-engine version."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fit: StateEvaluatorReferenceResponse
+    timing: StateEvaluatorReferenceResponse
+    relationship: StateEvaluatorReferenceResponse
+    evidence_sufficiency: StateEvaluatorReferenceResponse
+
+
+class FitCriterionTraceResponse(BaseModel):
+    """Frozen criterion result and its strategy/account provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    criterion: StrategyFitCriterionResponse
+    fit_criterion_id: UUID
+    criterion_stable_key: str
+    input_fact_key: str
+    source_strategy_evidence_id: UUID
+    criterion_result: FitCriterionResult
+    expected_assertion: EvidenceAssertion
+    observed_assertion: EvidenceAssertion | None
+    source_strategy_evidence: EvidenceResponse
+    account_evidence: list[EvidenceResponse]
+
+
+class AccountStateDetailResponse(BaseModel):
+    """One snapshot with normalized explanations and full input traces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workspace: WorkspaceResponse
+    snapshot: AccountStateSnapshotResponse
+    evaluator_manifest: StateEvaluatorManifestResponse
+    reasons: list[AccountStateReasonResponse]
+    fit_criteria: list[FitCriterionTraceResponse]
+    relationship_evidence: list[EvidenceResponse]
+    signal_evaluations: list[SignalEvaluationTraceResponse]
+
+
+class AccountStateHistoryResponse(BaseModel):
+    """Paginated immutable snapshots for one account."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workspace: WorkspaceResponse
+    account_id: UUID
+    items: list[AccountStateSnapshotResponse]
+    limit: int
+    offset: int
