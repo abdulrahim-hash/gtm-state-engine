@@ -13,3 +13,5 @@ All notable changes to this project will be documented here.
   identity, relational evidence trace, read-only APIs, and account-detail signal UI.
 - M1B.2 versioned strategy-fit criteria, immutable deterministic account-state snapshots, normalized
   state provenance, read-only state APIs, and account-detail state UI.
+- M1C versioned deterministic Decision and Policy definitions, immutable exact-snapshot
+  evaluations, ordered reason traces, GET-only APIs, and a non-executing account-detail disposition.

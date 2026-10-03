@@ -1,43 +1,46 @@
 # Architecture
 
-## Current M1B.2 boundary
+## Current M1C boundary
 
 M0 established the engineering foundation. M1A added the versioned synthetic strategy, minimal
 workspace boundary, canonical accounts, and evidence provenance. M1B.1 adds deterministic
 commercial-event evaluation and preserves every result, including negative and inconclusive ones.
 M1B.2 derives immutable descriptive account state from explicit strategy-relative fit criteria,
 canonical evidence, and same-time signal evaluations.
+M1C consumes one exact state snapshot to produce a deterministic Decision and then applies a
+separate deterministic Policy gate to that Decision and the same snapshot.
 
-It still contains no contacts, scoring, recommendations, downstream authorization, execution,
-outcomes, workers, model providers, vendor adapters, or live integrations.
+It still contains no contacts, scoring, ranking, action candidates, plays, review workflow,
+execution, outcomes, workers, model providers, vendor adapters, or live integrations.
 
 ```text
-Next.js (read-only product views)
+Next.js (read-only state, Decision, and Policy views)
         | typed HTTP contract
         v
-FastAPI + Pydantic (read-only strategy/evidence/signal/state API)
+FastAPI + Pydantic (read-only strategy/evidence/signal/state/Decision/Policy API)
         | synchronous SQLAlchemy 2.x / psycopg 3
         v
-PostgreSQL (canonical evidence, signal history, and immutable state snapshots)
+PostgreSQL (canonical evidence, signals, immutable state, Decision, and Policy history)
 ```
 
-Later milestones add controlled review/approve/reject interactions and dry-run actions. Risky
-external actions remain review-gated unless an explicit policy authorizes them.
+Later milestones may add controlled review/approve/reject interactions and dry-run actions under
+their own separately reviewed authority. M1C Policy never authorizes an external action.
 
 ## Component responsibilities
 
 ### Web
 
-Next.js provides the read-only product surface. Account detail shows four descriptive state facets,
-canonical commercial events, and their evidence traces while keeping detailed provenance in
-collapsed inspection surfaces.
+Next.js provides the read-only product surface. Account detail separates Account State (“What is
+true?”), Decision (“What response merits consideration?”), and Policy (“May it advance?”), followed
+by canonical commercial events and evidence traces. The internal Decision enum `ENGAGE` is rendered
+as “Engagement merits consideration,” never as an execution command.
 Client-side requests through the same-origin `API_BASE_URL` rewrite keep production builds
 independent of a running API.
 
 ### API and evaluator registries
 
 FastAPI owns typed read boundaries. Deterministic evaluator implementations live in a code-owned
-registry keyed by `(evaluator_key, rule_version)`. Definitions select a registered evaluator
+registry keyed by `(evaluator_key, evaluator_version)`. Definitions select a registered evaluator
 explicitly; stable signal keys do not imply executable behavior, and definitions contain no
 user-authored expressions.
 
@@ -48,6 +51,16 @@ The account-state engine is also code-owned and versioned. Its manifest selects 
 timing, relationship, and evidence-sufficiency evaluators. Fit executes only normalized strategy
 criteria; it never parses strategy prose. Timing consumes the exact same-time evaluations returned
 by signal recomputation. Relationship absence requires explicit FACT evidence.
+
+Decision and Policy use separate code-owned registries keyed by `(evaluator_key,
+evaluator_version)`. Database definitions choose registered implementations. PostgreSQL partial
+unique indexes allow at most one enabled definition in each scope; materialization requires exactly
+one and fails closed on zero or unsupported registry selection. No fallback or executable JSON is
+available.
+
+The Decision evaluator consumes only one explicit immutable `state_snapshot_id`. Policy consumes
+that Decision and the exact same snapshot. Neither reads evidence or signals directly, invokes the
+state engine, or changes M1B.2 facets. Relationship is a Policy input only in version 1.
 
 ### Database
 
@@ -67,6 +80,20 @@ fit-criterion, evidence, and signal-evaluation provenance.
 read selects the latest materialized snapshot for the applicable semantic state_as_of; all earlier
 same-time knowledge revisions remain addressable by snapshot ID.
 
+Decision and Policy evaluations are immutable ledgers. Their UUIDv5 identities derive from
+canonical SHA-256 hashes containing the complete snapshot attestation and exact
+definition/evaluator versions. Operational evaluation time is excluded. A relationship-only
+snapshot revision therefore creates a new Decision identity even if its result remains ENGAGE.
+
+Ordered normalized reason rows preserve deterministic explanations. Policy records BLOCK reasons,
+then REQUIRE_REVIEW reasons, and emits ALLOW support reasons only for ALLOW. Provenance follows
+Policy → Decision → Account State → existing M1B.2 evidence and signal provenance; no redundant
+Decision/Policy evidence junctions exist.
+
+The composed disposition is a read projection, not a stored table. Every response is
+`PROPOSED_ONLY` with `external_action_authorized = false`. Even Policy `ALLOW` is not external-action
+authority.
+
 ### Contracts
 
 ```text
@@ -83,10 +110,11 @@ key ordering and committed generated output make contract drift reviewable and C
 ### Migrations and fixtures
 
 Alembic owns PostgreSQL schema evolution. Seed logic remains outside migrations. The idempotent demo
-seed creates typed criteria, normalized evidence, and signal definitions, then invokes the
-production evaluator services; it does not insert hand-authored evaluation, signal, or state
-outcomes. Fixture-owned normalization preserves original evidence IDs, prose, sources, and
-raw-payload hashes and is not a production evidence-update pattern.
+seed creates typed criteria, normalized evidence, signal definitions, and validated Decision/Policy
+definitions, then invokes the production evaluator services. It does not insert hand-authored
+signal, state, Decision, or Policy outcomes. Fixture-owned normalization preserves original
+evidence IDs, prose, sources, and raw-payload hashes and is not a production evidence-update
+pattern.
 
 ## Deployment portability
 

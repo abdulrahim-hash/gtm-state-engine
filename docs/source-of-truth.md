@@ -7,5 +7,7 @@
 - **n8n:** optional future orchestration adapter; irreplaceable business logic remains in code or
   versioned configuration.
 
-M1B.2 implements PostgreSQL-backed strategy, account, evidence, signal, evaluation, and immutable
-account-state memory. Naming future adapters here does not enable or configure them.
+M1C implements PostgreSQL-backed strategy, account, evidence, signal, immutable account-state,
+Decision, and Policy memory. Decision and Policy attest to exact state snapshots; they do not copy
+evidence provenance or authorize actions. Naming future adapters here does not enable or configure
+them.

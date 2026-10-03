@@ -8,7 +8,7 @@ trustworthy account state and producing auditable, policy-governed GTM decisions
 This repository is intentionally not an AI SDR, lead scraper, CRM replacement, email generator, or
 vendor workflow showcase.
 
-## Current status: M1B.2 deterministic account-state slice
+## Current status: M1C deterministic Decision and Policy slice
 
 M0 established:
 
@@ -46,8 +46,19 @@ M1B.2 adds:
 - read-only current, history, and immutable snapshot APIs;
 - a restrained Account State section on account detail.
 
-M1B.2 does not implement contacts, numeric fit or priority scoring, recommendations, downstream
-authorization, external execution, outcomes, models, workers, or providers.
+M1C adds:
+
+- versioned Decision and Policy definitions selecting code-owned deterministic evaluators;
+- immutable evaluations anchored to one exact account-state snapshot;
+- categorical response posture without numeric scoring or ranking;
+- an independent, reason-coded prospecting Policy gate;
+- GET-only current, history, and immutable evaluation APIs;
+- a separate Decision and Policy account-detail surface;
+- a permanently non-executing `PROPOSED_ONLY` disposition.
+
+The stored Decision result `ENGAGE` means **engagement merits consideration**. It is not an
+execution command. M1C does not implement contacts, action candidates, plays, review workflows,
+external execution, outcomes, models, workers, or providers.
 
 ## System spine
 
@@ -165,7 +176,7 @@ Apache-2.0.
 
 ## Current build status
 
-The project is currently at **M1B.2 - Deterministic Account State**.
+The project is currently at **M1C - Deterministic Decision and Policy**.
 
 ### Working today
 
@@ -181,8 +192,12 @@ The project is currently at **M1B.2 - Deterministic Account State**.
 - ACTIVE / STALE / NONE / UNKNOWN / INCONCLUSIVE timing paths
 - Explicit relationship context and evidence sufficiency
 - Normalized state provenance
+- Immutable Decision and Policy evaluations
+- Deterministic ordered reason codes
+- Exact state-snapshot Decision/Policy provenance
+- Non-executing proposed dispositions
 - Read-only FastAPI endpoints
-- Strategy, accounts, evidence, and signal UI
+- Strategy, account state, Decision, Policy, evidence, and signal UI
 - PostgreSQL migrations
 - Deterministic demo fixtures
 - Contract drift checks
@@ -200,9 +215,14 @@ Deterministic Evaluation
 Canonical Signal
 ->
 Account State
+->
+Decision
+->
+Policy
 
 ### Current boundary
 
-M1B.2 ends at descriptive account state. Ranking, recommendations, downstream authorization,
-activation, AI, and external providers remain intentionally out of scope.
+M1C ends at a deterministic proposed Decision plus Policy disposition. `ALLOW` can only permit
+future planning; it does not authorize execution. Actions, review workflow, activation, outcomes,
+AI, and external providers remain intentionally out of scope.
 

@@ -12,3 +12,4 @@
 - [ADR-010: Jev is optional and provider-abstracted](010-jev-optional.md)
 - [ADR-011: Deterministic evaluations and canonical signal events](011-deterministic-signal-events.md)
 - [ADR-012: Versioned descriptive account-state snapshots](012-versioned-account-state-snapshots.md)
+- [ADR-013: Decision desirability and Policy authority remain separate evaluations](013-separate-decision-policy-evaluations.md)

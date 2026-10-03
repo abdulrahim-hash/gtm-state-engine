@@ -144,3 +144,75 @@ signal relationship is stored.
 The demo deliberately contains no explicit relationship-absence evidence for Asterwind or Bramble,
 so both remain UNKNOWN for Relationship. Cinderlake's existing fixture evidence is normalized as
 relationship.existing_relationship = PRESENT and yields EXISTING_RELATIONSHIP.
+
+## M1C deterministic Decision and Policy
+
+M1C adds two separate immutable ledgers after Account State:
+
+```text
+AccountStateSnapshot -> DecisionEvaluation
+AccountStateSnapshot + DecisionEvaluation -> PolicyEvaluation
+```
+
+### Definitions
+
+`decision_definitions` and `policy_definitions` belong to a workspace and strategy version. Each
+immutable version records a stable key, definition version, code-owned evaluator key/version,
+status, and descriptive metadata. Policy definitions additionally declare the bounded target;
+M1C supports `PROSPECTING_ACTIVATION` only.
+
+Partial unique indexes enforce **at most one** enabled Decision definition per workspace/strategy
+and at most one enabled Policy definition per workspace/strategy/target. The materialization service
+requires exactly one and fails closed if zero are enabled or if the selected evaluator pair is not
+registered. It never falls back to another definition. Seed reruns validate existing semantic fields
+instead of mutating definitions.
+
+### Decision evaluations
+
+`decision_evaluations` references one exact `state_snapshot_id` and definition version. Results are
+ENGAGE, HOLD, NO_ACTION, or ABSTAIN. ENGAGE means **engagement merits consideration**; it is not an
+action or execution command. `decision_evaluation_reasons` stores the exact ordered explanation.
+
+Decision version 1 uses Fit, Timing, and relevant Evidence Sufficiency semantics. Relationship does
+not alter desirability. A complete snapshot remains the authoritative input, so a relationship-only
+snapshot revision creates a new Decision identity even if the Decision enum remains ENGAGE.
+
+### Policy evaluations
+
+`policy_evaluations` references the exact Decision and the exact same state snapshot. Results are
+ALLOW, REQUIRE_REVIEW, or BLOCK. ALLOW permits progression only to a future planning boundary and
+does not authorize external action. `policy_evaluation_reasons` stores every applicable constraint
+in deterministic order: BLOCK reasons, REQUIRE_REVIEW reasons, then ALLOW-only support reasons when
+the result is ALLOW.
+
+Relationship is a Policy input in version 1. UNKNOWN is not treated as relationship absence;
+NO_EXISTING_RELATIONSHIP requires the explicit M1B.2 state.
+
+### Identity and provenance
+
+Canonical SHA-256 hashes include the full snapshot attestation, scope, exact definition identity,
+and evaluator version. Policy additionally includes the exact Decision identity/hash/result.
+Operational `computed_at`, `evaluated_at`, and `created_at` values are excluded. UUIDv5 derives
+stable evaluation IDs from those hashes.
+
+Provenance is normalized and non-duplicative:
+
+```text
+PolicyEvaluation
+  -> DecisionEvaluation
+  -> AccountStateSnapshot
+  -> existing M1B.2 reasons, evidence, criteria, and signal evaluations
+```
+
+There are no Decision-to-Evidence or Policy-to-Evidence junctions and no stored disposition table.
+The API composes the two evaluations as `PROPOSED_ONLY` with
+`external_action_authorized = false`.
+
+The synthetic demo outcomes are:
+
+- Asterwind: ENGAGE / REQUIRE_REVIEW.
+- Bramble: ABSTAIN / BLOCK.
+- Cinderlake: ENGAGE / REQUIRE_REVIEW.
+
+No demo evidence is added or altered to manufacture an ALLOW example; that path exists only in
+isolated evaluator tests.
