@@ -6,6 +6,9 @@ All notable changes to this project will be documented here.
 
 ### Added
 
+- M2A local-only bounded CSV ingestion, source-observation/normalization provenance,
+  conservative Account resolution, explicit replay/promotion, and local read inspection.
+
 - M0 repository, API, web, database migration, contract, documentation, and CI foundations.
 - M1A workspace-scoped synthetic strategy, canonical account, and evidence foundations.
 - Deterministic Northstar Revenue Systems Demo seed and read-only product/API views.

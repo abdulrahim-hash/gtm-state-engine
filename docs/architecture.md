@@ -146,3 +146,42 @@ Evidence/Signal links. No provider adapter or execution simulator exists.
 
 The M1D Alembic revision contains schema only. Demo seed invokes production Action/workflow
 services with fixed synthetic review identity; it does not alter M1C/M1B.2 fixture records.
+## M2A input boundary
+
+M2A accepts only a registered local CSV file and stops at canonical Evidence:
+
+```text
+registered CSV -> ingestion batch -> batch-row occurrence -> source observation
+    -> conservative Account resolution -> versioned normalization result -> Evidence
+```
+
+PostgreSQL remains canonical memory. `local_csv` is a producer of a provider-neutral validated
+observation; parsing headers and file constraints remain in the local adapter. Source/dataset and
+mapper keys are code registered. A batch row records an occurrence; repeated source-observation
+identity can appear in later batches without producing another Account or Evidence. The first batch
+and its row remain source-observation origin; later occurrences have their own row IDs.
+
+Account resolution is deterministic, workspace-scoped, and conservative. A preflight checks all
+valid batch rows for conflicting domain/name or source-ID/domain claims before creation. Matching
+requires exact normalized domain and compatible normalized name, or a nonconflicting immutable
+external-ID binding. Domainless unbound or ambiguous claims remain unresolved. New imported
+Accounts have no invented segment. Source IDs never replace canonical `Account.id`.
+
+Mapper versions interpret immutable observations into immutable result rows. The initial mapper
+accepts only one declared fact key and explicit assertion, with source observation and event time
+kept separate. It emits FACT with null confidence and UNKNOWN freshness. Event timing comes from
+`event_at`, never ingestion time. The Evidence FK points to exactly one accepted result; legacy
+Evidence stays untouched. Reprocessing writes a new result only. Explicit promotion creates
+Evidence and a supersession edge for the same Account. The shared current-Evidence predicate
+excludes superseded imports from **new** Signal/State materialization; historical evaluation
+junctions keep their old references.
+
+An import transaction commits the batch, all occurrence outcomes, observations, bindings,
+Accounts, results, and Evidence together. Rejected and unresolved rows can coexist with accepted
+rows. Unexpected defects abort the whole transaction. Import success means the input reached
+Evidence; it does **not** recompute Signal, State, Decision, Policy, Action, or Outcome.
+
+GET inspection routes require an explicit workspace and return 404 in production. Existing public
+strategy/account/state/decision/action paths are pinned to the fixed synthetic Northstar workspace.
+The optional local import UI is a provenance trace, not a data-management console. No HTTP
+mutation/upload, live supplier, network fetch, Action execution, or real-data pilot exists in M2A.

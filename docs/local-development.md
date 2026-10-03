@@ -92,3 +92,36 @@ Integration tests require migrated PostgreSQL. Unit and failure-path tests do no
 - If port 5432 is occupied, stop the conflicting local PostgreSQL service before starting Compose.
 - If contract drift fails, regenerate contracts and inspect both committed artifacts before
   accepting the change.
+## M2A local ingestion
+
+Migrate to revision `20261003_0007`, then create a separate local workspace:
+
+```powershell
+uv run --project apps/api python apps/api/scripts/ingest_local.py create-workspace --slug local-import --name "Local import workspace"
+uv run --project apps/api python apps/api/scripts/ingest_local.py validate .\\path\\to\\approved.csv
+uv run --project apps/api python apps/api/scripts/ingest_local.py import .\\path\\to\\approved.csv --workspace-id <workspace-uuid>
+uv run --project apps/api python apps/api/scripts/ingest_local.py inspect --batch-id <batch-uuid>
+```
+
+The exact header is:
+
+```text
+source_record_id,source_account_id,company_name,company_domain,source_observed_at,event_at,source_url,fact_code,assertion,source_excerpt
+```
+
+The only registered dataset is `company_public_events`, schema `company_public_event/1.0.0`,
+mapper `public_company_leader_event/1.0.0`, identity rule `1.0.0`. `fact_code` must be
+`new_revenue_leader`; assertion must be `PRESENT`, `ABSENT`, or `INCONCLUSIVE`. An explicit
+`event_at` and public HTTPS citation are required to create Evidence. Timestamps must have an
+explicit UTC offset. A missing domain remains unresolved unless a safe source-ID binding exists.
+Do not put real company files in Git. This milestone does not start a real-data pilot.
+
+For a future reviewed mapper/identity version, use `reprocess --observation-id ... --mapper-key ...
+--mapper-version ... --identity-rule-version ...` to create a preview result. Inspect it before
+`promote --normalization-result-id ...`. Reprocessing alone leaves current Evidence unchanged.
+The local provenance view is `/imports/<workspace-uuid>/<batch-uuid>`; its workspace-scoped API
+returns 404 in production. Import never materializes downstream reasoning.
+
+Downgrade to M1D requires no ingestion batches and no null Account segment. Alembic refuses rather
+than deleting imported history or inventing segments. Dispose of an isolated local test database
+through an explicit data procedure before downgrading; M0-M1D records remain untouched.

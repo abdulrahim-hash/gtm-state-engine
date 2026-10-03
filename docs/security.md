@@ -56,3 +56,21 @@ adapters and must not silently overwrite human-owned fields.
 Health responses are intentionally minimal. Readiness reports only `ready` or `not_ready` and
 does not expose connection strings, hosts, usernames, exceptions, or database diagnostics.
 Interactive API documentation is disabled when `APP_ENV=production`.
+## M2A local import controls
+
+Only company-level public business assertions belong in the M2A schema. The strict ten-column
+allowlist excludes contacts, emails, credentials, arbitrary source columns, and long scraped text.
+Files must be regular `.csv` UTF-8, at most 1 MiB and 500 data rows, with an exact header. Each
+field has a length bound; source observations have a 4 KiB PostgreSQL JSONB bound. Control
+characters and spreadsheet-formula prefixes are rejected. HTTPS citations are syntax checked,
+require the company domain when supplied, exclude URL user info, query strings, fragments, and
+nonstandard ports, and are never fetched. Neither rows nor full URLs are logged.
+
+The importer never stores full file bytes and never invokes a network provider. Batch/row logs
+contain IDs, versions, counts, bounded reasons, and duration only. Local CSV mutation is CLI/service
+only. The workspace-scoped GET inspection API returns 404 when `APP_ENV=production`; the CLI also
+refuses production import/replay/promotion. Public Northstar reads explicitly use the synthetic
+workspace. There is no hosted access path to imported local data and no production auth claim.
+
+Real company files and pilot data must remain local and uncommitted. M2A includes no real-data
+pilot or external supplier connection.

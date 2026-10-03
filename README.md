@@ -8,7 +8,7 @@ trustworthy account state and producing auditable, policy-governed GTM decisions
 This repository is intentionally not an AI SDR, lead scraper, CRM replacement, email generator, or
 vendor workflow showcase.
 
-## Current status: M1D governed Action and Outcome trace
+## Current status: M2A controlled local Evidence ingestion
 
 M0 established:
 
@@ -66,6 +66,13 @@ request, or commercial result is implied.
 
 The stored Decision result `ENGAGE` still means **engagement merits consideration**. Neither it,
 Policy ALLOW, review approval, nor a successful dry-run authorizes external execution.
+
+M2A adds a **local-only** UTF-8 CSV importer, provider-neutral source-observation and normalization
+ledgers, deterministic Account matching with abstention, and exact Evidence provenance. The public
+Northstar demo stays synthetic. Imports stop at Evidence and never recompute downstream layers.
+A local inspection page traces a batch row to its source observation, normalization result,
+Account, and Evidence. There is no live supplier, HTTP upload, or real-data pilot in this milestone.
+See [Local development](docs/local-development.md) and [ADR-015](docs/decisions/015-controlled-source-observations.md).
 
 ## System spine
 
@@ -183,7 +190,7 @@ Apache-2.0.
 
 ## Current build status
 
-The project is currently at **M1D - Governed Action proposal and local Outcome trace**.
+The project is currently at **M2A - Controlled local CSV ingestion into canonical Evidence**.
 
 ### Working today
 
@@ -206,6 +213,7 @@ The project is currently at **M1D - Governed Action proposal and local Outcome t
 - Immutable vendor-neutral Action proposals and terminal Review history
 - Deterministic local dry-run Attempts and strictly operational Outcomes
 - Read-only hosted FastAPI surface; narrow local-only review/dry-run commands
+- Local CSV-to-Evidence import with immutable observation/normalization provenance
 - Strategy, account state, Decision, Policy, Action, Outcome, evidence, and signal UI
 - PostgreSQL migrations
 - Deterministic demo fixtures
@@ -235,8 +243,11 @@ Local dry-run Outcome
 
 ### Current boundary
 
-M1D ends at an immutable Action proposal, explicit review authority where required, and a local
-canonical-validation Outcome. `ALLOW`, review approval, and dry-run success do not authorize
+M2A imports registered local CSV observations into canonical Evidence with conservative Account
+identity, bounded provenance, and explicit replay/promotion. Ingestion success does not mean
+downstream reasoning is current. Reprocessing does not promote. Source identity is distinct from
+canonical Account identity. M1D still ends at an immutable Action proposal, explicit review
+authority where required, and a local canonical-validation Outcome. `ALLOW`, review approval, and dry-run success do not authorize
 external execution. Contacts, owners, messages, live activation, commercial outcomes, AI
 authority, and external providers remain intentionally out of scope.
 

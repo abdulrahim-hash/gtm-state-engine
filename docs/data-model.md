@@ -257,3 +257,37 @@ The three-account demo preserves upstream fixtures exactly: Asterwind proposes r
 research under review; Bramble projects BLOCKED_BY_POLICY with no Action; Cinderlake proposes
 relationship-coordination seller work, has visibly synthetic approval, and passes local dry-run
 validation. No seller task was actually created. ALLOW remains an isolated test fixture.
+## M2A source and normalization provenance
+
+`accounts.segment` is nullable. Northstar fixtures retain their exact strings; a new imported
+Account has null segment until a separately approved classification exists. Existing `evidence`
+rows remain unchanged and have null `normalization_result_id`.
+
+| Table | Identity and purpose | Mutability |
+| --- | --- | --- |
+| `ingestion_batches` | Semantic UUIDv5 from workspace, source/dataset, schema version, exact file-byte SHA-256. Carries mapper/identity versions, ingestion time, correlation ID, expected rows. | Immutable |
+| `ingestion_batch_rows` | Batch plus ordinal; preserves every file occurrence and bounded accepted/rejected/unresolved/duplicate outcome. | Immutable |
+| `source_observations` | Scoped external record ID, source observation time, and allowed-field payload hash. Stores approved parsed fields only, bounded to 4 KiB JSONB, plus first batch/row origin. | Immutable |
+| `account_source_ids` | Workspace/source/dataset/external account ID binding to canonical Account and establishing observation. | Immutable; no rebind |
+| `normalization_results` | Observation plus mapper/version and identity-rule version. Stores outcome, reason, resolution-input hash, and one accepted fact slot. | Immutable |
+| `evidence_supersessions` | Explicit old/new imported Evidence edge after same-Account promotion. | Append only |
+
+`evidence.normalization_result_id` is nullable for historical/manual/synthetic rows and unique for
+imports. An accepted result owns one canonical fact slot. Imported Evidence provenance is
+Evidence -> result -> observation -> first batch; batch rows preserve all file occurrences. The
+source observation has its own time, accepted fact has semantic event time, batch has `ingested_at`,
+and result has `processed_at`. None is substituted for another.
+
+PostgreSQL composite foreign keys enforce workspace scope on batch/observation, Account binding,
+normalization, and Evidence-to-result Account. Source/dataset scope is enforced between an
+observation and its first batch and between a binding and its establishing observation. Batch-row
+observation/result scope, normalization result source agreement beyond workspace, and same-Account
+supersession remain service-enforced and tested. These are not duplicated into every table simply
+to create redundant foreign-key columns.
+
+Import outcomes are facts about input processing, not mutable workflow status. File-level refusal
+commits nothing; row-level rejection retains a bounded reason. Same ID and source time with
+changed allowed content records a `SOURCE_RECORD_CONFLICT` result and creates no second accepted
+Evidence. A new timestamp is a new observation. Replay never rewrites a previous result or Evidence.
+The downgrade refuses while batches exist or any Account has a null segment; it cannot safely
+represent those rows in M1D.
