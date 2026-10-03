@@ -9,6 +9,8 @@ const boundaries = [
   ["Account state", "Versioned descriptive facets with normalized provenance."],
   ["Decision", "A categorical response posture anchored to one exact state snapshot."],
   ["Policy", "An independent gate that never authorizes external execution."],
+  ["Action", "An immutable, governed proposal for vendor-neutral GTM work."],
+  ["Outcome", "An operational record of local dry-run validation."],
 ] as const;
 
 export default function Home() {
@@ -17,15 +19,15 @@ export default function Home() {
       <main>
         <section className="hero m1a-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <p className="eyebrow">M1C / State to Decision and Policy</p>
+            <p className="eyebrow">M1D / Governed Action and Outcome trace</p>
             <h1 id="hero-title">
               Start with what is
               <br />
               <em>known - and what is not.</em>
             </h1>
             <p className="hero-summary">
-              Deterministic rules preserve descriptive Account State, propose whether engagement
-              merits consideration, and independently apply a non-executing Policy gate.
+              Follow exact evidence and Policy provenance into a governed Action proposal and local
+              dry-run validation result.
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/strategy">
@@ -38,7 +40,7 @@ export default function Home() {
           </div>
           <aside className="boundary-card" aria-labelledby="boundary-title">
             <div className="boundary-header">
-              <p id="boundary-title">M1C boundary</p>
+              <p id="boundary-title">M1D boundary</p>
               <span>Read only</span>
             </div>
             <div className="boundary-item">
@@ -46,9 +48,9 @@ export default function Home() {
                 OK
               </span>
               <div>
-                <strong>Deterministic Decision and Policy trace</strong>
+                <strong>Decision through Outcome trace</strong>
                 <p>
-                  Every result resolves to an exact immutable state snapshot and ordered reasons.
+                  Every Action proposal resolves to one exact Policy, Decision, and state snapshot.
                 </p>
               </div>
             </div>
@@ -57,8 +59,11 @@ export default function Home() {
                 -
               </span>
               <div>
-                <strong>Downstream execution remains off</strong>
-                <p>Every disposition is proposed only and cannot authorize an external action.</p>
+                <strong>External execution remains off</strong>
+                <p>
+                  Dry-run validation creates no seller task, CRM write, message, or external
+                  request.
+                </p>
               </div>
             </div>
             <p className="boundary-note">All strategy assertions are synthetic demo hypotheses.</p>
@@ -67,7 +72,7 @@ export default function Home() {
         <section className="principles m1a-foundations" aria-labelledby="foundations-title">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">M1C foundations</p>
+              <p className="eyebrow">M1D foundations</p>
               <h2 id="foundations-title">The trace begins before the conclusion.</h2>
             </div>
           </div>

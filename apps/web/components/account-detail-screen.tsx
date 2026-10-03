@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { AccountStateSection } from "@/components/account-state-section";
+import { ActionOutcomeSection } from "@/components/action-outcome-section";
 import { DecisionPolicySection } from "@/components/decision-policy-section";
 import { EvidenceCard } from "@/components/evidence-card";
 import { ProductShell } from "@/components/product-shell";
@@ -12,6 +13,7 @@ import { SignalEvaluations } from "@/components/signal-evaluations";
 import {
   formatSnapshot,
   getAccount,
+  getAccountAction,
   getAccountDecision,
   getAccountEvidence,
   getAccountSignalEvaluations,
@@ -19,6 +21,7 @@ import {
   getAccountState,
   type AccountState,
   type AccountDecision,
+  type CurrentAccountAction,
   type AccountSignalEvaluations,
   type AccountSignals,
   type AccountDetail,
@@ -36,6 +39,8 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
   const [evaluationsData, setEvaluationsData] = useState<AccountSignalEvaluations | null>(null);
   const [stateData, setStateData] = useState<AccountState | null>(null);
   const [decisionData, setDecisionData] = useState<AccountDecision | null>(null);
+  const [actionData, setActionData] = useState<CurrentAccountAction | null>(null);
+  const [actionError, setActionError] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -65,6 +70,24 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
       cancelled = true;
     };
   }, [accountId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getAccountAction(accountId)
+      .then((result) => {
+        if (!cancelled) setActionData(result);
+      })
+      .catch(() => {
+        if (!cancelled) setActionError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [accountId]);
+
+  async function refreshAction(): Promise<void> {
+    setActionData(await getAccountAction(accountId));
+  }
 
   const isLoading = accountData === null && !error;
 
@@ -113,6 +136,15 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
             ) : (
               <DecisionPolicySection data={decisionData} />
             )}
+            {actionData !== null ? (
+              <ActionOutcomeSection data={actionData} onRefresh={refreshAction} />
+            ) : actionError ? (
+              <p className="data-notice data-notice-error">
+                The current Action trace is unavailable.
+              </p>
+            ) : (
+              <p className="data-notice">Loading Action and Outcome trace...</p>
+            )}
             <section className="signal-section" aria-labelledby="account-signals-title">
               <div className="section-heading product-section-heading">
                 <div>
@@ -121,7 +153,7 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
                 </div>
                 <p>Signals remain time-bound events with their own complete evaluation history.</p>
               </div>
-              {signalsData === null ? <p className="data-notice">Loading signals&</p> : null}
+              {signalsData === null ? <p className="data-notice">Loading signals...</p> : null}
               {signalsData !== null && signalsData.items.length === 0 ? (
                 <p className="data-notice">No canonical signal events exist for this snapshot.</p>
               ) : null}

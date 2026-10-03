@@ -134,8 +134,8 @@ export function DecisionPolicySection({ data }: DecisionPolicySectionProps) {
         </div>
       </details>
       <p className="proposed-only-notice">
-        M1C ends at a proposed disposition. No action, approval, task, CRM write, or external
-        execution exists here.
+        This M1C disposition is an input to the governed Action proposal below. It does not
+        authorize external execution.
       </p>
     </section>
   );

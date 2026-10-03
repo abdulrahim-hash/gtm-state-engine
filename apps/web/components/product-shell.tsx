@@ -43,7 +43,7 @@ export function ProductShell({ active, children }: ProductShellProps) {
             </Link>
           ))}
         </nav>
-        <span className="phase-badge">M1C / Proposed only</span>
+        <span className="phase-badge">M1D / Local dry-run only</span>
       </header>
       {children}
       <footer>

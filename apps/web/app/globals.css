@@ -990,6 +990,140 @@ footer p {
   line-height: 1.55;
 }
 
+.action-outcome-section {
+  padding: 76px clamp(24px, 7vw, 104px);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent-soft) 22%, var(--paper));
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.action-card,
+.action-outcome-panel {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid var(--ink);
+  background: var(--surface);
+}
+
+.action-card h3 {
+  margin: 8px 0 16px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.action-card p,
+.action-outcome-panel p {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.action-card ul {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  line-height: 1.7;
+}
+
+.action-fields {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0;
+}
+
+.action-fields div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.action-fields dt,
+.action-fields dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+}
+
+.action-fields dt {
+  color: var(--ink-soft);
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.action-badge {
+  display: inline-block;
+  padding: 7px 10px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 850;
+  text-transform: capitalize;
+}
+
+.action-outcome-panel {
+  margin-top: 18px;
+}
+
+.action-outcome-panel > div {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.action-outcome-panel details {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.action-outcome-panel summary {
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.action-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-controls button,
+.action-controls select {
+  padding: 9px 11px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.72rem;
+}
+
+.action-controls button {
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.action-controls button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.action-controls label {
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.action-readonly {
+  margin-top: 20px;
+  font-weight: 800;
+}
+
 .signal-section {
   padding: 76px clamp(24px, 7vw, 104px);
   border-bottom: 1px solid var(--line);
@@ -1530,6 +1664,15 @@ footer p {
 
   .signal-section {
     padding: 64px 18px;
+  }
+
+  .action-outcome-section {
+    padding: 64px 18px;
+  }
+
+  .action-grid,
+  .action-fields div {
+    grid-template-columns: 1fr;
   }
 
   .account-state-section {

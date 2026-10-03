@@ -12,6 +12,10 @@ export type SignalEvaluationTrace = components["schemas"]["SignalEvaluationTrace
 export type AccountState = components["schemas"]["AccountStateDetailResponse"];
 export type AccountStateHistory = components["schemas"]["AccountStateHistoryResponse"];
 export type AccountDecision = components["schemas"]["DecisionPolicyDetailResponse"];
+export type CurrentAccountAction = components["schemas"]["CurrentAccountActionResponse"];
+export type ActionReviewRequest = components["schemas"]["ActionReviewRequest"];
+export type ActionReviewMutation = components["schemas"]["ActionReviewMutationResponse"];
+export type ActionDryRunMutation = components["schemas"]["ActionDryRunMutationResponse"];
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path, { headers: { Accept: "application/json" } });
@@ -59,6 +63,37 @@ export function getAccountStateHistory(accountId: string): Promise<AccountStateH
 
 export function getAccountDecision(accountId: string): Promise<AccountDecision> {
   return getJson<AccountDecision>(`/api/v1/accounts/${encodeURIComponent(accountId)}/decision`);
+}
+
+export function getAccountAction(accountId: string): Promise<CurrentAccountAction> {
+  return getJson<CurrentAccountAction>(`/api/v1/accounts/${encodeURIComponent(accountId)}/action`);
+}
+
+export async function reviewAction(
+  actionId: string,
+  command: ActionReviewRequest,
+  idempotencyKey: string,
+): Promise<ActionReviewMutation> {
+  const response = await fetch(`/api/v1/actions/${encodeURIComponent(actionId)}/reviews`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Idempotency-Key": idempotencyKey,
+    },
+    body: JSON.stringify(command),
+  });
+  if (!response.ok) throw new Error(`Review request failed with ${response.status}.`);
+  return (await response.json()) as ActionReviewMutation;
+}
+
+export async function dryRunAction(actionId: string): Promise<ActionDryRunMutation> {
+  const response = await fetch(`/api/v1/actions/${encodeURIComponent(actionId)}/dry-runs`, {
+    method: "POST",
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) throw new Error(`Dry-run request failed with ${response.status}.`);
+  return (await response.json()) as ActionDryRunMutation;
 }
 
 export function formatSnapshot(isoTimestamp: string | null): string {
