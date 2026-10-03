@@ -2,10 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AccountDetailScreen } from "@/components/account-detail-screen";
+import { DecisionPolicySection } from "@/components/decision-policy-section";
 import { SignalCard } from "@/components/signal-card";
 import { StrategyScreen } from "@/components/strategy-screen";
 import type {
   AccountDetail,
+  AccountDecision,
   AccountSignalEvaluations,
   AccountSignals,
   AccountState,
@@ -261,6 +263,87 @@ const stateFixture: AccountState = {
   signal_evaluations: evaluationsFixture.items,
 };
 
+const decisionFixture: AccountDecision = {
+  workspace: strategyFixture.workspace,
+  state_snapshot: stateFixture.snapshot,
+  decision: {
+    definition: {
+      decision_definition_id: "1a1206b7-243c-4f22-8d7f-53aa00000421",
+      workspace_id: strategyFixture.workspace.workspace_id,
+      strategy_version_id: strategyFixture.strategy.id,
+      stable_key: "default_account_response",
+      definition_version: "1.0.0",
+      display_name: "Deterministic account response",
+      description: "Engagement merits consideration only; this is not an execution command.",
+      evaluator_key: "fit_timing_response_matrix",
+      evaluator_version: "1.0.0",
+      status: "ENABLED",
+      created_at: "2026-09-15T12:00:00Z",
+    },
+    evaluation: {
+      decision_evaluation_id: "1a1206b7-243c-4f22-8d7f-53aa00000811",
+      workspace_id: strategyFixture.workspace.workspace_id,
+      account_id: accountFixture.account.id,
+      strategy_version_id: strategyFixture.strategy.id,
+      state_snapshot_id: stateFixture.snapshot.state_snapshot_id,
+      decision_definition_id: "1a1206b7-243c-4f22-8d7f-53aa00000421",
+      definition_version: "1.0.0",
+      evaluated_at: "2026-09-15T12:10:00Z",
+      input_hash: "e".repeat(64),
+      result: "ENGAGE",
+      created_at: "2026-09-15T12:10:00Z",
+    },
+    reasons: [
+      { position: 0, reason_code: "FIT_MATCH_SUPPORTS_ENGAGEMENT" },
+      { position: 1, reason_code: "ACTIVE_TIMING_SUPPORTS_ENGAGEMENT" },
+    ],
+  },
+  policy: {
+    definition: {
+      policy_definition_id: "1a1206b7-243c-4f22-8d7f-53aa00000422",
+      workspace_id: strategyFixture.workspace.workspace_id,
+      strategy_version_id: strategyFixture.strategy.id,
+      stable_key: "default_prospecting_guardrails",
+      definition_version: "1.0.0",
+      display_name: "Deterministic prospecting guardrails",
+      description: "Planning gate only; no external action is authorized.",
+      target: "PROSPECTING_ACTIVATION",
+      evaluator_key: "state_and_relationship_gate",
+      evaluator_version: "1.0.0",
+      status: "ENABLED",
+      created_at: "2026-09-15T12:00:00Z",
+    },
+    evaluation: {
+      policy_evaluation_id: "1a1206b7-243c-4f22-8d7f-53aa00000911",
+      workspace_id: strategyFixture.workspace.workspace_id,
+      account_id: accountFixture.account.id,
+      strategy_version_id: strategyFixture.strategy.id,
+      state_snapshot_id: stateFixture.snapshot.state_snapshot_id,
+      decision_evaluation_id: "1a1206b7-243c-4f22-8d7f-53aa00000811",
+      policy_definition_id: "1a1206b7-243c-4f22-8d7f-53aa00000422",
+      definition_version: "1.0.0",
+      evaluated_at: "2026-09-15T12:10:00Z",
+      input_hash: "f".repeat(64),
+      result: "REQUIRE_REVIEW",
+      created_at: "2026-09-15T12:10:00Z",
+    },
+    reasons: [
+      { position: 0, reason_code: "EXISTING_RELATIONSHIP_REQUIRES_CONTROLLED_HANDLING" },
+      { position: 1, reason_code: "PARTIAL_EVIDENCE_REQUIRES_REVIEW" },
+    ],
+  },
+  disposition: {
+    state_snapshot_id: stateFixture.snapshot.state_snapshot_id,
+    decision_evaluation_id: "1a1206b7-243c-4f22-8d7f-53aa00000811",
+    policy_evaluation_id: "1a1206b7-243c-4f22-8d7f-53aa00000911",
+    proposed_response: "ENGAGE",
+    proposed_response_label: "Engagement merits consideration",
+    policy_result: "REQUIRE_REVIEW",
+    lifecycle: "PROPOSED_ONLY",
+    external_action_authorized: false,
+  },
+};
+
 afterEach(() => {
   vi.unstubAllGlobals();
 });
@@ -290,7 +373,8 @@ describe("M1A data views", () => {
         .mockResolvedValueOnce({ ok: true, json: async () => evidenceFixture })
         .mockResolvedValueOnce({ ok: true, json: async () => signalsFixture })
         .mockResolvedValueOnce({ ok: true, json: async () => evaluationsFixture })
-        .mockResolvedValueOnce({ ok: true, json: async () => stateFixture }),
+        .mockResolvedValueOnce({ ok: true, json: async () => stateFixture })
+        .mockResolvedValueOnce({ ok: true, json: async () => decisionFixture }),
     );
 
     render(<AccountDetailScreen accountId={accountFixture.account.id} />);
@@ -298,16 +382,79 @@ describe("M1A data views", () => {
     expect(await screen.findByText("Cinderlake Revenue Studio")).toBeInTheDocument();
     expect(screen.getByText("FACT")).toBeInTheDocument();
     expect(screen.getByText("Payload hash")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /what the record currently supports/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /what is true/i })).toBeInTheDocument();
     expect(screen.getByText("existing relationship")).toBeInTheDocument();
     expect(screen.getByText("partial")).toBeInTheDocument();
     expect(screen.getAllByText("New revenue leader")).toHaveLength(3);
     expect(screen.getByText("ACTIVE")).toBeInTheDocument();
     expect(screen.getByText(/1 inconclusive/i)).toBeInTheDocument();
     expect(screen.getByText("Deterministic events only")).toBeInTheDocument();
-    expect(screen.queryByText(/score|priority|recommended play|policy/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Engagement merits consideration")).toBeInTheDocument();
+    expect(screen.getByText("require review")).toBeInTheDocument();
+    expect(screen.getByText("Not authorized")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/score|priority|recommended play|revenue impact/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders Cinderlake as commercially relevant but controlled", () => {
+    render(<DecisionPolicySection data={decisionFixture} />);
+
+    expect(screen.getByText("Engagement merits consideration")).toBeInTheDocument();
+    expect(
+      screen.getByText(/existing relationship requires controlled handling/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/never a command to contact, send, or activate/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("renders Asterwind relationship uncertainty without assuming absence", () => {
+    const asterwind: AccountDecision = {
+      ...decisionFixture,
+      policy: {
+        ...decisionFixture.policy,
+        reasons: [
+          { position: 0, reason_code: "RELATIONSHIP_UNKNOWN_REQUIRES_REVIEW" },
+          { position: 1, reason_code: "PARTIAL_EVIDENCE_REQUIRES_REVIEW" },
+        ],
+      },
+    };
+    render(<DecisionPolicySection data={asterwind} />);
+
+    expect(screen.getByText(/relationship unknown requires review/i)).toBeInTheDocument();
+    expect(screen.queryByText(/no existing relationship/i)).not.toBeInTheDocument();
+  });
+
+  it("renders Bramble as abstaining and blocked without inventing timing certainty", () => {
+    const bramble: AccountDecision = {
+      ...decisionFixture,
+      decision: {
+        ...decisionFixture.decision,
+        evaluation: { ...decisionFixture.decision.evaluation, result: "ABSTAIN" },
+        reasons: [{ position: 0, reason_code: "TIMING_NOT_DETERMINATE" }],
+      },
+      policy: {
+        ...decisionFixture.policy,
+        evaluation: { ...decisionFixture.policy.evaluation, result: "BLOCK" },
+        reasons: [
+          { position: 0, reason_code: "DECISION_DOES_NOT_SUPPORT_ACTIVATION" },
+          { position: 1, reason_code: "TIMING_STATE_BLOCKS_ACTIVATION" },
+          { position: 2, reason_code: "RELATIONSHIP_UNKNOWN_REQUIRES_REVIEW" },
+          { position: 3, reason_code: "PARTIAL_EVIDENCE_REQUIRES_REVIEW" },
+        ],
+      },
+      disposition: {
+        ...decisionFixture.disposition,
+        proposed_response: "ABSTAIN",
+        proposed_response_label: "Insufficient basis to propose a response",
+        policy_result: "BLOCK",
+      },
+    };
+    render(<DecisionPolicySection data={bramble} />);
+
+    expect(screen.getByText("Insufficient basis to propose a response")).toBeInTheDocument();
+    expect(screen.getByText("block")).toBeInTheDocument();
+    expect(screen.getByText(/timing not determinate/i)).toBeInTheDocument();
   });
 
   it("renders stale canonical events as expired without adding priority or score", () => {

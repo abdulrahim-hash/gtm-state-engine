@@ -11,6 +11,7 @@ export type SignalReadModel = components["schemas"]["SignalReadModel"];
 export type SignalEvaluationTrace = components["schemas"]["SignalEvaluationTraceResponse"];
 export type AccountState = components["schemas"]["AccountStateDetailResponse"];
 export type AccountStateHistory = components["schemas"]["AccountStateHistoryResponse"];
+export type AccountDecision = components["schemas"]["DecisionPolicyDetailResponse"];
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path, { headers: { Accept: "application/json" } });
@@ -54,6 +55,10 @@ export function getAccountStateHistory(accountId: string): Promise<AccountStateH
   return getJson<AccountStateHistory>(
     `/api/v1/accounts/${encodeURIComponent(accountId)}/state/history`,
   );
+}
+
+export function getAccountDecision(accountId: string): Promise<AccountDecision> {
+  return getJson<AccountDecision>(`/api/v1/accounts/${encodeURIComponent(accountId)}/decision`);
 }
 
 export function formatSnapshot(isoTimestamp: string | null): string {

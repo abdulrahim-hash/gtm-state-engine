@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { AccountStateSection } from "@/components/account-state-section";
+import { DecisionPolicySection } from "@/components/decision-policy-section";
 import { EvidenceCard } from "@/components/evidence-card";
 import { ProductShell } from "@/components/product-shell";
 import { SignalCard } from "@/components/signal-card";
@@ -11,11 +12,13 @@ import { SignalEvaluations } from "@/components/signal-evaluations";
 import {
   formatSnapshot,
   getAccount,
+  getAccountDecision,
   getAccountEvidence,
   getAccountSignalEvaluations,
   getAccountSignals,
   getAccountState,
   type AccountState,
+  type AccountDecision,
   type AccountSignalEvaluations,
   type AccountSignals,
   type AccountDetail,
@@ -32,6 +35,7 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
   const [signalsData, setSignalsData] = useState<AccountSignals | null>(null);
   const [evaluationsData, setEvaluationsData] = useState<AccountSignalEvaluations | null>(null);
   const [stateData, setStateData] = useState<AccountState | null>(null);
+  const [decisionData, setDecisionData] = useState<AccountDecision | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -42,14 +46,16 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
       getAccountSignals(accountId),
       getAccountSignalEvaluations(accountId),
       getAccountState(accountId),
+      getAccountDecision(accountId),
     ])
-      .then(([account, evidence, signals, evaluations, state]) => {
+      .then(([account, evidence, signals, evaluations, state, decision]) => {
         if (!cancelled) {
           setAccountData(account);
           setEvidenceData(evidence);
           setSignalsData(signals);
           setEvaluationsData(evaluations);
           setStateData(state);
+          setDecisionData(decision);
         }
       })
       .catch(() => {
@@ -101,6 +107,11 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
               <p className="data-notice">Loading account state...</p>
             ) : (
               <AccountStateSection data={stateData} />
+            )}
+            {decisionData === null ? (
+              <p className="data-notice">Loading Decision and Policy...</p>
+            ) : (
+              <DecisionPolicySection data={decisionData} />
             )}
             <section className="signal-section" aria-labelledby="account-signals-title">
               <div className="section-heading product-section-heading">

@@ -30,7 +30,7 @@ export function AccountStateSection({ data }: AccountStateSectionProps) {
       <div className="section-heading product-section-heading">
         <div>
           <p className="eyebrow">Account state</p>
-          <h2 id="account-state-title">What the record currently supports</h2>
+          <h2 id="account-state-title">What is true?</h2>
         </div>
         <p>
           A descriptive snapshot at the fixed semantic time, relative to the active synthetic
