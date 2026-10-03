@@ -1,6 +1,44 @@
 {
   "components": {
     "schemas": {
+      "AccountDecisionHistoryResponse": {
+        "additionalProperties": false,
+        "description": "Paginated immutable Decision and Policy history for one account.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionPolicyHistoryItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "account_id",
+          "items",
+          "limit",
+          "offset"
+        ],
+        "title": "AccountDecisionHistoryResponse",
+        "type": "object"
+      },
       "AccountDetailResponse": {
         "additionalProperties": false,
         "description": "Account detail envelope for the read-only product view.",
@@ -537,6 +575,284 @@
         "title": "CanonicalSignalResponse",
         "type": "object"
       },
+      "DecisionDefinitionResponse": {
+        "additionalProperties": false,
+        "description": "Versioned selector for one code-owned deterministic Decision evaluator.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "decision_definition_id": {
+            "format": "uuid",
+            "title": "Decision Definition Id",
+            "type": "string"
+          },
+          "definition_version": {
+            "title": "Definition Version",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "evaluator_key": {
+            "title": "Evaluator Key",
+            "type": "string"
+          },
+          "evaluator_version": {
+            "title": "Evaluator Version",
+            "type": "string"
+          },
+          "stable_key": {
+            "title": "Stable Key",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EvaluationDefinitionStatus"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_definition_id",
+          "workspace_id",
+          "strategy_version_id",
+          "stable_key",
+          "definition_version",
+          "display_name",
+          "description",
+          "evaluator_key",
+          "evaluator_version",
+          "status",
+          "created_at"
+        ],
+        "title": "DecisionDefinitionResponse",
+        "type": "object"
+      },
+      "DecisionEvaluationReasonResponse": {
+        "additionalProperties": false,
+        "description": "One stable ordered explanation for a Decision result.",
+        "properties": {
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "reason_code": {
+            "$ref": "#/components/schemas/DecisionReasonCode"
+          }
+        },
+        "required": [
+          "position",
+          "reason_code"
+        ],
+        "title": "DecisionEvaluationReasonResponse",
+        "type": "object"
+      },
+      "DecisionEvaluationResponse": {
+        "additionalProperties": false,
+        "description": "Immutable response posture for one exact account-state snapshot.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "decision_definition_id": {
+            "format": "uuid",
+            "title": "Decision Definition Id",
+            "type": "string"
+          },
+          "decision_evaluation_id": {
+            "format": "uuid",
+            "title": "Decision Evaluation Id",
+            "type": "string"
+          },
+          "definition_version": {
+            "title": "Definition Version",
+            "type": "string"
+          },
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "input_hash": {
+            "title": "Input Hash",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/DecisionResult",
+            "description": "Deterministic response posture. ENGAGE means engagement merits consideration; it is not an execution command or external-action authorization."
+          },
+          "state_snapshot_id": {
+            "format": "uuid",
+            "title": "State Snapshot Id",
+            "type": "string"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_evaluation_id",
+          "workspace_id",
+          "account_id",
+          "strategy_version_id",
+          "state_snapshot_id",
+          "decision_definition_id",
+          "definition_version",
+          "evaluated_at",
+          "input_hash",
+          "result",
+          "created_at"
+        ],
+        "title": "DecisionEvaluationResponse",
+        "type": "object"
+      },
+      "DecisionPolicyDetailResponse": {
+        "additionalProperties": false,
+        "description": "Detailed current or historical M1C read model.",
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/DecisionTraceResponse"
+          },
+          "disposition": {
+            "$ref": "#/components/schemas/ProposedDispositionResponse"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/PolicyTraceResponse"
+          },
+          "state_snapshot": {
+            "$ref": "#/components/schemas/AccountStateSnapshotResponse"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "state_snapshot",
+          "decision",
+          "policy",
+          "disposition",
+          "workspace"
+        ],
+        "title": "DecisionPolicyDetailResponse",
+        "type": "object"
+      },
+      "DecisionPolicyHistoryItemResponse": {
+        "additionalProperties": false,
+        "description": "One immutable Decision/Policy pair anchored to an exact state snapshot.",
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/DecisionTraceResponse"
+          },
+          "disposition": {
+            "$ref": "#/components/schemas/ProposedDispositionResponse"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/PolicyTraceResponse"
+          },
+          "state_snapshot": {
+            "$ref": "#/components/schemas/AccountStateSnapshotResponse"
+          }
+        },
+        "required": [
+          "state_snapshot",
+          "decision",
+          "policy",
+          "disposition"
+        ],
+        "title": "DecisionPolicyHistoryItemResponse",
+        "type": "object"
+      },
+      "DecisionReasonCode": {
+        "description": "Stable explanations emitted by the deterministic Decision evaluator.",
+        "enum": [
+          "FIT_MATCH_SUPPORTS_ENGAGEMENT",
+          "ACTIVE_TIMING_SUPPORTS_ENGAGEMENT",
+          "FIT_MISMATCH_NO_PROSPECTING_BASIS",
+          "FIT_MATCH_BUT_NO_CURRENT_TIMING",
+          "FIT_MATCH_BUT_TIMING_STALE",
+          "FIT_NOT_DETERMINATE",
+          "TIMING_NOT_DETERMINATE",
+          "STATE_EVIDENCE_INSUFFICIENT",
+          "STATE_EVIDENCE_CONTRADICTORY"
+        ],
+        "title": "DecisionReasonCode",
+        "type": "string"
+      },
+      "DecisionResult": {
+        "description": "Deterministic response posture derived from one immutable state snapshot.",
+        "enum": [
+          "ENGAGE",
+          "HOLD",
+          "NO_ACTION",
+          "ABSTAIN"
+        ],
+        "title": "DecisionResult",
+        "type": "string"
+      },
+      "DecisionTraceResponse": {
+        "additionalProperties": false,
+        "description": "Decision evaluation with its exact version and ordered reasons.",
+        "properties": {
+          "definition": {
+            "$ref": "#/components/schemas/DecisionDefinitionResponse"
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/DecisionEvaluationResponse"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionEvaluationReasonResponse"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "definition",
+          "evaluation",
+          "reasons"
+        ],
+        "title": "DecisionTraceResponse",
+        "type": "object"
+      },
+      "EvaluationDefinitionStatus": {
+        "description": "Lifecycle status for versioned Decision and Policy definitions.",
+        "enum": [
+          "ENABLED",
+          "DISABLED"
+        ],
+        "title": "EvaluationDefinitionStatus",
+        "type": "string"
+      },
       "EvidenceAssertion": {
         "description": "Machine-readable assertion carried by normalized account evidence.",
         "enum": [
@@ -847,6 +1163,293 @@
           "version"
         ],
         "title": "LivenessResponse",
+        "type": "object"
+      },
+      "PolicyDefinitionResponse": {
+        "additionalProperties": false,
+        "description": "Versioned selector for one code-owned deterministic Policy evaluator.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "definition_version": {
+            "title": "Definition Version",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "evaluator_key": {
+            "title": "Evaluator Key",
+            "type": "string"
+          },
+          "evaluator_version": {
+            "title": "Evaluator Version",
+            "type": "string"
+          },
+          "policy_definition_id": {
+            "format": "uuid",
+            "title": "Policy Definition Id",
+            "type": "string"
+          },
+          "stable_key": {
+            "title": "Stable Key",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EvaluationDefinitionStatus"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "target": {
+            "$ref": "#/components/schemas/PolicyTarget"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "policy_definition_id",
+          "workspace_id",
+          "strategy_version_id",
+          "stable_key",
+          "definition_version",
+          "display_name",
+          "description",
+          "target",
+          "evaluator_key",
+          "evaluator_version",
+          "status",
+          "created_at"
+        ],
+        "title": "PolicyDefinitionResponse",
+        "type": "object"
+      },
+      "PolicyEvaluationReasonResponse": {
+        "additionalProperties": false,
+        "description": "One stable ordered constraint for a Policy result.",
+        "properties": {
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "reason_code": {
+            "$ref": "#/components/schemas/PolicyReasonCode"
+          }
+        },
+        "required": [
+          "position",
+          "reason_code"
+        ],
+        "title": "PolicyEvaluationReasonResponse",
+        "type": "object"
+      },
+      "PolicyEvaluationResponse": {
+        "additionalProperties": false,
+        "description": "Immutable gate for a Decision and the exact same account-state snapshot.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "decision_evaluation_id": {
+            "format": "uuid",
+            "title": "Decision Evaluation Id",
+            "type": "string"
+          },
+          "definition_version": {
+            "title": "Definition Version",
+            "type": "string"
+          },
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "input_hash": {
+            "title": "Input Hash",
+            "type": "string"
+          },
+          "policy_definition_id": {
+            "format": "uuid",
+            "title": "Policy Definition Id",
+            "type": "string"
+          },
+          "policy_evaluation_id": {
+            "format": "uuid",
+            "title": "Policy Evaluation Id",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/PolicyResult",
+            "description": "Gate for future planning only. ALLOW does not authorize an external action."
+          },
+          "state_snapshot_id": {
+            "format": "uuid",
+            "title": "State Snapshot Id",
+            "type": "string"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "policy_evaluation_id",
+          "workspace_id",
+          "account_id",
+          "strategy_version_id",
+          "state_snapshot_id",
+          "decision_evaluation_id",
+          "policy_definition_id",
+          "definition_version",
+          "evaluated_at",
+          "input_hash",
+          "result",
+          "created_at"
+        ],
+        "title": "PolicyEvaluationResponse",
+        "type": "object"
+      },
+      "PolicyReasonCode": {
+        "description": "Stable constraints emitted by the deterministic Policy evaluator.",
+        "enum": [
+          "DECISION_DOES_NOT_SUPPORT_ACTIVATION",
+          "FIT_STATE_BLOCKS_ACTIVATION",
+          "TIMING_STATE_BLOCKS_ACTIVATION",
+          "EVIDENCE_INSUFFICIENT_BLOCKS_ACTIVATION",
+          "EVIDENCE_CONTRADICTORY_BLOCKS_ACTIVATION",
+          "DECISION_STATE_MISMATCH",
+          "EXISTING_RELATIONSHIP_REQUIRES_CONTROLLED_HANDLING",
+          "RELATIONSHIP_UNKNOWN_REQUIRES_REVIEW",
+          "RELATIONSHIP_INCONCLUSIVE_REQUIRES_REVIEW",
+          "PARTIAL_EVIDENCE_REQUIRES_REVIEW",
+          "EXPLICIT_NO_EXISTING_RELATIONSHIP",
+          "ALL_POLICY_CONSTRAINTS_SATISFIED"
+        ],
+        "title": "PolicyReasonCode",
+        "type": "string"
+      },
+      "PolicyResult": {
+        "description": "Deterministic gate applied independently of Decision desirability.",
+        "enum": [
+          "ALLOW",
+          "REQUIRE_REVIEW",
+          "BLOCK"
+        ],
+        "title": "PolicyResult",
+        "type": "string"
+      },
+      "PolicyTarget": {
+        "description": "Bounded subject evaluated by one Policy definition.",
+        "enum": [
+          "PROSPECTING_ACTIVATION"
+        ],
+        "title": "PolicyTarget",
+        "type": "string"
+      },
+      "PolicyTraceResponse": {
+        "additionalProperties": false,
+        "description": "Policy evaluation with its exact version and ordered reasons.",
+        "properties": {
+          "definition": {
+            "$ref": "#/components/schemas/PolicyDefinitionResponse"
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/PolicyEvaluationResponse"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyEvaluationReasonResponse"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "definition",
+          "evaluation",
+          "reasons"
+        ],
+        "title": "PolicyTraceResponse",
+        "type": "object"
+      },
+      "ProposedDispositionResponse": {
+        "additionalProperties": false,
+        "description": "Non-executing composition of separate immutable Decision and Policy results.",
+        "properties": {
+          "decision_evaluation_id": {
+            "format": "uuid",
+            "title": "Decision Evaluation Id",
+            "type": "string"
+          },
+          "external_action_authorized": {
+            "const": false,
+            "default": false,
+            "title": "External Action Authorized",
+            "type": "boolean"
+          },
+          "lifecycle": {
+            "const": "PROPOSED_ONLY",
+            "default": "PROPOSED_ONLY",
+            "title": "Lifecycle",
+            "type": "string"
+          },
+          "policy_evaluation_id": {
+            "format": "uuid",
+            "title": "Policy Evaluation Id",
+            "type": "string"
+          },
+          "policy_result": {
+            "$ref": "#/components/schemas/PolicyResult"
+          },
+          "proposed_response": {
+            "$ref": "#/components/schemas/DecisionResult",
+            "description": "Proposed response posture. ENGAGE means engagement merits consideration only."
+          },
+          "proposed_response_label": {
+            "title": "Proposed Response Label",
+            "type": "string"
+          },
+          "state_snapshot_id": {
+            "format": "uuid",
+            "title": "State Snapshot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state_snapshot_id",
+          "decision_evaluation_id",
+          "policy_evaluation_id",
+          "proposed_response",
+          "proposed_response_label",
+          "policy_result"
+        ],
+        "title": "ProposedDispositionResponse",
         "type": "object"
       },
       "ReadinessResponse": {
@@ -1640,6 +2243,134 @@
         ]
       }
     },
+    "/api/v1/accounts/{account_id}/decision": {
+      "get": {
+        "description": "Return persisted Decision and Policy; ENGAGE means consideration, never execution.",
+        "operationId": "get_current_account_decision_api_v1_accounts__account_id__decision_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionPolicyDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Current Account Decision",
+        "tags": [
+          "M1C Decision and Policy read model"
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/decision/history": {
+      "get": {
+        "description": "Return previously materialized immutable Decision and Policy pairs only.",
+        "operationId": "list_account_decision_history_api_v1_accounts__account_id__decision_history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "strategy_version_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Strategy Version Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDecisionHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Account Decision History",
+        "tags": [
+          "M1C Decision and Policy read model"
+        ]
+      }
+    },
     "/api/v1/accounts/{account_id}/signal-evaluations": {
       "get": {
         "description": "Return affirmative, negative, stale, and inconclusive evaluation history.",
@@ -1872,6 +2603,50 @@
         ]
       }
     },
+    "/api/v1/decision-evaluations/{decision_evaluation_id}": {
+      "get": {
+        "description": "Return one immutable Decision, its Policy, and exact snapshot reference.",
+        "operationId": "get_decision_evaluation_api_v1_decision_evaluations__decision_evaluation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "decision_evaluation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Decision Evaluation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionPolicyDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Decision Evaluation",
+        "tags": [
+          "M1C Decision and Policy read model"
+        ]
+      }
+    },
     "/api/v1/evidence": {
       "get": {
         "description": "List provenance for exactly one account or strategy-version target.",
@@ -1937,6 +2712,50 @@
         "summary": "List Evidence",
         "tags": [
           "M1A read model"
+        ]
+      }
+    },
+    "/api/v1/policy-evaluations/{policy_evaluation_id}": {
+      "get": {
+        "description": "Return one immutable Policy, its Decision, and exact snapshot reference.",
+        "operationId": "get_policy_evaluation_api_v1_policy_evaluations__policy_evaluation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "policy_evaluation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Policy Evaluation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionPolicyDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Policy Evaluation",
+        "tags": [
+          "M1C Decision and Policy read model"
         ]
       }
     },

@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
+from gtm_state_api.main import app
 from gtm_state_api.schemas import EvidenceValidationInput
 from gtm_state_api.types import (
     EvidenceAssertion,
@@ -83,3 +84,17 @@ def test_strategy_evidence_cannot_be_normalized_as_an_account_fact() -> None:
 
     with pytest.raises(ValidationError, match="strategy evidence"):
         EvidenceValidationInput.model_validate(payload)
+
+
+def test_m1c_openapi_paths_are_get_only() -> None:
+    schema = app.openapi()
+    paths = schema["paths"]
+    m1c_paths = (
+        "/api/v1/accounts/{account_id}/decision",
+        "/api/v1/accounts/{account_id}/decision/history",
+        "/api/v1/decision-evaluations/{decision_evaluation_id}",
+        "/api/v1/policy-evaluations/{policy_evaluation_id}",
+    )
+
+    for path in m1c_paths:
+        assert set(paths[path]) == {"get"}

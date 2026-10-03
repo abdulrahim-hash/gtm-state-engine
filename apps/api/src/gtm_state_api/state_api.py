@@ -39,6 +39,7 @@ from gtm_state_api.schemas import (
     WorkspaceResponse,
 )
 from gtm_state_api.state_engine import STATE_ENGINE_REGISTRY
+from gtm_state_api.state_read_service import current_materialized_state_snapshot
 from gtm_state_api.types import AccountStateFacet, StrategyStatus
 
 router = APIRouter(prefix="/api/v1", tags=["M1B.2 account-state read model"])
@@ -216,26 +217,12 @@ def get_current_account_state(
     account = _account(session, account_id)
     workspace = _workspace(session, account.workspace_id)
     strategy = _active_strategy(session, workspace.workspace_id)
-    statement = select(AccountStateSnapshot).where(
-        AccountStateSnapshot.workspace_id == workspace.workspace_id,
-        AccountStateSnapshot.account_id == account.id,
-        AccountStateSnapshot.strategy_version_id == strategy.id,
+    snapshot = current_materialized_state_snapshot(
+        session,
+        workspace=workspace,
+        account_id=account.id,
+        strategy_version_id=strategy.id,
     )
-    if workspace.demo_mode:
-        if workspace.demo_as_of is None:
-            raise RuntimeError("demo workspace requires demo_as_of")
-        statement = statement.where(AccountStateSnapshot.state_as_of == workspace.demo_as_of)
-        statement = statement.order_by(
-            AccountStateSnapshot.computed_at.desc(),
-            AccountStateSnapshot.state_snapshot_id.desc(),
-        )
-    else:
-        statement = statement.order_by(
-            AccountStateSnapshot.state_as_of.desc(),
-            AccountStateSnapshot.computed_at.desc(),
-            AccountStateSnapshot.state_snapshot_id.desc(),
-        )
-    snapshot = session.scalar(statement.limit(1))
     if snapshot is None:
         raise _not_found("current account state snapshot not found")
     return _detail_response(session, workspace, snapshot)

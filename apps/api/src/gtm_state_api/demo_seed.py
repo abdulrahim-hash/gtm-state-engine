@@ -1,4 +1,4 @@
-"""Deterministic, idempotent synthetic workspace fixture through M1B.2."""
+"""Deterministic, idempotent synthetic workspace fixture through M1C."""
 
 from __future__ import annotations
 
@@ -11,9 +11,12 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from gtm_state_api.decision_engine import materialize_snapshot_dispositions
 from gtm_state_api.models import (
     Account,
+    DecisionDefinition,
     Evidence,
+    PolicyDefinition,
     SignalDefinition,
     StrategyFitCriterion,
     StrategyVersion,
@@ -22,9 +25,11 @@ from gtm_state_api.models import (
 from gtm_state_api.schemas import EvidenceValidationInput
 from gtm_state_api.state_engine import recompute_workspace_account_states
 from gtm_state_api.types import (
+    EvaluationDefinitionStatus,
     EvidenceAssertion,
     EvidenceClassification,
     EvidenceFreshness,
+    PolicyTarget,
     SignalCategory,
     SignalDefinitionStatus,
     StrategyStatus,
@@ -40,6 +45,8 @@ NEW_REVENUE_LEADER_DEFINITION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000401")
 HIRING_EXPANSION_DEFINITION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000402")
 TARGET_OPERATING_COMPLEXITY_CRITERION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000411")
 SEGMENTATION_EVIDENCE_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000102")
+DECISION_DEFINITION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000421")
+POLICY_DEFINITION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000422")
 
 
 class DemoAccount(TypedDict):
@@ -163,6 +170,51 @@ def _merge(
     session.merge(instance)
 
 
+def _ensure_decision_definition(session: Session, expected: DecisionDefinition) -> None:
+    """Insert one definition or reject semantic drift under its stable identity."""
+
+    existing = session.get(DecisionDefinition, expected.decision_definition_id)
+    if existing is None:
+        session.add(expected)
+        return
+    semantic_fields = (
+        "workspace_id",
+        "strategy_version_id",
+        "stable_key",
+        "definition_version",
+        "display_name",
+        "description",
+        "evaluator_key",
+        "evaluator_version",
+        "status",
+    )
+    if any(getattr(existing, field) != getattr(expected, field) for field in semantic_fields):
+        raise ValueError("existing Decision definition does not match the seed definition")
+
+
+def _ensure_policy_definition(session: Session, expected: PolicyDefinition) -> None:
+    """Insert one definition or reject semantic drift under its stable identity."""
+
+    existing = session.get(PolicyDefinition, expected.policy_definition_id)
+    if existing is None:
+        session.add(expected)
+        return
+    semantic_fields = (
+        "workspace_id",
+        "strategy_version_id",
+        "stable_key",
+        "definition_version",
+        "display_name",
+        "description",
+        "target",
+        "evaluator_key",
+        "evaluator_version",
+        "status",
+    )
+    if any(getattr(existing, field) != getattr(expected, field) for field in semantic_fields):
+        raise ValueError("existing Policy definition does not match the seed definition")
+
+
 def _evidence(
     *,
     evidence_id: UUID,
@@ -209,7 +261,7 @@ def _evidence(
 
 
 def seed_demo(session: Session) -> None:
-    """Upsert and evaluate the fixed synthetic M1B.2 snapshot atomically."""
+    """Upsert and evaluate the fixed synthetic M1C snapshot atomically."""
 
     _merge(
         session,
@@ -486,9 +538,53 @@ def seed_demo(session: Session) -> None:
         _merge(session, definition)
 
     session.flush()
-    recompute_workspace_account_states(
+    _ensure_decision_definition(
+        session,
+        DecisionDefinition(
+            decision_definition_id=DECISION_DEFINITION_ID,
+            workspace_id=DEMO_WORKSPACE_ID,
+            strategy_version_id=DEMO_STRATEGY_ID,
+            stable_key="default_account_response",
+            definition_version="1.0.0",
+            display_name="Deterministic account response",
+            description=(
+                "Determines whether engagement merits consideration from one exact immutable "
+                "account-state snapshot. ENGAGE is not an execution command."
+            ),
+            evaluator_key="fit_timing_response_matrix",
+            evaluator_version="1.0.0",
+            status=EvaluationDefinitionStatus.ENABLED,
+            created_at=DEMO_AS_OF,
+        ),
+    )
+    _ensure_policy_definition(
+        session,
+        PolicyDefinition(
+            policy_definition_id=POLICY_DEFINITION_ID,
+            workspace_id=DEMO_WORKSPACE_ID,
+            strategy_version_id=DEMO_STRATEGY_ID,
+            stable_key="default_prospecting_guardrails",
+            definition_version="1.0.0",
+            display_name="Deterministic prospecting guardrails",
+            description=(
+                "Gates future prospecting planning without authorizing any external action."
+            ),
+            target=PolicyTarget.PROSPECTING_ACTIVATION,
+            evaluator_key="state_and_relationship_gate",
+            evaluator_version="1.0.0",
+            status=EvaluationDefinitionStatus.ENABLED,
+            created_at=DEMO_AS_OF,
+        ),
+    )
+    session.flush()
+    snapshots = recompute_workspace_account_states(
         session,
         DEMO_WORKSPACE_ID,
         computed_at=DEMO_EVALUATED_AT,
+    )
+    materialize_snapshot_dispositions(
+        session,
+        [snapshot.state_snapshot_id for snapshot in snapshots],
+        evaluated_at=DEMO_EVALUATED_AT,
     )
     session.commit()

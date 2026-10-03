@@ -29,10 +29,16 @@ from gtm_state_api.types import (
     AccountStateFacet,
     AccountStateReasonCode,
     AccountTimingState,
+    DecisionReasonCode,
+    DecisionResult,
+    EvaluationDefinitionStatus,
     EvidenceAssertion,
     EvidenceClassification,
     EvidenceFreshness,
     FitCriterionResult,
+    PolicyReasonCode,
+    PolicyResult,
+    PolicyTarget,
     SignalCategory,
     SignalDefinitionStatus,
     SignalEvaluationResult,
@@ -746,3 +752,330 @@ class StateSnapshotSignalEvaluation(Base):
     account_id: Mapped[UUID] = mapped_column(nullable=False)
     strategy_version_id: Mapped[UUID] = mapped_column(nullable=False)
     signal_definition_id: Mapped[UUID] = mapped_column(nullable=False)
+
+
+class DecisionDefinition(Base):
+    """Immutable version selecting one code-owned Decision evaluator."""
+
+    __tablename__ = "decision_definitions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["strategy_version_id", "workspace_id"],
+            ["strategy_versions.id", "strategy_versions.workspace_id"],
+            name="fk_decision_definitions_strategy_workspace",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "workspace_id",
+            "strategy_version_id",
+            "stable_key",
+            "definition_version",
+            name="uq_decision_definitions_version",
+        ),
+        UniqueConstraint(
+            "decision_definition_id",
+            "workspace_id",
+            "strategy_version_id",
+            "definition_version",
+            name="uq_decision_definitions_scope",
+        ),
+        CheckConstraint(
+            "stable_key ~ '^[a-z][a-z0-9_]*$'",
+            name="ck_decision_definitions_stable_key",
+        ),
+        CheckConstraint(
+            "evaluator_key ~ '^[a-z][a-z0-9_]*$'",
+            name="ck_decision_definitions_evaluator_key",
+        ),
+        Index(
+            "uq_decision_definitions_one_enabled",
+            "workspace_id",
+            "strategy_version_id",
+            unique=True,
+            postgresql_where=text("status = 'ENABLED'"),
+        ),
+    )
+
+    decision_definition_id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(nullable=False)
+    strategy_version_id: Mapped[UUID] = mapped_column(nullable=False)
+    stable_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    definition_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    display_name: Mapped[str] = mapped_column(String(160), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    evaluator_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    evaluator_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[EvaluationDefinitionStatus] = mapped_column(
+        Enum(
+            EvaluationDefinitionStatus,
+            name="evaluation_definition_status",
+            create_constraint=False,
+        ),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DecisionEvaluation(Base):
+    """Immutable Decision result attesting to one complete state snapshot."""
+
+    __tablename__ = "decision_evaluations"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["state_snapshot_id", "workspace_id", "account_id", "strategy_version_id"],
+            [
+                "account_state_snapshots.state_snapshot_id",
+                "account_state_snapshots.workspace_id",
+                "account_state_snapshots.account_id",
+                "account_state_snapshots.strategy_version_id",
+            ],
+            name="fk_decision_evaluations_snapshot_scope",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            [
+                "decision_definition_id",
+                "workspace_id",
+                "strategy_version_id",
+                "definition_version",
+            ],
+            [
+                "decision_definitions.decision_definition_id",
+                "decision_definitions.workspace_id",
+                "decision_definitions.strategy_version_id",
+                "decision_definitions.definition_version",
+            ],
+            name="fk_decision_evaluations_definition_scope",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "state_snapshot_id",
+            "decision_definition_id",
+            name="uq_decision_evaluations_snapshot_definition",
+        ),
+        UniqueConstraint(
+            "decision_evaluation_id",
+            "workspace_id",
+            "account_id",
+            "strategy_version_id",
+            "state_snapshot_id",
+            name="uq_decision_evaluations_scope",
+        ),
+        CheckConstraint(
+            "input_hash ~ '^[a-f0-9]{64}$'",
+            name="ck_decision_evaluations_input_hash",
+        ),
+        Index(
+            "ix_decision_evaluations_account_history",
+            "workspace_id",
+            "account_id",
+            "strategy_version_id",
+            "evaluated_at",
+        ),
+    )
+
+    decision_evaluation_id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(nullable=False)
+    account_id: Mapped[UUID] = mapped_column(nullable=False)
+    strategy_version_id: Mapped[UUID] = mapped_column(nullable=False)
+    state_snapshot_id: Mapped[UUID] = mapped_column(nullable=False)
+    decision_definition_id: Mapped[UUID] = mapped_column(nullable=False)
+    definition_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    input_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    result: Mapped[DecisionResult] = mapped_column(
+        Enum(DecisionResult, name="decision_result", create_constraint=False), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DecisionEvaluationReason(Base):
+    """Ordered deterministic reason for one Decision evaluation."""
+
+    __tablename__ = "decision_evaluation_reasons"
+    __table_args__ = (
+        UniqueConstraint(
+            "decision_evaluation_id",
+            "reason_code",
+            name="uq_decision_evaluation_reasons_code",
+        ),
+        CheckConstraint("position >= 0", name="ck_decision_evaluation_reasons_position"),
+    )
+
+    decision_evaluation_id: Mapped[UUID] = mapped_column(
+        ForeignKey("decision_evaluations.decision_evaluation_id", ondelete="RESTRICT"),
+        primary_key=True,
+    )
+    position: Mapped[int] = mapped_column(Integer, primary_key=True)
+    reason_code: Mapped[DecisionReasonCode] = mapped_column(
+        Enum(DecisionReasonCode, name="decision_reason_code", create_constraint=False),
+        nullable=False,
+    )
+
+
+class PolicyDefinition(Base):
+    """Immutable version selecting one code-owned Policy evaluator."""
+
+    __tablename__ = "policy_definitions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["strategy_version_id", "workspace_id"],
+            ["strategy_versions.id", "strategy_versions.workspace_id"],
+            name="fk_policy_definitions_strategy_workspace",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "workspace_id",
+            "strategy_version_id",
+            "stable_key",
+            "definition_version",
+            name="uq_policy_definitions_version",
+        ),
+        UniqueConstraint(
+            "policy_definition_id",
+            "workspace_id",
+            "strategy_version_id",
+            "definition_version",
+            name="uq_policy_definitions_scope",
+        ),
+        CheckConstraint(
+            "stable_key ~ '^[a-z][a-z0-9_]*$'",
+            name="ck_policy_definitions_stable_key",
+        ),
+        CheckConstraint(
+            "evaluator_key ~ '^[a-z][a-z0-9_]*$'",
+            name="ck_policy_definitions_evaluator_key",
+        ),
+        Index(
+            "uq_policy_definitions_one_enabled",
+            "workspace_id",
+            "strategy_version_id",
+            "target",
+            unique=True,
+            postgresql_where=text("status = 'ENABLED'"),
+        ),
+    )
+
+    policy_definition_id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(nullable=False)
+    strategy_version_id: Mapped[UUID] = mapped_column(nullable=False)
+    stable_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    definition_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    display_name: Mapped[str] = mapped_column(String(160), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    target: Mapped[PolicyTarget] = mapped_column(
+        Enum(PolicyTarget, name="policy_target", create_constraint=False), nullable=False
+    )
+    evaluator_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    evaluator_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[EvaluationDefinitionStatus] = mapped_column(
+        Enum(
+            EvaluationDefinitionStatus,
+            name="evaluation_definition_status",
+            create_constraint=False,
+        ),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class PolicyEvaluation(Base):
+    """Immutable Policy gate for one Decision and the exact same state snapshot."""
+
+    __tablename__ = "policy_evaluations"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["state_snapshot_id", "workspace_id", "account_id", "strategy_version_id"],
+            [
+                "account_state_snapshots.state_snapshot_id",
+                "account_state_snapshots.workspace_id",
+                "account_state_snapshots.account_id",
+                "account_state_snapshots.strategy_version_id",
+            ],
+            name="fk_policy_evaluations_snapshot_scope",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            [
+                "decision_evaluation_id",
+                "workspace_id",
+                "account_id",
+                "strategy_version_id",
+                "state_snapshot_id",
+            ],
+            [
+                "decision_evaluations.decision_evaluation_id",
+                "decision_evaluations.workspace_id",
+                "decision_evaluations.account_id",
+                "decision_evaluations.strategy_version_id",
+                "decision_evaluations.state_snapshot_id",
+            ],
+            name="fk_policy_evaluations_decision_scope",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            [
+                "policy_definition_id",
+                "workspace_id",
+                "strategy_version_id",
+                "definition_version",
+            ],
+            [
+                "policy_definitions.policy_definition_id",
+                "policy_definitions.workspace_id",
+                "policy_definitions.strategy_version_id",
+                "policy_definitions.definition_version",
+            ],
+            name="fk_policy_evaluations_definition_scope",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "decision_evaluation_id",
+            "policy_definition_id",
+            name="uq_policy_evaluations_decision_definition",
+        ),
+        CheckConstraint(
+            "input_hash ~ '^[a-f0-9]{64}$'",
+            name="ck_policy_evaluations_input_hash",
+        ),
+        Index("ix_policy_evaluations_decision", "decision_evaluation_id"),
+    )
+
+    policy_evaluation_id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(nullable=False)
+    account_id: Mapped[UUID] = mapped_column(nullable=False)
+    strategy_version_id: Mapped[UUID] = mapped_column(nullable=False)
+    state_snapshot_id: Mapped[UUID] = mapped_column(nullable=False)
+    decision_evaluation_id: Mapped[UUID] = mapped_column(nullable=False)
+    policy_definition_id: Mapped[UUID] = mapped_column(nullable=False)
+    definition_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    input_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    result: Mapped[PolicyResult] = mapped_column(
+        Enum(PolicyResult, name="policy_result", create_constraint=False), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class PolicyEvaluationReason(Base):
+    """Ordered deterministic reason for one Policy evaluation."""
+
+    __tablename__ = "policy_evaluation_reasons"
+    __table_args__ = (
+        UniqueConstraint(
+            "policy_evaluation_id",
+            "reason_code",
+            name="uq_policy_evaluation_reasons_code",
+        ),
+        CheckConstraint("position >= 0", name="ck_policy_evaluation_reasons_position"),
+    )
+
+    policy_evaluation_id: Mapped[UUID] = mapped_column(
+        ForeignKey("policy_evaluations.policy_evaluation_id", ondelete="RESTRICT"),
+        primary_key=True,
+    )
+    position: Mapped[int] = mapped_column(Integer, primary_key=True)
+    reason_code: Mapped[PolicyReasonCode] = mapped_column(
+        Enum(PolicyReasonCode, name="policy_reason_code", create_constraint=False),
+        nullable=False,
+    )

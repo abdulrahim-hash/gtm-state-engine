@@ -14,10 +14,16 @@ from gtm_state_api.types import (
     AccountStateFacet,
     AccountStateReasonCode,
     AccountTimingState,
+    DecisionReasonCode,
+    DecisionResult,
+    EvaluationDefinitionStatus,
     EvidenceAssertion,
     EvidenceClassification,
     EvidenceFreshness,
     FitCriterionResult,
+    PolicyReasonCode,
+    PolicyResult,
+    PolicyTarget,
     SignalCategory,
     SignalDefinitionStatus,
     SignalEvaluationResult,
@@ -412,5 +418,172 @@ class AccountStateHistoryResponse(BaseModel):
     workspace: WorkspaceResponse
     account_id: UUID
     items: list[AccountStateSnapshotResponse]
+    limit: int
+    offset: int
+
+
+class DecisionDefinitionResponse(BaseModel):
+    """Versioned selector for one code-owned deterministic Decision evaluator."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    decision_definition_id: UUID
+    workspace_id: UUID
+    strategy_version_id: UUID
+    stable_key: str
+    definition_version: str
+    display_name: str
+    description: str
+    evaluator_key: str
+    evaluator_version: str
+    status: EvaluationDefinitionStatus
+    created_at: datetime
+
+
+class DecisionEvaluationResponse(BaseModel):
+    """Immutable response posture for one exact account-state snapshot."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    decision_evaluation_id: UUID
+    workspace_id: UUID
+    account_id: UUID
+    strategy_version_id: UUID
+    state_snapshot_id: UUID
+    decision_definition_id: UUID
+    definition_version: str
+    evaluated_at: datetime
+    input_hash: str
+    result: DecisionResult = Field(
+        description=(
+            "Deterministic response posture. ENGAGE means engagement merits consideration; "
+            "it is not an execution command or external-action authorization."
+        )
+    )
+    created_at: datetime
+
+
+class DecisionEvaluationReasonResponse(BaseModel):
+    """One stable ordered explanation for a Decision result."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    position: int
+    reason_code: DecisionReasonCode
+
+
+class PolicyDefinitionResponse(BaseModel):
+    """Versioned selector for one code-owned deterministic Policy evaluator."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    policy_definition_id: UUID
+    workspace_id: UUID
+    strategy_version_id: UUID
+    stable_key: str
+    definition_version: str
+    display_name: str
+    description: str
+    target: PolicyTarget
+    evaluator_key: str
+    evaluator_version: str
+    status: EvaluationDefinitionStatus
+    created_at: datetime
+
+
+class PolicyEvaluationResponse(BaseModel):
+    """Immutable gate for a Decision and the exact same account-state snapshot."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    policy_evaluation_id: UUID
+    workspace_id: UUID
+    account_id: UUID
+    strategy_version_id: UUID
+    state_snapshot_id: UUID
+    decision_evaluation_id: UUID
+    policy_definition_id: UUID
+    definition_version: str
+    evaluated_at: datetime
+    input_hash: str
+    result: PolicyResult = Field(
+        description=("Gate for future planning only. ALLOW does not authorize an external action.")
+    )
+    created_at: datetime
+
+
+class PolicyEvaluationReasonResponse(BaseModel):
+    """One stable ordered constraint for a Policy result."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    position: int
+    reason_code: PolicyReasonCode
+
+
+class DecisionTraceResponse(BaseModel):
+    """Decision evaluation with its exact version and ordered reasons."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    definition: DecisionDefinitionResponse
+    evaluation: DecisionEvaluationResponse
+    reasons: list[DecisionEvaluationReasonResponse]
+
+
+class PolicyTraceResponse(BaseModel):
+    """Policy evaluation with its exact version and ordered reasons."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    definition: PolicyDefinitionResponse
+    evaluation: PolicyEvaluationResponse
+    reasons: list[PolicyEvaluationReasonResponse]
+
+
+class ProposedDispositionResponse(BaseModel):
+    """Non-executing composition of separate immutable Decision and Policy results."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    state_snapshot_id: UUID
+    decision_evaluation_id: UUID
+    policy_evaluation_id: UUID
+    proposed_response: DecisionResult = Field(
+        description=(
+            "Proposed response posture. ENGAGE means engagement merits consideration only."
+        )
+    )
+    proposed_response_label: str
+    policy_result: PolicyResult
+    lifecycle: Literal["PROPOSED_ONLY"] = "PROPOSED_ONLY"
+    external_action_authorized: Literal[False] = False
+
+
+class DecisionPolicyHistoryItemResponse(BaseModel):
+    """One immutable Decision/Policy pair anchored to an exact state snapshot."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    state_snapshot: AccountStateSnapshotResponse
+    decision: DecisionTraceResponse
+    policy: PolicyTraceResponse
+    disposition: ProposedDispositionResponse
+
+
+class DecisionPolicyDetailResponse(DecisionPolicyHistoryItemResponse):
+    """Detailed current or historical M1C read model."""
+
+    workspace: WorkspaceResponse
+
+
+class AccountDecisionHistoryResponse(BaseModel):
+    """Paginated immutable Decision and Policy history for one account."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workspace: WorkspaceResponse
+    account_id: UUID
+    items: list[DecisionPolicyHistoryItemResponse]
     limit: int
     offset: int

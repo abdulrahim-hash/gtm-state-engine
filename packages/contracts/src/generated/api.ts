@@ -64,6 +64,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/accounts/{account_id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Current Account Decision
+         * @description Return persisted Decision and Policy; ENGAGE means consideration, never execution.
+         */
+        get: operations["get_current_account_decision_api_v1_accounts__account_id__decision_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{account_id}/decision/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Account Decision History
+         * @description Return previously materialized immutable Decision and Policy pairs only.
+         */
+        get: operations["list_account_decision_history_api_v1_accounts__account_id__decision_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts/{account_id}/signal-evaluations": {
         parameters: {
             query?: never;
@@ -144,6 +184,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/decision-evaluations/{decision_evaluation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Decision Evaluation
+         * @description Return one immutable Decision, its Policy, and exact snapshot reference.
+         */
+        get: operations["get_decision_evaluation_api_v1_decision_evaluations__decision_evaluation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/evidence": {
         parameters: {
             query?: never;
@@ -156,6 +216,26 @@ export interface paths {
          * @description List provenance for exactly one account or strategy-version target.
          */
         get: operations["list_evidence_api_v1_evidence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/policy-evaluations/{policy_evaluation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Policy Evaluation
+         * @description Return one immutable Policy, its Decision, and exact snapshot reference.
+         */
+        get: operations["get_policy_evaluation_api_v1_policy_evaluations__policy_evaluation_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -268,6 +348,24 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AccountDecisionHistoryResponse
+         * @description Paginated immutable Decision and Policy history for one account.
+         */
+        AccountDecisionHistoryResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Items */
+            items: components["schemas"]["DecisionPolicyHistoryItemResponse"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
         /**
          * AccountDetailResponse
          * @description Account detail envelope for the read-only product view.
@@ -545,6 +643,155 @@ export interface components {
             workspace_id: string;
         };
         /**
+         * DecisionDefinitionResponse
+         * @description Versioned selector for one code-owned deterministic Decision evaluator.
+         */
+        DecisionDefinitionResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Decision Definition Id
+             * Format: uuid
+             */
+            decision_definition_id: string;
+            /** Definition Version */
+            definition_version: string;
+            /** Description */
+            description: string;
+            /** Display Name */
+            display_name: string;
+            /** Evaluator Key */
+            evaluator_key: string;
+            /** Evaluator Version */
+            evaluator_version: string;
+            /** Stable Key */
+            stable_key: string;
+            status: components["schemas"]["EvaluationDefinitionStatus"];
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * DecisionEvaluationReasonResponse
+         * @description One stable ordered explanation for a Decision result.
+         */
+        DecisionEvaluationReasonResponse: {
+            /** Position */
+            position: number;
+            reason_code: components["schemas"]["DecisionReasonCode"];
+        };
+        /**
+         * DecisionEvaluationResponse
+         * @description Immutable response posture for one exact account-state snapshot.
+         */
+        DecisionEvaluationResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Decision Definition Id
+             * Format: uuid
+             */
+            decision_definition_id: string;
+            /**
+             * Decision Evaluation Id
+             * Format: uuid
+             */
+            decision_evaluation_id: string;
+            /** Definition Version */
+            definition_version: string;
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+            /** Input Hash */
+            input_hash: string;
+            /** @description Deterministic response posture. ENGAGE means engagement merits consideration; it is not an execution command or external-action authorization. */
+            result: components["schemas"]["DecisionResult"];
+            /**
+             * State Snapshot Id
+             * Format: uuid
+             */
+            state_snapshot_id: string;
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * DecisionPolicyDetailResponse
+         * @description Detailed current or historical M1C read model.
+         */
+        DecisionPolicyDetailResponse: {
+            decision: components["schemas"]["DecisionTraceResponse"];
+            disposition: components["schemas"]["ProposedDispositionResponse"];
+            policy: components["schemas"]["PolicyTraceResponse"];
+            state_snapshot: components["schemas"]["AccountStateSnapshotResponse"];
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * DecisionPolicyHistoryItemResponse
+         * @description One immutable Decision/Policy pair anchored to an exact state snapshot.
+         */
+        DecisionPolicyHistoryItemResponse: {
+            decision: components["schemas"]["DecisionTraceResponse"];
+            disposition: components["schemas"]["ProposedDispositionResponse"];
+            policy: components["schemas"]["PolicyTraceResponse"];
+            state_snapshot: components["schemas"]["AccountStateSnapshotResponse"];
+        };
+        /**
+         * DecisionReasonCode
+         * @description Stable explanations emitted by the deterministic Decision evaluator.
+         * @enum {string}
+         */
+        DecisionReasonCode: "FIT_MATCH_SUPPORTS_ENGAGEMENT" | "ACTIVE_TIMING_SUPPORTS_ENGAGEMENT" | "FIT_MISMATCH_NO_PROSPECTING_BASIS" | "FIT_MATCH_BUT_NO_CURRENT_TIMING" | "FIT_MATCH_BUT_TIMING_STALE" | "FIT_NOT_DETERMINATE" | "TIMING_NOT_DETERMINATE" | "STATE_EVIDENCE_INSUFFICIENT" | "STATE_EVIDENCE_CONTRADICTORY";
+        /**
+         * DecisionResult
+         * @description Deterministic response posture derived from one immutable state snapshot.
+         * @enum {string}
+         */
+        DecisionResult: "ENGAGE" | "HOLD" | "NO_ACTION" | "ABSTAIN";
+        /**
+         * DecisionTraceResponse
+         * @description Decision evaluation with its exact version and ordered reasons.
+         */
+        DecisionTraceResponse: {
+            definition: components["schemas"]["DecisionDefinitionResponse"];
+            evaluation: components["schemas"]["DecisionEvaluationResponse"];
+            /** Reasons */
+            reasons: components["schemas"]["DecisionEvaluationReasonResponse"][];
+        };
+        /**
+         * EvaluationDefinitionStatus
+         * @description Lifecycle status for versioned Decision and Policy definitions.
+         * @enum {string}
+         */
+        EvaluationDefinitionStatus: "ENABLED" | "DISABLED";
+        /**
          * EvidenceAssertion
          * @description Machine-readable assertion carried by normalized account evidence.
          * @enum {string}
@@ -670,6 +917,178 @@ export interface components {
             status: "ok";
             /** Version */
             version: string;
+        };
+        /**
+         * PolicyDefinitionResponse
+         * @description Versioned selector for one code-owned deterministic Policy evaluator.
+         */
+        PolicyDefinitionResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Definition Version */
+            definition_version: string;
+            /** Description */
+            description: string;
+            /** Display Name */
+            display_name: string;
+            /** Evaluator Key */
+            evaluator_key: string;
+            /** Evaluator Version */
+            evaluator_version: string;
+            /**
+             * Policy Definition Id
+             * Format: uuid
+             */
+            policy_definition_id: string;
+            /** Stable Key */
+            stable_key: string;
+            status: components["schemas"]["EvaluationDefinitionStatus"];
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            target: components["schemas"]["PolicyTarget"];
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * PolicyEvaluationReasonResponse
+         * @description One stable ordered constraint for a Policy result.
+         */
+        PolicyEvaluationReasonResponse: {
+            /** Position */
+            position: number;
+            reason_code: components["schemas"]["PolicyReasonCode"];
+        };
+        /**
+         * PolicyEvaluationResponse
+         * @description Immutable gate for a Decision and the exact same account-state snapshot.
+         */
+        PolicyEvaluationResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Decision Evaluation Id
+             * Format: uuid
+             */
+            decision_evaluation_id: string;
+            /** Definition Version */
+            definition_version: string;
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+            /** Input Hash */
+            input_hash: string;
+            /**
+             * Policy Definition Id
+             * Format: uuid
+             */
+            policy_definition_id: string;
+            /**
+             * Policy Evaluation Id
+             * Format: uuid
+             */
+            policy_evaluation_id: string;
+            /** @description Gate for future planning only. ALLOW does not authorize an external action. */
+            result: components["schemas"]["PolicyResult"];
+            /**
+             * State Snapshot Id
+             * Format: uuid
+             */
+            state_snapshot_id: string;
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * PolicyReasonCode
+         * @description Stable constraints emitted by the deterministic Policy evaluator.
+         * @enum {string}
+         */
+        PolicyReasonCode: "DECISION_DOES_NOT_SUPPORT_ACTIVATION" | "FIT_STATE_BLOCKS_ACTIVATION" | "TIMING_STATE_BLOCKS_ACTIVATION" | "EVIDENCE_INSUFFICIENT_BLOCKS_ACTIVATION" | "EVIDENCE_CONTRADICTORY_BLOCKS_ACTIVATION" | "DECISION_STATE_MISMATCH" | "EXISTING_RELATIONSHIP_REQUIRES_CONTROLLED_HANDLING" | "RELATIONSHIP_UNKNOWN_REQUIRES_REVIEW" | "RELATIONSHIP_INCONCLUSIVE_REQUIRES_REVIEW" | "PARTIAL_EVIDENCE_REQUIRES_REVIEW" | "EXPLICIT_NO_EXISTING_RELATIONSHIP" | "ALL_POLICY_CONSTRAINTS_SATISFIED";
+        /**
+         * PolicyResult
+         * @description Deterministic gate applied independently of Decision desirability.
+         * @enum {string}
+         */
+        PolicyResult: "ALLOW" | "REQUIRE_REVIEW" | "BLOCK";
+        /**
+         * PolicyTarget
+         * @description Bounded subject evaluated by one Policy definition.
+         * @enum {string}
+         */
+        PolicyTarget: "PROSPECTING_ACTIVATION";
+        /**
+         * PolicyTraceResponse
+         * @description Policy evaluation with its exact version and ordered reasons.
+         */
+        PolicyTraceResponse: {
+            definition: components["schemas"]["PolicyDefinitionResponse"];
+            evaluation: components["schemas"]["PolicyEvaluationResponse"];
+            /** Reasons */
+            reasons: components["schemas"]["PolicyEvaluationReasonResponse"][];
+        };
+        /**
+         * ProposedDispositionResponse
+         * @description Non-executing composition of separate immutable Decision and Policy results.
+         */
+        ProposedDispositionResponse: {
+            /**
+             * Decision Evaluation Id
+             * Format: uuid
+             */
+            decision_evaluation_id: string;
+            /**
+             * External Action Authorized
+             * @default false
+             * @constant
+             */
+            external_action_authorized: false;
+            /**
+             * Lifecycle
+             * @default PROPOSED_ONLY
+             * @constant
+             */
+            lifecycle: "PROPOSED_ONLY";
+            /**
+             * Policy Evaluation Id
+             * Format: uuid
+             */
+            policy_evaluation_id: string;
+            policy_result: components["schemas"]["PolicyResult"];
+            /** @description Proposed response posture. ENGAGE means engagement merits consideration only. */
+            proposed_response: components["schemas"]["DecisionResult"];
+            /** Proposed Response Label */
+            proposed_response_label: string;
+            /**
+             * State Snapshot Id
+             * Format: uuid
+             */
+            state_snapshot_id: string;
         };
         /**
          * ReadinessResponse
@@ -1092,6 +1511,72 @@ export interface operations {
             };
         };
     };
+    get_current_account_decision_api_v1_accounts__account_id__decision_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionPolicyDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_account_decision_history_api_v1_accounts__account_id__decision_history_get: {
+        parameters: {
+            query?: {
+                strategy_version_id?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDecisionHistoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_account_signal_evaluations_api_v1_accounts__account_id__signal_evaluations_get: {
         parameters: {
             query?: {
@@ -1222,6 +1707,37 @@ export interface operations {
             };
         };
     };
+    get_decision_evaluation_api_v1_decision_evaluations__decision_evaluation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                decision_evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionPolicyDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_evidence_api_v1_evidence_get: {
         parameters: {
             query?: {
@@ -1241,6 +1757,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvidenceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_policy_evaluation_api_v1_policy_evaluations__policy_evaluation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                policy_evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionPolicyDetailResponse"];
                 };
             };
             /** @description Validation Error */
