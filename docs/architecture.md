@@ -1,6 +1,6 @@
 # Architecture
 
-## Current M1C boundary
+## Current M1D boundary
 
 M0 established the engineering foundation. M1A added the versioned synthetic strategy, minimal
 workspace boundary, canonical accounts, and evidence provenance. M1B.1 adds deterministic
@@ -9,22 +9,24 @@ M1B.2 derives immutable descriptive account state from explicit strategy-relativ
 canonical evidence, and same-time signal evaluations.
 M1C consumes one exact state snapshot to produce a deterministic Decision and then applies a
 separate deterministic Policy gate to that Decision and the same snapshot.
+M1D consumes that exact chain to propose one bounded Action intent or an explicit non-Action
+projection. It records immutable review, local dry-run Attempt, and operational Outcome traces.
 
-It still contains no contacts, scoring, ranking, action candidates, plays, review workflow,
-execution, outcomes, workers, model providers, vendor adapters, or live integrations.
+It still contains no contacts, owners, messages, scoring, ranking, external execution, commercial
+outcomes, workers, model providers, vendor adapters, or live integrations.
 
 ```text
-Next.js (read-only state, Decision, and Policy views)
+Next.js (read-only hosted state, Decision, Policy, Action, and Outcome views)
         | typed HTTP contract
         v
-FastAPI + Pydantic (read-only strategy/evidence/signal/state/Decision/Policy API)
+FastAPI + Pydantic (typed reads; local-only narrow review and dry-run commands)
         | synchronous SQLAlchemy 2.x / psycopg 3
         v
-PostgreSQL (canonical evidence, signals, immutable state, Decision, and Policy history)
+PostgreSQL (canonical provenance plus immutable Action, Review, Attempt, and Outcome history)
 ```
 
-Later milestones may add controlled review/approve/reject interactions and dry-run actions under
-their own separately reviewed authority. M1C Policy never authorizes an external action.
+M1D's review approval authorizes only local deterministic validation. Even Policy ALLOW never
+authorizes an external action. Production configuration rejects enabled Action mutations.
 
 ## Component responsibilities
 
@@ -120,3 +122,27 @@ pattern.
 
 The architecture assumes a portable Next.js host, a container-capable FastAPI host, and standard
 PostgreSQL. Supabase may host PostgreSQL but is not embedded into domain architecture.
+
+## M1D governed Action boundary
+
+The account surface presents Action proposal and Outcome/Trace after Policy. Local-only review and
+dry-run controls appear only when the server enables Action mutations; the browser never submits
+reviewer or requester identity. Cinderlake's seeded approval is visibly synthetic.
+
+Action derivation reads only the exact M1C PolicyEvaluation, its DecisionEvaluation, Policy
+target/result/ordered reasons, and immutable identity/version metadata. It never reruns Policy or
+queries raw Evidence, Signals, Account State facets, or company-specific records. Strict
+type/version payload schemas reject unknown keys. BLOCK and unsupported conclusions are
+non-Action current projections, while plural Action history contains only persisted proposals.
+
+PostgreSQL stores immutable `actions`, `action_reviews`, `action_attempts`, and
+`action_outcomes`. Action UUIDv5 identity derives from SHA-256 canonical full-chain semantic
+input, excluding operational clocks. Review and dry-run identities are deterministic, with
+uniqueness constraints for retries. Lifecycle is projected from Policy and the one terminal
+Review. DRY_RUN validates canonical integrity and authority locally; Outcomes describe only
+`CANONICAL_ACTION_VALIDATED` or `CANONICAL_ACTION_INVALID`. The trace follows Outcome ->
+Attempt -> Action -> Policy -> Decision -> State -> existing provenance without redundant
+Evidence/Signal links. No provider adapter or execution simulator exists.
+
+The M1D Alembic revision contains schema only. Demo seed invokes production Action/workflow
+services with fixed synthetic review identity; it does not alter M1C/M1B.2 fixture records.

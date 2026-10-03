@@ -216,3 +216,44 @@ The synthetic demo outcomes are:
 
 No demo evidence is added or altered to manufacture an ALLOW example; that path exists only in
 isolated evaluator tests.
+
+## M1D governed Action and operational Outcome
+
+```text
+ActionOutcome -> ActionAttempt -> Action -> PolicyEvaluation
+                                     |                 |
+                              ActionReview       DecisionEvaluation
+                                                       |
+                                                AccountStateSnapshot
+```
+
+`actions` stores immutable vendor-neutral business-intent proposals, not execution. The only
+types are `REQUEST_RESEARCH` and `CREATE_SELLER_TASK`. Each uses strict version-1 bounded
+payload codes; provider JSON, commands, contacts, owners, channels, and messages are absent.
+BLOCK materializes no Action. Unsupported valid chains project `NO_SUPPORTED_ACTION` without an
+Action row. `GET /accounts/{id}/action` reads the current M1D projection, whereas plural
+`/actions` reads persisted history only.
+
+The Action semantic input hashes exact Policy and Decision IDs/input hashes, the State snapshot
+ID, definition/evaluator versions, ordered Policy reasons, Action type/version, and canonical
+payload. SHA-256 plus UUIDv5 gives deterministic identity independent of clocks and JSON key
+order. A new PolicyEvaluation ID changes the Action ID. Composite scope foreign keys prevent an
+Action from crossing workspace/account/strategy boundaries.
+
+`action_reviews` stores one immutable terminal APPROVED or REJECTED resolution per
+review-required Action. The client supplies only bounded resolution/reason and a constrained
+Idempotency-Key; only its hash is persisted. Actor kind/ref are server-stamped
+`UNVERIFIED_DEMO_HUMAN` for local commands or `SYNTHETIC_FIXTURE` for the seeded trace. No
+authenticated identity is implied. The Action lifecycle is derived as REVIEW_REQUIRED,
+READY_FOR_DRY_RUN, or REJECTED; no status column exists.
+
+`action_attempts` has only mode DRY_RUN. `action_outcomes` records one immutable operational
+result per Attempt: SUCCEEDED/CANONICAL_ACTION_VALIDATED or
+FAILED/CANONICAL_ACTION_INVALID. The database enforces `external_side_effects=false`.
+Missing approval, rejection, invalid client input, or unavailable actions return errors and create
+no Attempt. Stored payload/hash/version/authority integrity faults create FAILED traces.
+
+The three-account demo preserves upstream fixtures exactly: Asterwind proposes relationship
+research under review; Bramble projects BLOCKED_BY_POLICY with no Action; Cinderlake proposes
+relationship-coordination seller work, has visibly synthetic approval, and passes local dry-run
+validation. No seller task was actually created. ALLOW remains an isolated test fixture.

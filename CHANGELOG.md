@@ -15,3 +15,5 @@ All notable changes to this project will be documented here.
   state provenance, read-only state APIs, and account-detail state UI.
 - M1C versioned deterministic Decision and Policy definitions, immutable exact-snapshot
   evaluations, ordered reason traces, GET-only APIs, and a non-executing account-detail disposition.
+- M1D immutable vendor-neutral Action proposals, review authority events, deterministic local
+  dry-run Attempts and operational Outcomes, read-only hosted presentation, and exact M1C trace.

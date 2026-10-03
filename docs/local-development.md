@@ -33,6 +33,10 @@ The M0 migration is a deliberate no-op baseline. M1A adds workspace, strategy, a
 tables. M1B.1 adds typed event facts, signal definitions, immutable evaluations, relational
 provenance, and canonical signal events. `db:seed-demo` is deterministic and idempotent; it seeds
 the fixed Northstar Revenue Systems Demo snapshot and runs the real evaluator outside Alembic.
+M1D adds schema-only Action, Review, Attempt, and Outcome tables. The seed uses production
+derivation/workflow services to record Asterwind's review-required research proposal, Bramble's
+non-Action BLOCK projection, and Cinderlake's synthetic approval plus local dry-run validation.
+Repeated seed runs replay fixed identities without creating duplicates.
 
 ## Services
 
@@ -43,8 +47,13 @@ npm run web:dev
 
 Run those commands in separate terminals.
 
-The frontend proxies read-only `/api/*` requests to `API_BASE_URL` (default
+The frontend proxies `/api/*` requests to `API_BASE_URL` (default
 `http://localhost:8000`). Keep this server-side setting in `.env`; it is not a public credential.
+M1D mutation routes are disabled by default. Only for controlled local review/dry-run testing,
+set `APP_ENV=development` and `ACTION_MUTATIONS_ENABLED=true` before starting the API.
+Never enable this for a publicly accessible demo: there is no production authentication.
+`APP_ENV=production` with mutations enabled fails startup. Review requests require a bounded
+`Idempotency-Key`; the client cannot submit reviewer or requester identity.
 
 ## Contract workflow
 
@@ -71,6 +80,7 @@ npm run lint
 npm run typecheck
 npm test
 npm run api:test:integration
+npm run contracts:check
 npm run web:build
 ```
 

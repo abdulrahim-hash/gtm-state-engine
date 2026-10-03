@@ -8,7 +8,7 @@ trustworthy account state and producing auditable, policy-governed GTM decisions
 This repository is intentionally not an AI SDR, lead scraper, CRM replacement, email generator, or
 vendor workflow showcase.
 
-## Current status: M1C deterministic Decision and Policy slice
+## Current status: M1D governed Action and Outcome trace
 
 M0 established:
 
@@ -56,9 +56,16 @@ M1C adds:
 - a separate Decision and Policy account-detail surface;
 - a permanently non-executing `PROPOSED_ONLY` disposition.
 
-The stored Decision result `ENGAGE` means **engagement merits consideration**. It is not an
-execution command. M1C does not implement contacts, action candidates, plays, review workflows,
-external execution, outcomes, models, workers, or providers.
+M1D adds immutable, vendor-neutral `REQUEST_RESEARCH` and `CREATE_SELLER_TASK` **Action
+proposals** derived from the exact M1C chain, one terminal review for review-required proposals,
+and local deterministic dry-run validation with strictly operational Outcomes. BLOCK creates no
+Action. The public demo remains read-only; `ACTION_MUTATIONS_ENABLED` defaults false and cannot
+be enabled in production. Cinderlake's approval and dry-run are synthetic fixtures, not actual
+seller work or provider execution. No contact, owner, channel, message, CRM update, external
+request, or commercial result is implied.
+
+The stored Decision result `ENGAGE` still means **engagement merits consideration**. Neither it,
+Policy ALLOW, review approval, nor a successful dry-run authorizes external execution.
 
 ## System spine
 
@@ -154,7 +161,7 @@ seed on PostgreSQL, and runs blocking secret detection.
 
 ## Repository map
 
-- `apps/web`: read-only strategy, account, evidence, signal, evaluation, and state views
+- `apps/web`: read-only hosted strategy-to-Outcome trace, with local-only review/dry-run controls
 - `apps/api`: FastAPI service, migration configuration, and tests
 - `packages/contracts`: committed OpenAPI artifact and generated TypeScript types
 - `infra`: local PostgreSQL configuration
@@ -176,7 +183,7 @@ Apache-2.0.
 
 ## Current build status
 
-The project is currently at **M1C - Deterministic Decision and Policy**.
+The project is currently at **M1D - Governed Action proposal and local Outcome trace**.
 
 ### Working today
 
@@ -196,8 +203,10 @@ The project is currently at **M1C - Deterministic Decision and Policy**.
 - Deterministic ordered reason codes
 - Exact state-snapshot Decision/Policy provenance
 - Non-executing proposed dispositions
-- Read-only FastAPI endpoints
-- Strategy, account state, Decision, Policy, evidence, and signal UI
+- Immutable vendor-neutral Action proposals and terminal Review history
+- Deterministic local dry-run Attempts and strictly operational Outcomes
+- Read-only hosted FastAPI surface; narrow local-only review/dry-run commands
+- Strategy, account state, Decision, Policy, Action, Outcome, evidence, and signal UI
 - PostgreSQL migrations
 - Deterministic demo fixtures
 - Contract drift checks
@@ -219,10 +228,15 @@ Account State
 Decision
 ->
 Policy
+->
+Action proposal
+->
+Local dry-run Outcome
 
 ### Current boundary
 
-M1C ends at a deterministic proposed Decision plus Policy disposition. `ALLOW` can only permit
-future planning; it does not authorize execution. Actions, review workflow, activation, outcomes,
-AI, and external providers remain intentionally out of scope.
+M1D ends at an immutable Action proposal, explicit review authority where required, and a local
+canonical-validation Outcome. `ALLOW`, review approval, and dry-run success do not authorize
+external execution. Contacts, owners, messages, live activation, commercial outcomes, AI
+authority, and external providers remain intentionally out of scope.
 
