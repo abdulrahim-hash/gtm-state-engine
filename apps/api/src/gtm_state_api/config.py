@@ -3,6 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,6 +14,16 @@ class Settings(BaseSettings):
 
     app_env: Literal["development", "test", "production"] = "development"
     database_url: str = "postgresql+psycopg://gtm_state:gtm_state_local@localhost:5432/gtm_state"
+
+    action_mutations_enabled: bool = False
+
+    @model_validator(mode="after")
+    def reject_production_action_mutations(self) -> "Settings":
+        """Keep the hosted/production M1D surface read-only without authentication."""
+
+        if self.app_env == "production" and self.action_mutations_enabled:
+            raise ValueError("ACTION_MUTATIONS_ENABLED cannot be true when APP_ENV=production")
+        return self
 
 
 @lru_cache

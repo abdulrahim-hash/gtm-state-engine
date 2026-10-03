@@ -238,6 +238,99 @@ class PolicyReasonCode(StrEnum):
     ALL_POLICY_CONSTRAINTS_SATISFIED = "ALL_POLICY_CONSTRAINTS_SATISFIED"
 
 
+class ActionType(StrEnum):
+    """Vendor-neutral GTM operational intents supported by M1D."""
+
+    REQUEST_RESEARCH = "REQUEST_RESEARCH"
+    CREATE_SELLER_TASK = "CREATE_SELLER_TASK"
+
+
+class ActionLifecycle(StrEnum):
+    """Read-only governance projection; never stored as mutable Action state."""
+
+    REVIEW_REQUIRED = "REVIEW_REQUIRED"
+    READY_FOR_DRY_RUN = "READY_FOR_DRY_RUN"
+    REJECTED = "REJECTED"
+
+
+class ActionCurrentProjection(StrEnum):
+    """Current account-level result, including non-Action abstentions."""
+
+    ACTION_PROPOSED = "ACTION_PROPOSED"
+    BLOCKED_BY_POLICY = "BLOCKED_BY_POLICY"
+    NO_SUPPORTED_ACTION = "NO_SUPPORTED_ACTION"
+
+
+class ResearchTopic(StrEnum):
+    """Bounded subjects for a canonical research request."""
+
+    RELATIONSHIP_CONTEXT = "RELATIONSHIP_CONTEXT"
+    EVIDENCE_COVERAGE = "EVIDENCE_COVERAGE"
+
+
+class ResearchRequestCode(StrEnum):
+    """Non-executable research instructions."""
+
+    VERIFY_EXISTING_RELATIONSHIP = "VERIFY_EXISTING_RELATIONSHIP"
+    RESOLVE_EVIDENCE_GAPS = "RESOLVE_EVIDENCE_GAPS"
+
+
+class SellerTaskKind(StrEnum):
+    """Bounded seller-task intents without provider or assignment semantics."""
+
+    RELATIONSHIP_COORDINATION = "RELATIONSHIP_COORDINATION"
+    ENGAGEMENT_ASSESSMENT = "ENGAGEMENT_ASSESSMENT"
+
+
+class SellerTaskObjectiveCode(StrEnum):
+    """Bounded objectives for a proposed seller task."""
+
+    ASSESS_CONTROLLED_ENGAGEMENT_PATH = "ASSESS_CONTROLLED_ENGAGEMENT_PATH"
+    ASSESS_POLICY_ALLOWED_ENGAGEMENT = "ASSESS_POLICY_ALLOWED_ENGAGEMENT"
+
+
+class ActionReviewResolution(StrEnum):
+    """One terminal human resolution for a review-required Action."""
+
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class ActionReviewReasonCode(StrEnum):
+    """Bounded review explanations; M1D stores no free-form review text."""
+
+    APPROVED_AS_PROPOSED = "APPROVED_AS_PROPOSED"
+    REJECTED_INSUFFICIENT_CONTEXT = "REJECTED_INSUFFICIENT_CONTEXT"
+    REJECTED_ACTION_NOT_APPROPRIATE = "REJECTED_ACTION_NOT_APPROPRIATE"
+
+
+class ActionActorKind(StrEnum):
+    """Honest identity assurance for unauthenticated demo events."""
+
+    UNVERIFIED_DEMO_HUMAN = "UNVERIFIED_DEMO_HUMAN"
+    SYNTHETIC_FIXTURE = "SYNTHETIC_FIXTURE"
+
+
+class ActionAttemptMode(StrEnum):
+    """M1D supports local validation only."""
+
+    DRY_RUN = "DRY_RUN"
+
+
+class ActionOutcomeResult(StrEnum):
+    """Operational result of local deterministic validation."""
+
+    SUCCEEDED = "SUCCEEDED"
+    FAILED = "FAILED"
+
+
+class ActionOutcomeReasonCode(StrEnum):
+    """Strictly operational M1D Outcome reasons."""
+
+    CANONICAL_ACTION_VALIDATED = "CANONICAL_ACTION_VALIDATED"
+    CANONICAL_ACTION_INVALID = "CANONICAL_ACTION_INVALID"
+
+
 class StrategyTopic(StrEnum):
     """Required synthetic strategy coverage areas."""
 

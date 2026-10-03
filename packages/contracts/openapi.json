@@ -1,6 +1,44 @@
 {
   "components": {
     "schemas": {
+      "AccountActionHistoryResponse": {
+        "additionalProperties": false,
+        "description": "Persisted Action history only; non-Action projections never appear here.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ActionDetailResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "account_id",
+          "items",
+          "limit",
+          "offset"
+        ],
+        "title": "AccountActionHistoryResponse",
+        "type": "object"
+      },
       "AccountDecisionHistoryResponse": {
         "additionalProperties": false,
         "description": "Paginated immutable Decision and Policy history for one account.",
@@ -488,6 +526,561 @@
         "title": "AccountTimingState",
         "type": "string"
       },
+      "ActionActorKind": {
+        "description": "Honest identity assurance for unauthenticated demo events.",
+        "enum": [
+          "UNVERIFIED_DEMO_HUMAN",
+          "SYNTHETIC_FIXTURE"
+        ],
+        "title": "ActionActorKind",
+        "type": "string"
+      },
+      "ActionAttemptMode": {
+        "description": "M1D supports local validation only.",
+        "enum": [
+          "DRY_RUN"
+        ],
+        "title": "ActionAttemptMode",
+        "type": "string"
+      },
+      "ActionAttemptResponse": {
+        "additionalProperties": false,
+        "description": "Immutable local dry-run validation attempt.",
+        "properties": {
+          "action_attempt_id": {
+            "format": "uuid",
+            "title": "Action Attempt Id",
+            "type": "string"
+          },
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "attempted_at": {
+            "format": "date-time",
+            "title": "Attempted At",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "input_hash": {
+            "title": "Input Hash",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/ActionAttemptMode"
+          },
+          "requested_by_kind": {
+            "$ref": "#/components/schemas/ActionActorKind"
+          },
+          "requested_by_ref": {
+            "title": "Requested By Ref",
+            "type": "string"
+          },
+          "review_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Id"
+          },
+          "validator_key": {
+            "title": "Validator Key",
+            "type": "string"
+          },
+          "validator_version": {
+            "title": "Validator Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_attempt_id",
+          "action_id",
+          "review_id",
+          "mode",
+          "validator_key",
+          "validator_version",
+          "input_hash",
+          "requested_by_kind",
+          "requested_by_ref",
+          "attempted_at",
+          "created_at"
+        ],
+        "title": "ActionAttemptResponse",
+        "type": "object"
+      },
+      "ActionAttemptTraceResponse": {
+        "additionalProperties": false,
+        "description": "A dry-run attempt and its one operational Outcome.",
+        "properties": {
+          "attempt": {
+            "$ref": "#/components/schemas/ActionAttemptResponse"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ActionOutcomeResponse"
+          }
+        },
+        "required": [
+          "attempt",
+          "outcome"
+        ],
+        "title": "ActionAttemptTraceResponse",
+        "type": "object"
+      },
+      "ActionCurrentProjection": {
+        "description": "Current account-level result, including non-Action abstentions.",
+        "enum": [
+          "ACTION_PROPOSED",
+          "BLOCKED_BY_POLICY",
+          "NO_SUPPORTED_ACTION"
+        ],
+        "title": "ActionCurrentProjection",
+        "type": "string"
+      },
+      "ActionDetailResponse": {
+        "additionalProperties": false,
+        "description": "Action proposal with projected governance and operational history.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ActionResponse"
+          },
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/ActionAttemptTraceResponse"
+            },
+            "title": "Attempts",
+            "type": "array"
+          },
+          "external_execution_authorized": {
+            "const": false,
+            "default": false,
+            "title": "External Execution Authorized",
+            "type": "boolean"
+          },
+          "lifecycle": {
+            "$ref": "#/components/schemas/ActionLifecycle"
+          },
+          "mutations_enabled": {
+            "title": "Mutations Enabled",
+            "type": "boolean"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionReviewResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "lifecycle",
+          "review",
+          "attempts",
+          "mutations_enabled"
+        ],
+        "title": "ActionDetailResponse",
+        "type": "object"
+      },
+      "ActionDryRunMutationResponse": {
+        "additionalProperties": false,
+        "description": "Result of local deterministic validation without external execution.",
+        "properties": {
+          "external_execution_authorized": {
+            "const": false,
+            "default": false,
+            "title": "External Execution Authorized",
+            "type": "boolean"
+          },
+          "idempotent_replay": {
+            "title": "Idempotent Replay",
+            "type": "boolean"
+          },
+          "trace": {
+            "$ref": "#/components/schemas/ActionAttemptTraceResponse"
+          }
+        },
+        "required": [
+          "trace",
+          "idempotent_replay"
+        ],
+        "title": "ActionDryRunMutationResponse",
+        "type": "object"
+      },
+      "ActionLifecycle": {
+        "description": "Read-only governance projection; never stored as mutable Action state.",
+        "enum": [
+          "REVIEW_REQUIRED",
+          "READY_FOR_DRY_RUN",
+          "REJECTED"
+        ],
+        "title": "ActionLifecycle",
+        "type": "string"
+      },
+      "ActionOutcomeListResponse": {
+        "additionalProperties": false,
+        "description": "Immutable operational Outcomes for one Action.",
+        "properties": {
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ActionOutcomeResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "action_id",
+          "items"
+        ],
+        "title": "ActionOutcomeListResponse",
+        "type": "object"
+      },
+      "ActionOutcomeReasonCode": {
+        "description": "Strictly operational M1D Outcome reasons.",
+        "enum": [
+          "CANONICAL_ACTION_VALIDATED",
+          "CANONICAL_ACTION_INVALID"
+        ],
+        "title": "ActionOutcomeReasonCode",
+        "type": "string"
+      },
+      "ActionOutcomeResponse": {
+        "additionalProperties": false,
+        "description": "Strictly operational result of local canonical validation.",
+        "properties": {
+          "action_attempt_id": {
+            "format": "uuid",
+            "title": "Action Attempt Id",
+            "type": "string"
+          },
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "external_side_effects": {
+            "const": false,
+            "title": "External Side Effects",
+            "type": "boolean"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "outcome_id": {
+            "format": "uuid",
+            "title": "Outcome Id",
+            "type": "string"
+          },
+          "outcome_schema_version": {
+            "title": "Outcome Schema Version",
+            "type": "string"
+          },
+          "reason_code": {
+            "$ref": "#/components/schemas/ActionOutcomeReasonCode"
+          },
+          "result": {
+            "$ref": "#/components/schemas/ActionOutcomeResult"
+          },
+          "result_hash": {
+            "title": "Result Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome_id",
+          "action_id",
+          "action_attempt_id",
+          "result",
+          "reason_code",
+          "outcome_schema_version",
+          "result_hash",
+          "external_side_effects",
+          "observed_at",
+          "created_at"
+        ],
+        "title": "ActionOutcomeResponse",
+        "type": "object"
+      },
+      "ActionOutcomeResult": {
+        "description": "Operational result of local deterministic validation.",
+        "enum": [
+          "SUCCEEDED",
+          "FAILED"
+        ],
+        "title": "ActionOutcomeResult",
+        "type": "string"
+      },
+      "ActionResponse": {
+        "additionalProperties": false,
+        "description": "Immutable canonical Action proposal; never proof of external execution.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "action_schema_version": {
+            "title": "Action Schema Version",
+            "type": "string"
+          },
+          "action_type": {
+            "$ref": "#/components/schemas/ActionType"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "derivation_key": {
+            "title": "Derivation Key",
+            "type": "string"
+          },
+          "derivation_version": {
+            "title": "Derivation Version",
+            "type": "string"
+          },
+          "external_execution_authorized": {
+            "const": false,
+            "default": false,
+            "title": "External Execution Authorized",
+            "type": "boolean"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequestResearchPayload"
+              },
+              {
+                "$ref": "#/components/schemas/CreateSellerTaskPayload"
+              }
+            ],
+            "title": "Payload"
+          },
+          "policy_evaluation_id": {
+            "format": "uuid",
+            "title": "Policy Evaluation Id",
+            "type": "string"
+          },
+          "proposed_at": {
+            "format": "date-time",
+            "title": "Proposed At",
+            "type": "string"
+          },
+          "semantic_input_hash": {
+            "title": "Semantic Input Hash",
+            "type": "string"
+          },
+          "strategy_version_id": {
+            "format": "uuid",
+            "title": "Strategy Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_id",
+          "workspace_id",
+          "account_id",
+          "strategy_version_id",
+          "policy_evaluation_id",
+          "action_type",
+          "action_schema_version",
+          "derivation_key",
+          "derivation_version",
+          "payload",
+          "semantic_input_hash",
+          "proposed_at",
+          "created_at"
+        ],
+        "title": "ActionResponse",
+        "type": "object"
+      },
+      "ActionReviewMutationResponse": {
+        "additionalProperties": false,
+        "description": "Result of an explicit local-demo review command.",
+        "properties": {
+          "external_execution_authorized": {
+            "const": false,
+            "default": false,
+            "title": "External Execution Authorized",
+            "type": "boolean"
+          },
+          "idempotent_replay": {
+            "title": "Idempotent Replay",
+            "type": "boolean"
+          },
+          "lifecycle": {
+            "$ref": "#/components/schemas/ActionLifecycle"
+          },
+          "review": {
+            "$ref": "#/components/schemas/ActionReviewResponse"
+          }
+        },
+        "required": [
+          "review",
+          "lifecycle",
+          "idempotent_replay"
+        ],
+        "title": "ActionReviewMutationResponse",
+        "type": "object"
+      },
+      "ActionReviewReasonCode": {
+        "description": "Bounded review explanations; M1D stores no free-form review text.",
+        "enum": [
+          "APPROVED_AS_PROPOSED",
+          "REJECTED_INSUFFICIENT_CONTEXT",
+          "REJECTED_ACTION_NOT_APPROPRIATE"
+        ],
+        "title": "ActionReviewReasonCode",
+        "type": "string"
+      },
+      "ActionReviewRequest": {
+        "additionalProperties": false,
+        "description": "Bounded unauthenticated-demo review command.",
+        "properties": {
+          "reason_code": {
+            "$ref": "#/components/schemas/ActionReviewReasonCode"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/ActionReviewResolution"
+          }
+        },
+        "required": [
+          "resolution",
+          "reason_code"
+        ],
+        "title": "ActionReviewRequest",
+        "type": "object"
+      },
+      "ActionReviewResolution": {
+        "description": "One terminal human resolution for a review-required Action.",
+        "enum": [
+          "APPROVED",
+          "REJECTED"
+        ],
+        "title": "ActionReviewResolution",
+        "type": "string"
+      },
+      "ActionReviewResponse": {
+        "additionalProperties": false,
+        "description": "One immutable terminal review with honest identity assurance.",
+        "properties": {
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "reason_code": {
+            "$ref": "#/components/schemas/ActionReviewReasonCode"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/ActionReviewResolution"
+          },
+          "review_id": {
+            "format": "uuid",
+            "title": "Review Id",
+            "type": "string"
+          },
+          "reviewed_at": {
+            "format": "date-time",
+            "title": "Reviewed At",
+            "type": "string"
+          },
+          "reviewer_kind": {
+            "$ref": "#/components/schemas/ActionActorKind"
+          },
+          "reviewer_ref": {
+            "title": "Reviewer Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "review_id",
+          "action_id",
+          "resolution",
+          "reason_code",
+          "reviewer_kind",
+          "reviewer_ref",
+          "reviewed_at",
+          "created_at"
+        ],
+        "title": "ActionReviewResponse",
+        "type": "object"
+      },
+      "ActionTraceResponse": {
+        "additionalProperties": false,
+        "description": "Composed end-to-end trace without stored provenance duplication.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ActionDetailResponse"
+          },
+          "state": {
+            "$ref": "#/components/schemas/AccountStateDetailResponse"
+          },
+          "strategy": {
+            "$ref": "#/components/schemas/StrategyResponse"
+          },
+          "upstream": {
+            "$ref": "#/components/schemas/DecisionPolicyDetailResponse"
+          }
+        },
+        "required": [
+          "strategy",
+          "state",
+          "upstream",
+          "action"
+        ],
+        "title": "ActionTraceResponse",
+        "type": "object"
+      },
+      "ActionType": {
+        "description": "Vendor-neutral GTM operational intents supported by M1D.",
+        "enum": [
+          "REQUEST_RESEARCH",
+          "CREATE_SELLER_TASK"
+        ],
+        "title": "ActionType",
+        "type": "string"
+      },
       "ActiveStrategyResponse": {
         "additionalProperties": false,
         "description": "Envelope preserving workspace demo-time semantics.",
@@ -573,6 +1166,101 @@
           "created_at"
         ],
         "title": "CanonicalSignalResponse",
+        "type": "object"
+      },
+      "CreateSellerTaskPayload": {
+        "additionalProperties": false,
+        "description": "Strict provider-neutral payload for a proposed seller task.",
+        "properties": {
+          "objective_code": {
+            "$ref": "#/components/schemas/SellerTaskObjectiveCode"
+          },
+          "task_kind": {
+            "$ref": "#/components/schemas/SellerTaskKind"
+          }
+        },
+        "required": [
+          "task_kind",
+          "objective_code"
+        ],
+        "title": "CreateSellerTaskPayload",
+        "type": "object"
+      },
+      "CurrentAccountActionResponse": {
+        "additionalProperties": false,
+        "description": "Current exact Decision/Policy disposition and its M1D projection.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "current": {
+            "$ref": "#/components/schemas/CurrentActionProjectionResponse"
+          },
+          "upstream": {
+            "$ref": "#/components/schemas/DecisionPolicyDetailResponse"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceResponse"
+          }
+        },
+        "required": [
+          "workspace",
+          "account_id",
+          "upstream",
+          "current"
+        ],
+        "title": "CurrentAccountActionResponse",
+        "type": "object"
+      },
+      "CurrentActionProjectionResponse": {
+        "additionalProperties": false,
+        "description": "Current M1D result, including non-persisted BLOCK/abstention projections.",
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionDetailResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "external_execution_authorized": {
+            "const": false,
+            "default": false,
+            "title": "External Execution Authorized",
+            "type": "boolean"
+          },
+          "policy_evaluation_id": {
+            "format": "uuid",
+            "title": "Policy Evaluation Id",
+            "type": "string"
+          },
+          "policy_reason_codes": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyReasonCode"
+            },
+            "title": "Policy Reason Codes",
+            "type": "array"
+          },
+          "policy_result": {
+            "$ref": "#/components/schemas/PolicyResult"
+          },
+          "projection": {
+            "$ref": "#/components/schemas/ActionCurrentProjection"
+          }
+        },
+        "required": [
+          "projection",
+          "policy_evaluation_id",
+          "policy_result",
+          "policy_reason_codes",
+          "action"
+        ],
+        "title": "CurrentActionProjectionResponse",
         "type": "object"
       },
       "DecisionDefinitionResponse": {
@@ -1471,6 +2159,60 @@
         "title": "ReadinessResponse",
         "type": "object"
       },
+      "RequestResearchPayload": {
+        "additionalProperties": false,
+        "description": "Strict provider-neutral payload for an account research request.",
+        "properties": {
+          "request_code": {
+            "$ref": "#/components/schemas/ResearchRequestCode"
+          },
+          "research_topic": {
+            "$ref": "#/components/schemas/ResearchTopic"
+          }
+        },
+        "required": [
+          "research_topic",
+          "request_code"
+        ],
+        "title": "RequestResearchPayload",
+        "type": "object"
+      },
+      "ResearchRequestCode": {
+        "description": "Non-executable research instructions.",
+        "enum": [
+          "VERIFY_EXISTING_RELATIONSHIP",
+          "RESOLVE_EVIDENCE_GAPS"
+        ],
+        "title": "ResearchRequestCode",
+        "type": "string"
+      },
+      "ResearchTopic": {
+        "description": "Bounded subjects for a canonical research request.",
+        "enum": [
+          "RELATIONSHIP_CONTEXT",
+          "EVIDENCE_COVERAGE"
+        ],
+        "title": "ResearchTopic",
+        "type": "string"
+      },
+      "SellerTaskKind": {
+        "description": "Bounded seller-task intents without provider or assignment semantics.",
+        "enum": [
+          "RELATIONSHIP_COORDINATION",
+          "ENGAGEMENT_ASSESSMENT"
+        ],
+        "title": "SellerTaskKind",
+        "type": "string"
+      },
+      "SellerTaskObjectiveCode": {
+        "description": "Bounded objectives for a proposed seller task.",
+        "enum": [
+          "ASSESS_CONTROLLED_ENGAGEMENT_PATH",
+          "ASSESS_POLICY_ALLOWED_ENGAGEMENT"
+        ],
+        "title": "SellerTaskObjectiveCode",
+        "type": "string"
+      },
       "SignalCategory": {
         "description": "Commercial-event families supported by signal definitions.",
         "enum": [
@@ -2243,6 +2985,117 @@
         ]
       }
     },
+    "/api/v1/accounts/{account_id}/action": {
+      "get": {
+        "description": "Return the current M1D projection separately from persisted Action history.",
+        "operationId": "get_current_account_action_api_v1_accounts__account_id__action_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentAccountActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Current Account Action",
+        "tags": [
+          "M1D governed Action and Outcome"
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/actions": {
+      "get": {
+        "description": "Return persisted Actions only; BLOCK and abstention projections are excluded.",
+        "operationId": "list_account_action_history_api_v1_accounts__account_id__actions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountActionHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Account Action History",
+        "tags": [
+          "M1D governed Action and Outcome"
+        ]
+      }
+    },
     "/api/v1/accounts/{account_id}/decision": {
       "get": {
         "description": "Return persisted Decision and Policy; ENGAGE means consideration, never execution.",
@@ -2600,6 +3453,258 @@
         "summary": "List Account State History",
         "tags": [
           "M1B.2 account-state read model"
+        ]
+      }
+    },
+    "/api/v1/actions/{action_id}": {
+      "get": {
+        "description": "Return one immutable Action proposal and its projected governance state.",
+        "operationId": "get_action_api_v1_actions__action_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "action_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Action Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Action",
+        "tags": [
+          "M1D governed Action and Outcome"
+        ]
+      }
+    },
+    "/api/v1/actions/{action_id}/dry-runs": {
+      "post": {
+        "description": "Run local deterministic validation; never simulate external execution.",
+        "operationId": "dry_run_action_api_v1_actions__action_id__dry_runs_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "action_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Action Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": " Body",
+                "type": "null"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionDryRunMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Dry Run Action",
+        "tags": [
+          "M1D governed Action and Outcome"
+        ]
+      }
+    },
+    "/api/v1/actions/{action_id}/outcomes": {
+      "get": {
+        "description": "Return operational dry-run Outcomes only.",
+        "operationId": "list_action_outcomes_api_v1_actions__action_id__outcomes_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "action_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Action Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionOutcomeListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Action Outcomes",
+        "tags": [
+          "M1D governed Action and Outcome"
+        ]
+      }
+    },
+    "/api/v1/actions/{action_id}/reviews": {
+      "post": {
+        "description": "Record one bounded local-demo review without claiming authenticated identity.",
+        "operationId": "review_action_api_v1_actions__action_id__reviews_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "action_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Action Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActionReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionReviewMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Action",
+        "tags": [
+          "M1D governed Action and Outcome"
+        ]
+      }
+    },
+    "/api/v1/actions/{action_id}/trace": {
+      "get": {
+        "description": "Compose Strategy through Outcome without adding redundant provenance rows.",
+        "operationId": "get_action_trace_api_v1_actions__action_id__trace_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "action_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Action Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionTraceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Action Trace",
+        "tags": [
+          "M1D governed Action and Outcome"
         ]
       }
     },

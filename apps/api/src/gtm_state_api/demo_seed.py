@@ -11,6 +11,8 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from gtm_state_api.action_engine import materialize_policy_actions
+from gtm_state_api.action_workflow import create_action_review, run_action_dry_run
 from gtm_state_api.decision_engine import materialize_snapshot_dispositions
 from gtm_state_api.models import (
     Account,
@@ -25,6 +27,9 @@ from gtm_state_api.models import (
 from gtm_state_api.schemas import EvidenceValidationInput
 from gtm_state_api.state_engine import recompute_workspace_account_states
 from gtm_state_api.types import (
+    ActionActorKind,
+    ActionReviewReasonCode,
+    ActionReviewResolution,
     EvaluationDefinitionStatus,
     EvidenceAssertion,
     EvidenceClassification,
@@ -41,6 +46,12 @@ DEMO_STRATEGY_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000002")
 DEMO_AS_OF = datetime(2026, 9, 15, 12, 0, tzinfo=UTC)
 DEMO_INGESTED_AT = datetime(2026, 9, 15, 12, 5, tzinfo=UTC)
 DEMO_EVALUATED_AT = datetime(2026, 9, 15, 12, 10, tzinfo=UTC)
+DEMO_ACTION_PROPOSED_AT = DEMO_EVALUATED_AT + timedelta(minutes=1)
+DEMO_REVIEWED_AT = DEMO_EVALUATED_AT + timedelta(minutes=2)
+DEMO_DRY_RUN_AT = DEMO_EVALUATED_AT + timedelta(minutes=3)
+DEMO_CINDERLAKE_REVIEW_KEY = "synthetic-cinderlake-review-v1"
+DEMO_CINDERLAKE_REVIEWER_REF = "synthetic-fixture-cinderlake-reviewer"
+DEMO_CINDERLAKE_REQUESTER_REF = "synthetic-fixture-cinderlake-dry-run"
 NEW_REVENUE_LEADER_DEFINITION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000401")
 HIRING_EXPANSION_DEFINITION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000402")
 TARGET_OPERATING_COMPLEXITY_CRITERION_ID = UUID("1a1206b7-243c-4f22-8d7f-53aa00000411")
@@ -582,9 +593,36 @@ def seed_demo(session: Session) -> None:
         DEMO_WORKSPACE_ID,
         computed_at=DEMO_EVALUATED_AT,
     )
-    materialize_snapshot_dispositions(
+    dispositions = materialize_snapshot_dispositions(
         session,
         [snapshot.state_snapshot_id for snapshot in snapshots],
         evaluated_at=DEMO_EVALUATED_AT,
+    )
+    action_results = materialize_policy_actions(
+        session,
+        [policy.policy_evaluation_id for _, policy in dispositions],
+        proposed_at=DEMO_ACTION_PROPOSED_AT,
+    )
+    cinderlake_action = next(
+        action
+        for _, action in action_results
+        if action is not None and action.account_id == DEMO_ACCOUNTS[2]["id"]
+    )
+    create_action_review(
+        session,
+        cinderlake_action.action_id,
+        resolution=ActionReviewResolution.APPROVED,
+        reason_code=ActionReviewReasonCode.APPROVED_AS_PROPOSED,
+        idempotency_key=DEMO_CINDERLAKE_REVIEW_KEY,
+        reviewer_kind=ActionActorKind.SYNTHETIC_FIXTURE,
+        reviewer_ref=DEMO_CINDERLAKE_REVIEWER_REF,
+        reviewed_at=DEMO_REVIEWED_AT,
+    )
+    run_action_dry_run(
+        session,
+        cinderlake_action.action_id,
+        requested_by_kind=ActionActorKind.SYNTHETIC_FIXTURE,
+        requested_by_ref=DEMO_CINDERLAKE_REQUESTER_REF,
+        attempted_at=DEMO_DRY_RUN_AT,
     )
     session.commit()

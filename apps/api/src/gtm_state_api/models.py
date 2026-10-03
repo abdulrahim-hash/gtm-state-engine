@@ -19,6 +19,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import text
 
@@ -29,6 +30,13 @@ from gtm_state_api.types import (
     AccountStateFacet,
     AccountStateReasonCode,
     AccountTimingState,
+    ActionActorKind,
+    ActionAttemptMode,
+    ActionOutcomeReasonCode,
+    ActionOutcomeResult,
+    ActionReviewReasonCode,
+    ActionReviewResolution,
+    ActionType,
     DecisionReasonCode,
     DecisionResult,
     EvaluationDefinitionStatus,
@@ -984,6 +992,13 @@ class PolicyEvaluation(Base):
 
     __tablename__ = "policy_evaluations"
     __table_args__ = (
+        UniqueConstraint(
+            "policy_evaluation_id",
+            "workspace_id",
+            "account_id",
+            "strategy_version_id",
+            name="uq_policy_evaluations_action_scope",
+        ),
         ForeignKeyConstraint(
             ["state_snapshot_id", "workspace_id", "account_id", "strategy_version_id"],
             [
@@ -1054,6 +1069,228 @@ class PolicyEvaluation(Base):
     result: Mapped[PolicyResult] = mapped_column(
         Enum(PolicyResult, name="policy_result", create_constraint=False), nullable=False
     )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class Action(Base):
+    """Immutable vendor-neutral GTM operational intent."""
+
+    __tablename__ = "actions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            [
+                "policy_evaluation_id",
+                "workspace_id",
+                "account_id",
+                "strategy_version_id",
+            ],
+            [
+                "policy_evaluations.policy_evaluation_id",
+                "policy_evaluations.workspace_id",
+                "policy_evaluations.account_id",
+                "policy_evaluations.strategy_version_id",
+            ],
+            name="fk_actions_policy_scope",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "policy_evaluation_id",
+            "derivation_key",
+            "derivation_version",
+            name="uq_actions_policy_derivation",
+        ),
+        UniqueConstraint("semantic_input_hash", name="uq_actions_semantic_input_hash"),
+        UniqueConstraint("action_id", "workspace_id", "account_id", name="uq_actions_scope"),
+        CheckConstraint(
+            "semantic_input_hash ~ '^[a-f0-9]{64}$'",
+            name="ck_actions_semantic_input_hash",
+        ),
+        CheckConstraint(
+            "jsonb_typeof(payload) = 'object'",
+            name="ck_actions_payload_object",
+        ),
+        Index(
+            "ix_actions_account_history",
+            "workspace_id",
+            "account_id",
+            "proposed_at",
+        ),
+        Index("ix_actions_policy_evaluation", "policy_evaluation_id"),
+    )
+
+    action_id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(nullable=False)
+    account_id: Mapped[UUID] = mapped_column(nullable=False)
+    strategy_version_id: Mapped[UUID] = mapped_column(nullable=False)
+    policy_evaluation_id: Mapped[UUID] = mapped_column(nullable=False)
+    action_type: Mapped[ActionType] = mapped_column(
+        Enum(ActionType, name="action_type", create_constraint=False),
+        nullable=False,
+    )
+    action_schema_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    derivation_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    derivation_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    payload: Mapped[dict[str, str]] = mapped_column(JSONB, nullable=False)
+    semantic_input_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    proposed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ActionReview(Base):
+    """One immutable terminal review of a review-required Action proposal."""
+
+    __tablename__ = "action_reviews"
+    __table_args__ = (
+        UniqueConstraint("action_id", name="uq_action_reviews_one_terminal"),
+        UniqueConstraint(
+            "action_id",
+            "idempotency_key_hash",
+            name="uq_action_reviews_idempotency",
+        ),
+        UniqueConstraint("review_id", "action_id", name="uq_action_reviews_scope"),
+        CheckConstraint(
+            "idempotency_key_hash ~ '^[a-f0-9]{64}$'",
+            name="ck_action_reviews_idempotency_hash",
+        ),
+        CheckConstraint(
+            "request_hash ~ '^[a-f0-9]{64}$'",
+            name="ck_action_reviews_request_hash",
+        ),
+    )
+
+    review_id: Mapped[UUID] = mapped_column(primary_key=True)
+    action_id: Mapped[UUID] = mapped_column(
+        ForeignKey("actions.action_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    resolution: Mapped[ActionReviewResolution] = mapped_column(
+        Enum(
+            ActionReviewResolution,
+            name="action_review_resolution",
+            create_constraint=False,
+        ),
+        nullable=False,
+    )
+    reason_code: Mapped[ActionReviewReasonCode] = mapped_column(
+        Enum(
+            ActionReviewReasonCode,
+            name="action_review_reason_code",
+            create_constraint=False,
+        ),
+        nullable=False,
+    )
+    reviewer_kind: Mapped[ActionActorKind] = mapped_column(
+        Enum(ActionActorKind, name="action_actor_kind", create_constraint=False),
+        nullable=False,
+    )
+    reviewer_ref: Mapped[str] = mapped_column(String(120), nullable=False)
+    idempotency_key_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    request_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    reviewed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ActionAttempt(Base):
+    """Immutable local validation attempt; M1D never executes externally."""
+
+    __tablename__ = "action_attempts"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["review_id", "action_id"],
+            ["action_reviews.review_id", "action_reviews.action_id"],
+            name="fk_action_attempts_review_scope",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "action_id",
+            "mode",
+            "validator_key",
+            "validator_version",
+            "input_hash",
+            name="uq_action_attempts_semantic",
+        ),
+        UniqueConstraint(
+            "action_attempt_id",
+            "action_id",
+            name="uq_action_attempts_scope",
+        ),
+        CheckConstraint(
+            "input_hash ~ '^[a-f0-9]{64}$'",
+            name="ck_action_attempts_input_hash",
+        ),
+        Index("ix_action_attempts_action", "action_id", "attempted_at"),
+    )
+
+    action_attempt_id: Mapped[UUID] = mapped_column(primary_key=True)
+    action_id: Mapped[UUID] = mapped_column(
+        ForeignKey("actions.action_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    review_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    mode: Mapped[ActionAttemptMode] = mapped_column(
+        Enum(ActionAttemptMode, name="action_attempt_mode", create_constraint=False),
+        nullable=False,
+    )
+    validator_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    validator_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    input_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    requested_by_kind: Mapped[ActionActorKind] = mapped_column(
+        Enum(ActionActorKind, name="action_actor_kind", create_constraint=False),
+        nullable=False,
+    )
+    requested_by_ref: Mapped[str] = mapped_column(String(120), nullable=False)
+    attempted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ActionOutcome(Base):
+    """Immutable operational result of one local dry-run attempt."""
+
+    __tablename__ = "action_outcomes"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["action_attempt_id", "action_id"],
+            ["action_attempts.action_attempt_id", "action_attempts.action_id"],
+            name="fk_action_outcomes_attempt_scope",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "action_attempt_id",
+            name="uq_action_outcomes_one_per_attempt",
+        ),
+        CheckConstraint(
+            "result_hash ~ '^[a-f0-9]{64}$'",
+            name="ck_action_outcomes_result_hash",
+        ),
+        CheckConstraint(
+            "external_side_effects = false",
+            name="ck_action_outcomes_no_external_side_effects",
+        ),
+        Index("ix_action_outcomes_action", "action_id", "observed_at"),
+    )
+
+    outcome_id: Mapped[UUID] = mapped_column(primary_key=True)
+    action_id: Mapped[UUID] = mapped_column(
+        ForeignKey("actions.action_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    action_attempt_id: Mapped[UUID] = mapped_column(nullable=False)
+    result: Mapped[ActionOutcomeResult] = mapped_column(
+        Enum(ActionOutcomeResult, name="action_outcome_result", create_constraint=False),
+        nullable=False,
+    )
+    reason_code: Mapped[ActionOutcomeReasonCode] = mapped_column(
+        Enum(
+            ActionOutcomeReasonCode,
+            name="action_outcome_reason_code",
+            create_constraint=False,
+        ),
+        nullable=False,
+    )
+    outcome_schema_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    result_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    external_side_effects: Mapped[bool] = mapped_column(nullable=False, default=False)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 

@@ -64,6 +64,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/accounts/{account_id}/action": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Current Account Action
+         * @description Return the current M1D projection separately from persisted Action history.
+         */
+        get: operations["get_current_account_action_api_v1_accounts__account_id__action_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{account_id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Account Action History
+         * @description Return persisted Actions only; BLOCK and abstention projections are excluded.
+         */
+        get: operations["list_account_action_history_api_v1_accounts__account_id__actions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts/{account_id}/decision": {
         parameters: {
             query?: never;
@@ -176,6 +216,106 @@ export interface paths {
          * @description Return immutable semantic snapshots, including same-time knowledge revisions.
          */
         get: operations["list_account_state_history_api_v1_accounts__account_id__state_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/actions/{action_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Action
+         * @description Return one immutable Action proposal and its projected governance state.
+         */
+        get: operations["get_action_api_v1_actions__action_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/actions/{action_id}/dry-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dry Run Action
+         * @description Run local deterministic validation; never simulate external execution.
+         */
+        post: operations["dry_run_action_api_v1_actions__action_id__dry_runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/actions/{action_id}/outcomes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Action Outcomes
+         * @description Return operational dry-run Outcomes only.
+         */
+        get: operations["list_action_outcomes_api_v1_actions__action_id__outcomes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/actions/{action_id}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Action
+         * @description Record one bounded local-demo review without claiming authenticated identity.
+         */
+        post: operations["review_action_api_v1_actions__action_id__reviews_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/actions/{action_id}/trace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Action Trace
+         * @description Compose Strategy through Outcome without adding redundant provenance rows.
+         */
+        get: operations["get_action_trace_api_v1_actions__action_id__trace_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -348,6 +488,24 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AccountActionHistoryResponse
+         * @description Persisted Action history only; non-Action projections never appear here.
+         */
+        AccountActionHistoryResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Items */
+            items: components["schemas"]["ActionDetailResponse"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
         /**
          * AccountDecisionHistoryResponse
          * @description Paginated immutable Decision and Policy history for one account.
@@ -582,6 +740,318 @@ export interface components {
          */
         AccountTimingState: "ACTIVE" | "STALE" | "NONE" | "UNKNOWN" | "INCONCLUSIVE";
         /**
+         * ActionActorKind
+         * @description Honest identity assurance for unauthenticated demo events.
+         * @enum {string}
+         */
+        ActionActorKind: "UNVERIFIED_DEMO_HUMAN" | "SYNTHETIC_FIXTURE";
+        /**
+         * ActionAttemptMode
+         * @description M1D supports local validation only.
+         * @enum {string}
+         */
+        ActionAttemptMode: "DRY_RUN";
+        /**
+         * ActionAttemptResponse
+         * @description Immutable local dry-run validation attempt.
+         */
+        ActionAttemptResponse: {
+            /**
+             * Action Attempt Id
+             * Format: uuid
+             */
+            action_attempt_id: string;
+            /**
+             * Action Id
+             * Format: uuid
+             */
+            action_id: string;
+            /**
+             * Attempted At
+             * Format: date-time
+             */
+            attempted_at: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Input Hash */
+            input_hash: string;
+            mode: components["schemas"]["ActionAttemptMode"];
+            requested_by_kind: components["schemas"]["ActionActorKind"];
+            /** Requested By Ref */
+            requested_by_ref: string;
+            /** Review Id */
+            review_id: string | null;
+            /** Validator Key */
+            validator_key: string;
+            /** Validator Version */
+            validator_version: string;
+        };
+        /**
+         * ActionAttemptTraceResponse
+         * @description A dry-run attempt and its one operational Outcome.
+         */
+        ActionAttemptTraceResponse: {
+            attempt: components["schemas"]["ActionAttemptResponse"];
+            outcome: components["schemas"]["ActionOutcomeResponse"];
+        };
+        /**
+         * ActionCurrentProjection
+         * @description Current account-level result, including non-Action abstentions.
+         * @enum {string}
+         */
+        ActionCurrentProjection: "ACTION_PROPOSED" | "BLOCKED_BY_POLICY" | "NO_SUPPORTED_ACTION";
+        /**
+         * ActionDetailResponse
+         * @description Action proposal with projected governance and operational history.
+         */
+        ActionDetailResponse: {
+            action: components["schemas"]["ActionResponse"];
+            /** Attempts */
+            attempts: components["schemas"]["ActionAttemptTraceResponse"][];
+            /**
+             * External Execution Authorized
+             * @default false
+             * @constant
+             */
+            external_execution_authorized: false;
+            lifecycle: components["schemas"]["ActionLifecycle"];
+            /** Mutations Enabled */
+            mutations_enabled: boolean;
+            review: components["schemas"]["ActionReviewResponse"] | null;
+        };
+        /**
+         * ActionDryRunMutationResponse
+         * @description Result of local deterministic validation without external execution.
+         */
+        ActionDryRunMutationResponse: {
+            /**
+             * External Execution Authorized
+             * @default false
+             * @constant
+             */
+            external_execution_authorized: false;
+            /** Idempotent Replay */
+            idempotent_replay: boolean;
+            trace: components["schemas"]["ActionAttemptTraceResponse"];
+        };
+        /**
+         * ActionLifecycle
+         * @description Read-only governance projection; never stored as mutable Action state.
+         * @enum {string}
+         */
+        ActionLifecycle: "REVIEW_REQUIRED" | "READY_FOR_DRY_RUN" | "REJECTED";
+        /**
+         * ActionOutcomeListResponse
+         * @description Immutable operational Outcomes for one Action.
+         */
+        ActionOutcomeListResponse: {
+            /**
+             * Action Id
+             * Format: uuid
+             */
+            action_id: string;
+            /** Items */
+            items: components["schemas"]["ActionOutcomeResponse"][];
+        };
+        /**
+         * ActionOutcomeReasonCode
+         * @description Strictly operational M1D Outcome reasons.
+         * @enum {string}
+         */
+        ActionOutcomeReasonCode: "CANONICAL_ACTION_VALIDATED" | "CANONICAL_ACTION_INVALID";
+        /**
+         * ActionOutcomeResponse
+         * @description Strictly operational result of local canonical validation.
+         */
+        ActionOutcomeResponse: {
+            /**
+             * Action Attempt Id
+             * Format: uuid
+             */
+            action_attempt_id: string;
+            /**
+             * Action Id
+             * Format: uuid
+             */
+            action_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * External Side Effects
+             * @constant
+             */
+            external_side_effects: false;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /**
+             * Outcome Id
+             * Format: uuid
+             */
+            outcome_id: string;
+            /** Outcome Schema Version */
+            outcome_schema_version: string;
+            reason_code: components["schemas"]["ActionOutcomeReasonCode"];
+            result: components["schemas"]["ActionOutcomeResult"];
+            /** Result Hash */
+            result_hash: string;
+        };
+        /**
+         * ActionOutcomeResult
+         * @description Operational result of local deterministic validation.
+         * @enum {string}
+         */
+        ActionOutcomeResult: "SUCCEEDED" | "FAILED";
+        /**
+         * ActionResponse
+         * @description Immutable canonical Action proposal; never proof of external execution.
+         */
+        ActionResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Action Id
+             * Format: uuid
+             */
+            action_id: string;
+            /** Action Schema Version */
+            action_schema_version: string;
+            action_type: components["schemas"]["ActionType"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Derivation Key */
+            derivation_key: string;
+            /** Derivation Version */
+            derivation_version: string;
+            /**
+             * External Execution Authorized
+             * @default false
+             * @constant
+             */
+            external_execution_authorized: false;
+            /** Payload */
+            payload: components["schemas"]["RequestResearchPayload"] | components["schemas"]["CreateSellerTaskPayload"];
+            /**
+             * Policy Evaluation Id
+             * Format: uuid
+             */
+            policy_evaluation_id: string;
+            /**
+             * Proposed At
+             * Format: date-time
+             */
+            proposed_at: string;
+            /** Semantic Input Hash */
+            semantic_input_hash: string;
+            /**
+             * Strategy Version Id
+             * Format: uuid
+             */
+            strategy_version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /**
+         * ActionReviewMutationResponse
+         * @description Result of an explicit local-demo review command.
+         */
+        ActionReviewMutationResponse: {
+            /**
+             * External Execution Authorized
+             * @default false
+             * @constant
+             */
+            external_execution_authorized: false;
+            /** Idempotent Replay */
+            idempotent_replay: boolean;
+            lifecycle: components["schemas"]["ActionLifecycle"];
+            review: components["schemas"]["ActionReviewResponse"];
+        };
+        /**
+         * ActionReviewReasonCode
+         * @description Bounded review explanations; M1D stores no free-form review text.
+         * @enum {string}
+         */
+        ActionReviewReasonCode: "APPROVED_AS_PROPOSED" | "REJECTED_INSUFFICIENT_CONTEXT" | "REJECTED_ACTION_NOT_APPROPRIATE";
+        /**
+         * ActionReviewRequest
+         * @description Bounded unauthenticated-demo review command.
+         */
+        ActionReviewRequest: {
+            reason_code: components["schemas"]["ActionReviewReasonCode"];
+            resolution: components["schemas"]["ActionReviewResolution"];
+        };
+        /**
+         * ActionReviewResolution
+         * @description One terminal human resolution for a review-required Action.
+         * @enum {string}
+         */
+        ActionReviewResolution: "APPROVED" | "REJECTED";
+        /**
+         * ActionReviewResponse
+         * @description One immutable terminal review with honest identity assurance.
+         */
+        ActionReviewResponse: {
+            /**
+             * Action Id
+             * Format: uuid
+             */
+            action_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            reason_code: components["schemas"]["ActionReviewReasonCode"];
+            resolution: components["schemas"]["ActionReviewResolution"];
+            /**
+             * Review Id
+             * Format: uuid
+             */
+            review_id: string;
+            /**
+             * Reviewed At
+             * Format: date-time
+             */
+            reviewed_at: string;
+            reviewer_kind: components["schemas"]["ActionActorKind"];
+            /** Reviewer Ref */
+            reviewer_ref: string;
+        };
+        /**
+         * ActionTraceResponse
+         * @description Composed end-to-end trace without stored provenance duplication.
+         */
+        ActionTraceResponse: {
+            action: components["schemas"]["ActionDetailResponse"];
+            state: components["schemas"]["AccountStateDetailResponse"];
+            strategy: components["schemas"]["StrategyResponse"];
+            upstream: components["schemas"]["DecisionPolicyDetailResponse"];
+        };
+        /**
+         * ActionType
+         * @description Vendor-neutral GTM operational intents supported by M1D.
+         * @enum {string}
+         */
+        ActionType: "REQUEST_RESEARCH" | "CREATE_SELLER_TASK";
+        /**
          * ActiveStrategyResponse
          * @description Envelope preserving workspace demo-time semantics.
          */
@@ -641,6 +1111,50 @@ export interface components {
              * Format: uuid
              */
             workspace_id: string;
+        };
+        /**
+         * CreateSellerTaskPayload
+         * @description Strict provider-neutral payload for a proposed seller task.
+         */
+        CreateSellerTaskPayload: {
+            objective_code: components["schemas"]["SellerTaskObjectiveCode"];
+            task_kind: components["schemas"]["SellerTaskKind"];
+        };
+        /**
+         * CurrentAccountActionResponse
+         * @description Current exact Decision/Policy disposition and its M1D projection.
+         */
+        CurrentAccountActionResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            current: components["schemas"]["CurrentActionProjectionResponse"];
+            upstream: components["schemas"]["DecisionPolicyDetailResponse"];
+            workspace: components["schemas"]["WorkspaceResponse"];
+        };
+        /**
+         * CurrentActionProjectionResponse
+         * @description Current M1D result, including non-persisted BLOCK/abstention projections.
+         */
+        CurrentActionProjectionResponse: {
+            action: components["schemas"]["ActionDetailResponse"] | null;
+            /**
+             * External Execution Authorized
+             * @default false
+             * @constant
+             */
+            external_execution_authorized: false;
+            /**
+             * Policy Evaluation Id
+             * Format: uuid
+             */
+            policy_evaluation_id: string;
+            /** Policy Reason Codes */
+            policy_reason_codes: components["schemas"]["PolicyReasonCode"][];
+            policy_result: components["schemas"]["PolicyResult"];
+            projection: components["schemas"]["ActionCurrentProjection"];
         };
         /**
          * DecisionDefinitionResponse
@@ -1102,6 +1616,38 @@ export interface components {
             status: "ready" | "not_ready";
         };
         /**
+         * RequestResearchPayload
+         * @description Strict provider-neutral payload for an account research request.
+         */
+        RequestResearchPayload: {
+            request_code: components["schemas"]["ResearchRequestCode"];
+            research_topic: components["schemas"]["ResearchTopic"];
+        };
+        /**
+         * ResearchRequestCode
+         * @description Non-executable research instructions.
+         * @enum {string}
+         */
+        ResearchRequestCode: "VERIFY_EXISTING_RELATIONSHIP" | "RESOLVE_EVIDENCE_GAPS";
+        /**
+         * ResearchTopic
+         * @description Bounded subjects for a canonical research request.
+         * @enum {string}
+         */
+        ResearchTopic: "RELATIONSHIP_CONTEXT" | "EVIDENCE_COVERAGE";
+        /**
+         * SellerTaskKind
+         * @description Bounded seller-task intents without provider or assignment semantics.
+         * @enum {string}
+         */
+        SellerTaskKind: "RELATIONSHIP_COORDINATION" | "ENGAGEMENT_ASSESSMENT";
+        /**
+         * SellerTaskObjectiveCode
+         * @description Bounded objectives for a proposed seller task.
+         * @enum {string}
+         */
+        SellerTaskObjectiveCode: "ASSESS_CONTROLLED_ENGAGEMENT_PATH" | "ASSESS_POLICY_ALLOWED_ENGAGEMENT";
+        /**
          * SignalCategory
          * @description Commercial-event families supported by signal definitions.
          * @enum {string}
@@ -1511,6 +2057,71 @@ export interface operations {
             };
         };
     };
+    get_current_account_action_api_v1_accounts__account_id__action_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentAccountActionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_account_action_history_api_v1_accounts__account_id__actions_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountActionHistoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_current_account_decision_api_v1_accounts__account_id__decision_get: {
         parameters: {
             query?: never;
@@ -1694,6 +2305,171 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccountStateHistoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_action_api_v1_actions__action_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dry_run_action_api_v1_actions__action_id__dry_runs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionDryRunMutationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_action_outcomes_api_v1_actions__action_id__outcomes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionOutcomeListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_action_api_v1_actions__action_id__reviews_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActionReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionReviewMutationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_action_trace_api_v1_actions__action_id__trace_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionTraceResponse"];
                 };
             };
             /** @description Validation Error */

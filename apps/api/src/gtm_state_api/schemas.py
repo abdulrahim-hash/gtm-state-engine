@@ -14,6 +14,15 @@ from gtm_state_api.types import (
     AccountStateFacet,
     AccountStateReasonCode,
     AccountTimingState,
+    ActionActorKind,
+    ActionAttemptMode,
+    ActionCurrentProjection,
+    ActionLifecycle,
+    ActionOutcomeReasonCode,
+    ActionOutcomeResult,
+    ActionReviewReasonCode,
+    ActionReviewResolution,
+    ActionType,
     DecisionReasonCode,
     DecisionResult,
     EvaluationDefinitionStatus,
@@ -24,6 +33,10 @@ from gtm_state_api.types import (
     PolicyReasonCode,
     PolicyResult,
     PolicyTarget,
+    ResearchRequestCode,
+    ResearchTopic,
+    SellerTaskKind,
+    SellerTaskObjectiveCode,
     SignalCategory,
     SignalDefinitionStatus,
     SignalEvaluationResult,
@@ -587,3 +600,231 @@ class AccountDecisionHistoryResponse(BaseModel):
     items: list[DecisionPolicyHistoryItemResponse]
     limit: int
     offset: int
+
+
+class RequestResearchPayload(BaseModel):
+    """Strict provider-neutral payload for an account research request."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    research_topic: ResearchTopic
+    request_code: ResearchRequestCode
+
+
+class CreateSellerTaskPayload(BaseModel):
+    """Strict provider-neutral payload for a proposed seller task."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    task_kind: SellerTaskKind
+    objective_code: SellerTaskObjectiveCode
+
+
+ActionPayload = RequestResearchPayload | CreateSellerTaskPayload
+
+
+class ActionResponse(BaseModel):
+    """Immutable canonical Action proposal; never proof of external execution."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    action_id: UUID
+    workspace_id: UUID
+    account_id: UUID
+    strategy_version_id: UUID
+    policy_evaluation_id: UUID
+    action_type: ActionType
+    action_schema_version: str
+    derivation_key: str
+    derivation_version: str
+    payload: ActionPayload
+    semantic_input_hash: str
+    proposed_at: datetime
+    created_at: datetime
+    external_execution_authorized: Literal[False] = False
+
+    @model_validator(mode="after")
+    def validate_payload_type(self) -> Self:
+        if self.action_schema_version != "1.0.0":
+            raise ValueError("unsupported Action schema version")
+        if self.action_type is ActionType.REQUEST_RESEARCH and not isinstance(
+            self.payload, RequestResearchPayload
+        ):
+            raise ValueError("REQUEST_RESEARCH payload shape does not match Action type")
+        if self.action_type is ActionType.CREATE_SELLER_TASK and not isinstance(
+            self.payload, CreateSellerTaskPayload
+        ):
+            raise ValueError("CREATE_SELLER_TASK payload shape does not match Action type")
+        return self
+
+
+class ActionReviewRequest(BaseModel):
+    """Bounded unauthenticated-demo review command."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    resolution: ActionReviewResolution
+    reason_code: ActionReviewReasonCode
+
+    @model_validator(mode="after")
+    def validate_reason_for_resolution(self) -> Self:
+        if (
+            self.resolution is ActionReviewResolution.APPROVED
+            and self.reason_code is not ActionReviewReasonCode.APPROVED_AS_PROPOSED
+        ):
+            raise ValueError("APPROVED requires APPROVED_AS_PROPOSED")
+        if (
+            self.resolution is ActionReviewResolution.REJECTED
+            and self.reason_code is ActionReviewReasonCode.APPROVED_AS_PROPOSED
+        ):
+            raise ValueError("REJECTED requires a rejection reason")
+        return self
+
+
+class ActionReviewResponse(BaseModel):
+    """One immutable terminal review with honest identity assurance."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    review_id: UUID
+    action_id: UUID
+    resolution: ActionReviewResolution
+    reason_code: ActionReviewReasonCode
+    reviewer_kind: ActionActorKind
+    reviewer_ref: str
+    reviewed_at: datetime
+    created_at: datetime
+
+
+class ActionAttemptResponse(BaseModel):
+    """Immutable local dry-run validation attempt."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    action_attempt_id: UUID
+    action_id: UUID
+    review_id: UUID | None
+    mode: ActionAttemptMode
+    validator_key: str
+    validator_version: str
+    input_hash: str
+    requested_by_kind: ActionActorKind
+    requested_by_ref: str
+    attempted_at: datetime
+    created_at: datetime
+
+
+class ActionOutcomeResponse(BaseModel):
+    """Strictly operational result of local canonical validation."""
+
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    outcome_id: UUID
+    action_id: UUID
+    action_attempt_id: UUID
+    result: ActionOutcomeResult
+    reason_code: ActionOutcomeReasonCode
+    outcome_schema_version: str
+    result_hash: str
+    external_side_effects: Literal[False]
+    observed_at: datetime
+    created_at: datetime
+
+
+class ActionAttemptTraceResponse(BaseModel):
+    """A dry-run attempt and its one operational Outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    attempt: ActionAttemptResponse
+    outcome: ActionOutcomeResponse
+
+
+class ActionDetailResponse(BaseModel):
+    """Action proposal with projected governance and operational history."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    action: ActionResponse
+    lifecycle: ActionLifecycle
+    review: ActionReviewResponse | None
+    attempts: list[ActionAttemptTraceResponse]
+    mutations_enabled: bool
+    external_execution_authorized: Literal[False] = False
+
+
+class CurrentActionProjectionResponse(BaseModel):
+    """Current M1D result, including non-persisted BLOCK/abstention projections."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    projection: ActionCurrentProjection
+    policy_evaluation_id: UUID
+    policy_result: PolicyResult
+    policy_reason_codes: list[PolicyReasonCode]
+    action: ActionDetailResponse | None
+    external_execution_authorized: Literal[False] = False
+
+
+class CurrentAccountActionResponse(BaseModel):
+    """Current exact Decision/Policy disposition and its M1D projection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workspace: WorkspaceResponse
+    account_id: UUID
+    upstream: DecisionPolicyDetailResponse
+    current: CurrentActionProjectionResponse
+
+
+class AccountActionHistoryResponse(BaseModel):
+    """Persisted Action history only; non-Action projections never appear here."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workspace: WorkspaceResponse
+    account_id: UUID
+    items: list[ActionDetailResponse]
+    limit: int
+    offset: int
+
+
+class ActionOutcomeListResponse(BaseModel):
+    """Immutable operational Outcomes for one Action."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    action_id: UUID
+    items: list[ActionOutcomeResponse]
+
+
+class ActionTraceResponse(BaseModel):
+    """Composed end-to-end trace without stored provenance duplication."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    strategy: StrategyResponse
+    state: AccountStateDetailResponse
+    upstream: DecisionPolicyDetailResponse
+    action: ActionDetailResponse
+
+
+class ActionReviewMutationResponse(BaseModel):
+    """Result of an explicit local-demo review command."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    review: ActionReviewResponse
+    lifecycle: ActionLifecycle
+    idempotent_replay: bool
+    external_execution_authorized: Literal[False] = False
+
+
+class ActionDryRunMutationResponse(BaseModel):
+    """Result of local deterministic validation without external execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    trace: ActionAttemptTraceResponse
+    idempotent_replay: bool
+    external_execution_authorized: Literal[False] = False
