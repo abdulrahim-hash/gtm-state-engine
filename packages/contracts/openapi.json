@@ -188,8 +188,15 @@
             "type": "boolean"
           },
           "segment": {
-            "title": "Segment",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
           },
           "slug": {
             "title": "Slug",
@@ -1099,6 +1106,194 @@
         "title": "ActiveStrategyResponse",
         "type": "object"
       },
+      "BatchInspectionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "batch_id": {
+            "format": "uuid",
+            "title": "Batch Id",
+            "type": "string"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "dataset_key": {
+            "title": "Dataset Key",
+            "type": "string"
+          },
+          "expected_rows": {
+            "title": "Expected Rows",
+            "type": "integer"
+          },
+          "file_sha256": {
+            "title": "File Sha256",
+            "type": "string"
+          },
+          "identity_rule_version": {
+            "title": "Identity Rule Version",
+            "type": "string"
+          },
+          "ingested_at": {
+            "format": "date-time",
+            "title": "Ingested At",
+            "type": "string"
+          },
+          "mapper_key": {
+            "title": "Mapper Key",
+            "type": "string"
+          },
+          "mapper_version": {
+            "title": "Mapper Version",
+            "type": "string"
+          },
+          "schema_key": {
+            "title": "Schema Key",
+            "type": "string"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_system_key": {
+            "title": "Source System Key",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id",
+          "workspace_id",
+          "source_system_key",
+          "dataset_key",
+          "schema_key",
+          "schema_version",
+          "mapper_key",
+          "mapper_version",
+          "identity_rule_version",
+          "file_sha256",
+          "expected_rows",
+          "ingested_at",
+          "counts"
+        ],
+        "title": "BatchInspectionResponse",
+        "type": "object"
+      },
+      "BatchRowInspectionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Id"
+          },
+          "normalization": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NormalizationInspectionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ObservationInspectionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ordinal": {
+            "title": "Ordinal",
+            "type": "integer"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/IngestionRowOutcome"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "row_id": {
+            "format": "uuid",
+            "title": "Row Id",
+            "type": "string"
+          },
+          "row_sha256": {
+            "title": "Row Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "row_id",
+          "ordinal",
+          "row_sha256",
+          "outcome",
+          "reason_code",
+          "observation",
+          "normalization",
+          "evidence_id"
+        ],
+        "title": "BatchRowInspectionResponse",
+        "type": "object"
+      },
+      "BatchRowsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "batch_id": {
+            "format": "uuid",
+            "title": "Batch Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BatchRowInspectionResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "batch_id",
+          "items",
+          "limit",
+          "offset"
+        ],
+        "title": "BatchRowsResponse",
+        "type": "object"
+      },
       "CanonicalSignalResponse": {
         "additionalProperties": false,
         "description": "Stable commercial-event identity independent of evaluation time.",
@@ -1589,6 +1784,39 @@
         "title": "EvidenceListResponse",
         "type": "object"
       },
+      "EvidenceOriginResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "batch": {
+            "$ref": "#/components/schemas/BatchInspectionResponse"
+          },
+          "evidence_id": {
+            "format": "uuid",
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "normalization": {
+            "$ref": "#/components/schemas/NormalizationInspectionResponse"
+          },
+          "observation": {
+            "$ref": "#/components/schemas/ObservationInspectionResponse"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "account_id",
+          "normalization",
+          "observation",
+          "batch"
+        ],
+        "title": "EvidenceOriginResponse",
+        "type": "object"
+      },
       "EvidenceResponse": {
         "additionalProperties": false,
         "description": "Provenance-bearing evidence, with epistemic confidence only where applicable.",
@@ -1826,6 +2054,34 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "IngestionReason": {
+        "enum": [
+          "INVALID_ROW",
+          "INVALID_DATE",
+          "INVALID_ASSERTION",
+          "INVALID_CITATION",
+          "FIELD_TOO_LARGE",
+          "UNSUPPORTED_FACT",
+          "EVENT_TIME_REQUIRED",
+          "MISSING_IDENTITY",
+          "AMBIGUOUS_IDENTITY",
+          "SOURCE_ID_CONFLICT",
+          "SOURCE_RECORD_CONFLICT",
+          "DUPLICATE_OBSERVATION"
+        ],
+        "title": "IngestionReason",
+        "type": "string"
+      },
+      "IngestionRowOutcome": {
+        "enum": [
+          "ACCEPTED",
+          "REJECTED",
+          "UNRESOLVED",
+          "DUPLICATE"
+        ],
+        "title": "IngestionRowOutcome",
+        "type": "string"
+      },
       "LivenessResponse": {
         "additionalProperties": false,
         "description": "Process-level liveness without infrastructure details.",
@@ -1851,6 +2107,197 @@
           "version"
         ],
         "title": "LivenessResponse",
+        "type": "object"
+      },
+      "NormalizationInspectionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
+          "evidence_classification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Classification"
+          },
+          "fact_assertion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fact Assertion"
+          },
+          "fact_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fact Key"
+          },
+          "fact_observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fact Observed At"
+          },
+          "identity_rule_version": {
+            "title": "Identity Rule Version",
+            "type": "string"
+          },
+          "mapper_key": {
+            "title": "Mapper Key",
+            "type": "string"
+          },
+          "mapper_version": {
+            "title": "Mapper Version",
+            "type": "string"
+          },
+          "normalized_fact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Fact"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/NormalizationOutcome"
+          },
+          "output_schema_version": {
+            "title": "Output Schema Version",
+            "type": "string"
+          },
+          "output_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Sha256"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_id": {
+            "format": "uuid",
+            "title": "Result Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result_id",
+          "mapper_key",
+          "mapper_version",
+          "identity_rule_version",
+          "output_schema_version",
+          "outcome",
+          "reason_code",
+          "account_id",
+          "fact_key",
+          "fact_assertion",
+          "evidence_classification",
+          "normalized_fact",
+          "fact_observed_at",
+          "output_sha256"
+        ],
+        "title": "NormalizationInspectionResponse",
+        "type": "object"
+      },
+      "NormalizationOutcome": {
+        "enum": [
+          "ACCEPTED",
+          "REJECTED",
+          "UNRESOLVED",
+          "CONFLICT"
+        ],
+        "title": "NormalizationOutcome",
+        "type": "string"
+      },
+      "ObservationInspectionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "external_record_id": {
+            "title": "External Record Id",
+            "type": "string"
+          },
+          "first_batch_id": {
+            "format": "uuid",
+            "title": "First Batch Id",
+            "type": "string"
+          },
+          "observation_id": {
+            "format": "uuid",
+            "title": "Observation Id",
+            "type": "string"
+          },
+          "original_fields": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Original Fields",
+            "type": "object"
+          },
+          "payload_sha256": {
+            "title": "Payload Sha256",
+            "type": "string"
+          },
+          "source_observed_at": {
+            "format": "date-time",
+            "title": "Source Observed At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observation_id",
+          "external_record_id",
+          "source_observed_at",
+          "payload_sha256",
+          "original_fields",
+          "first_batch_id"
+        ],
+        "title": "ObservationInspectionResponse",
         "type": "object"
       },
       "PolicyDefinitionResponse": {
@@ -3949,6 +4396,188 @@
         "summary": "Get Active Strategy",
         "tags": [
           "M1A read model"
+        ]
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/ingestion/batches/{batch_id}": {
+      "get": {
+        "operationId": "get_ingestion_batch_api_v1_workspaces__workspace_id__ingestion_batches__batch_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchInspectionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Ingestion Batch",
+        "tags": [
+          "M2A local inspection"
+        ]
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/ingestion/batches/{batch_id}/rows": {
+      "get": {
+        "operationId": "get_ingestion_batch_rows_api_v1_workspaces__workspace_id__ingestion_batches__batch_id__rows_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchRowsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Ingestion Batch Rows",
+        "tags": [
+          "M2A local inspection"
+        ]
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/ingestion/evidence/{evidence_id}/origin": {
+      "get": {
+        "operationId": "get_imported_evidence_origin_api_v1_workspaces__workspace_id__ingestion_evidence__evidence_id__origin_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "evidence_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Evidence Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceOriginResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Imported Evidence Origin",
+        "tags": [
+          "M2A local inspection"
         ]
       }
     },

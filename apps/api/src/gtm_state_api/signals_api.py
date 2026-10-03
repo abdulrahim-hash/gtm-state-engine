@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from gtm_state_api.database import get_session
+from gtm_state_api.demo_seed import DEMO_WORKSPACE_ID
 from gtm_state_api.models import (
     Account,
     EvaluationEvidence,
@@ -48,7 +49,10 @@ def _not_found(detail: str) -> HTTPException:
 def _active_context(session: Session) -> tuple[Workspace, StrategyVersion]:
     strategy = session.scalar(
         select(StrategyVersion)
-        .where(StrategyVersion.status == StrategyStatus.ACTIVE)
+        .where(
+            StrategyVersion.status == StrategyStatus.ACTIVE,
+            StrategyVersion.workspace_id == DEMO_WORKSPACE_ID,
+        )
         .options(selectinload(StrategyVersion.workspace))
     )
     if strategy is None:

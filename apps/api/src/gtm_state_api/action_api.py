@@ -31,6 +31,7 @@ from gtm_state_api.decision_api import (
 from gtm_state_api.decision_api import (
     _enabled_policy_for_decision,
 )
+from gtm_state_api.demo_seed import DEMO_WORKSPACE_ID
 from gtm_state_api.models import (
     Account,
     AccountStateSnapshot,
@@ -82,14 +83,14 @@ def _not_found(detail: str) -> HTTPException:
 
 def _account(session: Session, account_id: UUID) -> Account:
     account = session.get(Account, account_id)
-    if account is None:
+    if account is None or account.workspace_id != DEMO_WORKSPACE_ID:
         raise _not_found("account not found")
     return account
 
 
 def _workspace(session: Session, workspace_id: UUID) -> Workspace:
     workspace = session.get(Workspace, workspace_id)
-    if workspace is None:
+    if workspace is None or workspace.workspace_id != DEMO_WORKSPACE_ID:
         raise _not_found("workspace not found")
     return workspace
 
@@ -275,6 +276,7 @@ def get_action(
     action = session.get(Action, action_id)
     if action is None:
         raise _not_found("Action not found")
+    _workspace(session, action.workspace_id)
     return _action_detail(session, action)
 
 
@@ -288,8 +290,10 @@ def list_action_outcomes(
 ) -> ActionOutcomeListResponse:
     """Return operational dry-run Outcomes only."""
 
-    if session.get(Action, action_id) is None:
+    action = session.get(Action, action_id)
+    if action is None:
         raise _not_found("Action not found")
+    _workspace(session, action.workspace_id)
     outcomes = session.scalars(
         select(ActionOutcome)
         .where(ActionOutcome.action_id == action_id)
@@ -375,6 +379,7 @@ def review_action(
     action = session.get(Action, action_id)
     if action is None:
         raise _not_found("Action not found")
+    _workspace(session, action.workspace_id)
     try:
         review, replay = create_action_review(
             session,
@@ -411,8 +416,10 @@ def dry_run_action(
     """Run local deterministic validation; never simulate external execution."""
 
     _require_mutations_enabled()
-    if session.get(Action, action_id) is None:
+    action = session.get(Action, action_id)
+    if action is None:
         raise _not_found("Action not found")
+    _workspace(session, action.workspace_id)
     try:
         attempt, outcome, replay = run_action_dry_run(
             session,

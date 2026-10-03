@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from gtm_state_api.database import get_session
+from gtm_state_api.demo_seed import DEMO_WORKSPACE_ID
 from gtm_state_api.models import (
     Account,
     AccountStateSnapshot,
@@ -54,14 +55,14 @@ def _not_found(detail: str) -> HTTPException:
 
 def _account(session: Session, account_id: UUID) -> Account:
     account = session.get(Account, account_id)
-    if account is None:
+    if account is None or account.workspace_id != DEMO_WORKSPACE_ID:
         raise _not_found("account not found")
     return account
 
 
 def _workspace(session: Session, workspace_id: UUID) -> Workspace:
     workspace = session.get(Workspace, workspace_id)
-    if workspace is None:
+    if workspace is None or workspace.workspace_id != DEMO_WORKSPACE_ID:
         raise _not_found("workspace not found")
     return workspace
 

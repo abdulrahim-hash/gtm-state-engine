@@ -13,6 +13,7 @@ from uuid import UUID, uuid5
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from gtm_state_api.current_evidence import current_evidence_condition
 from gtm_state_api.models import (
     Account,
     AccountStateSnapshot,
@@ -833,6 +834,7 @@ def recompute_workspace_account_states(
                 Evidence.classification == EvidenceClassification.FACT,
                 Evidence.fact_key.in_(relevant_fact_keys),
                 Evidence.observed_at <= semantic_time,
+                current_evidence_condition(),
             )
             .order_by(Evidence.observed_at, Evidence.id)
         ).all()

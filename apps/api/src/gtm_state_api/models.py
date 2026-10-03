@@ -43,7 +43,11 @@ from gtm_state_api.types import (
     EvidenceAssertion,
     EvidenceClassification,
     EvidenceFreshness,
+    EvidenceSupersessionReason,
     FitCriterionResult,
+    IngestionReason,
+    IngestionRowOutcome,
+    NormalizationOutcome,
     PolicyReasonCode,
     PolicyResult,
     PolicyTarget,
@@ -125,7 +129,7 @@ class Account(Base):
     slug: Mapped[str] = mapped_column(String(80), nullable=False)
     canonical_name: Mapped[str] = mapped_column(String(200), nullable=False)
     domain: Mapped[str] = mapped_column(String(253), nullable=False)
-    segment: Mapped[str] = mapped_column(String(160), nullable=False)
+    segment: Mapped[str | None] = mapped_column(String(160), nullable=True)
     is_synthetic: Mapped[bool] = mapped_column(nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
@@ -170,6 +174,13 @@ class Evidence(Base):
             "fact_key IS NULL OR fact_key ~ '^[a-z][a-z0-9_.]*$'",
             name="ck_evidence_fact_key",
         ),
+        ForeignKeyConstraint(
+            ["normalization_result_id", "account_id"],
+            ["normalization_results.id", "normalization_results.account_id"],
+            name="fk_evidence_normalization_account",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint("normalization_result_id", name="uq_evidence_normalization_result"),
         UniqueConstraint("id", "account_id", name="uq_evidence_id_account"),
         UniqueConstraint(
             "id",
@@ -207,6 +218,8 @@ class Evidence(Base):
     fact_assertion: Mapped[EvidenceAssertion | None] = mapped_column(
         Enum(EvidenceAssertion, name="evidence_assertion", create_constraint=False), nullable=True
     )
+
+    normalization_result_id: Mapped[UUID | None] = mapped_column(nullable=True)
 
     strategy_version: Mapped[StrategyVersion | None] = relationship(back_populates="evidence")
     account: Mapped[Account | None] = relationship(back_populates="evidence")
@@ -1316,3 +1329,288 @@ class PolicyEvaluationReason(Base):
         Enum(PolicyReasonCode, name="policy_reason_code", create_constraint=False),
         nullable=False,
     )
+
+
+class IngestionBatch(Base):
+    """One exact bounded source file in a workspace."""
+
+    __tablename__ = "ingestion_batches"
+    __table_args__ = (
+        UniqueConstraint("id", "workspace_id", name="uq_ingestion_batches_scope"),
+        UniqueConstraint(
+            "id",
+            "workspace_id",
+            "source_system_key",
+            "dataset_key",
+            name="uq_ingestion_batches_source_scope",
+        ),
+        UniqueConstraint(
+            "workspace_id",
+            "source_system_key",
+            "dataset_key",
+            "schema_key",
+            "schema_version",
+            "file_sha256",
+            name="uq_ingestion_batches_semantic",
+        ),
+        CheckConstraint("expected_rows BETWEEN 1 AND 500", name="ck_ingestion_batches_rows"),
+        CheckConstraint("file_sha256 ~ '^[a-f0-9]{64}$'", name="ck_ingestion_batches_hash"),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(
+        ForeignKey("workspaces.workspace_id", ondelete="RESTRICT")
+    )
+    source_system_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    dataset_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    schema_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    schema_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    mapper_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    mapper_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    identity_rule_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    file_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    correlation_id: Mapped[UUID] = mapped_column(nullable=False)
+    expected_rows: Mapped[int] = mapped_column(Integer, nullable=False)
+    ingested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class SourceObservation(Base):
+    """Deduplicated version of a source record, independent of Account resolution."""
+
+    __tablename__ = "source_observations"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["first_batch_id", "workspace_id", "source_system_key", "dataset_key"],
+            [
+                "ingestion_batches.id",
+                "ingestion_batches.workspace_id",
+                "ingestion_batches.source_system_key",
+                "ingestion_batches.dataset_key",
+            ],
+            name="fk_source_observations_first_batch_scope",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint("id", "workspace_id", name="uq_source_observations_scope"),
+        UniqueConstraint(
+            "id",
+            "workspace_id",
+            "source_system_key",
+            "dataset_key",
+            name="uq_source_observations_source_scope",
+        ),
+        UniqueConstraint(
+            "workspace_id",
+            "source_system_key",
+            "dataset_key",
+            "external_record_id",
+            "source_observed_at",
+            "payload_sha256",
+            name="uq_source_observations_semantic",
+        ),
+        CheckConstraint("payload_sha256 ~ '^[a-f0-9]{64}$'", name="ck_source_observations_hash"),
+        CheckConstraint(
+            "jsonb_typeof(original_fields) = 'object' "
+            "AND octet_length(original_fields::text) <= 4096",
+            name="ck_source_observations_fields",
+        ),
+        CheckConstraint("first_row_ordinal > 0", name="ck_source_observations_ordinal"),
+        Index(
+            "ix_source_observations_record_time",
+            "workspace_id",
+            "source_system_key",
+            "dataset_key",
+            "external_record_id",
+            "source_observed_at",
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(nullable=False)
+    source_system_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    dataset_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    external_record_id: Mapped[str] = mapped_column(String(120), nullable=False)
+    external_account_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    source_observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    original_fields: Mapped[dict[str, str]] = mapped_column(JSONB, nullable=False)
+    payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    first_batch_id: Mapped[UUID] = mapped_column(nullable=False)
+    first_row_ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AccountSourceId(Base):
+    """Immutable source-scoped binding, never a canonical Account identity."""
+
+    __tablename__ = "account_source_ids"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["account_id", "workspace_id"],
+            ["accounts.id", "accounts.workspace_id"],
+            name="fk_account_source_ids_account_scope",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["origin_observation_id", "workspace_id", "source_system_key", "dataset_key"],
+            [
+                "source_observations.id",
+                "source_observations.workspace_id",
+                "source_observations.source_system_key",
+                "source_observations.dataset_key",
+            ],
+            name="fk_account_source_ids_origin_scope",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "workspace_id",
+            "source_system_key",
+            "dataset_key",
+            "external_account_id",
+            name="uq_account_source_ids_external",
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(nullable=False)
+    source_system_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    dataset_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    external_account_id: Mapped[str] = mapped_column(String(120), nullable=False)
+    account_id: Mapped[UUID] = mapped_column(nullable=False)
+    origin_observation_id: Mapped[UUID] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class NormalizationResult(Base):
+    """One immutable code-versioned interpretation of a source observation."""
+
+    __tablename__ = "normalization_results"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["source_observation_id", "workspace_id"],
+            ["source_observations.id", "source_observations.workspace_id"],
+            name="fk_normalization_results_observation_scope",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["account_id", "workspace_id"],
+            ["accounts.id", "accounts.workspace_id"],
+            name="fk_normalization_results_account_scope",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "source_observation_id",
+            "mapper_key",
+            "mapper_version",
+            "identity_rule_version",
+            name="uq_normalization_results_version",
+        ),
+        UniqueConstraint("id", "account_id", name="uq_normalization_results_evidence_scope"),
+        CheckConstraint(
+            "output_sha256 IS NULL OR output_sha256 ~ '^[a-f0-9]{64}$'",
+            name="ck_normalization_results_hash",
+        ),
+        CheckConstraint(
+            "resolution_input_sha256 ~ '^[a-f0-9]{64}$'",
+            name="ck_normalization_results_resolution_hash",
+        ),
+        CheckConstraint(
+            "(outcome = 'ACCEPTED' AND account_id IS NOT NULL AND fact_key IS NOT NULL "
+            "AND fact_assertion IS NOT NULL AND evidence_classification IS NOT NULL "
+            "AND normalized_fact IS NOT NULL "
+            "AND fact_observed_at IS NOT NULL AND output_sha256 IS NOT NULL "
+            "AND reason_code IS NULL) "
+            "OR (outcome <> 'ACCEPTED' AND reason_code IS NOT NULL "
+            "AND output_sha256 IS NULL AND evidence_classification IS NULL)",
+            name="ck_normalization_results_outcome_shape",
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(nullable=False)
+    source_observation_id: Mapped[UUID] = mapped_column(nullable=False)
+    mapper_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    mapper_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    identity_rule_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    output_schema_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    outcome: Mapped[NormalizationOutcome] = mapped_column(
+        Enum(NormalizationOutcome, name="normalization_outcome", create_constraint=False),
+        nullable=False,
+    )
+    reason_code: Mapped[IngestionReason | None] = mapped_column(
+        Enum(IngestionReason, name="ingestion_reason", create_constraint=False),
+        nullable=True,
+    )
+    account_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    fact_key: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    fact_assertion: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    evidence_classification: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    normalized_fact: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    fact_observed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    output_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    resolution_input_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class IngestionBatchRow(Base):
+    """An immutable occurrence of a source record in one batch."""
+
+    __tablename__ = "ingestion_batch_rows"
+    __table_args__ = (
+        UniqueConstraint("batch_id", "ordinal", name="uq_ingestion_batch_rows_ordinal"),
+        CheckConstraint("ordinal > 0", name="ck_ingestion_batch_rows_ordinal"),
+        CheckConstraint("row_sha256 ~ '^[a-f0-9]{64}$'", name="ck_ingestion_batch_rows_hash"),
+        CheckConstraint(
+            "(outcome = 'ACCEPTED' AND normalization_result_id IS NOT NULL "
+            "AND reason_code IS NULL) "
+            "OR (outcome <> 'ACCEPTED' AND reason_code IS NOT NULL)",
+            name="ck_ingestion_batch_rows_outcome_shape",
+        ),
+        Index("ix_ingestion_batch_rows_batch", "batch_id", "ordinal"),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    batch_id: Mapped[UUID] = mapped_column(ForeignKey("ingestion_batches.id", ondelete="RESTRICT"))
+    ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    row_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    outcome: Mapped[IngestionRowOutcome] = mapped_column(
+        Enum(IngestionRowOutcome, name="ingestion_row_outcome", create_constraint=False),
+        nullable=False,
+    )
+    reason_code: Mapped[IngestionReason | None] = mapped_column(
+        Enum(IngestionReason, name="ingestion_reason", create_constraint=False),
+        nullable=True,
+    )
+    source_observation_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("source_observations.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    normalization_result_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("normalization_results.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class EvidenceSupersession(Base):
+    """An explicit promotion that replaces one imported Evidence in new computations."""
+
+    __tablename__ = "evidence_supersessions"
+    __table_args__ = (
+        UniqueConstraint("old_evidence_id", name="uq_evidence_supersessions_old"),
+        UniqueConstraint("new_evidence_id", name="uq_evidence_supersessions_new"),
+        CheckConstraint(
+            "old_evidence_id <> new_evidence_id", name="ck_evidence_supersessions_distinct"
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    old_evidence_id: Mapped[UUID] = mapped_column(ForeignKey("evidence.id", ondelete="RESTRICT"))
+    new_evidence_id: Mapped[UUID] = mapped_column(ForeignKey("evidence.id", ondelete="RESTRICT"))
+    reason: Mapped[EvidenceSupersessionReason] = mapped_column(
+        Enum(
+            EvidenceSupersessionReason, name="evidence_supersession_reason", create_constraint=False
+        ),
+        nullable=False,
+    )
+    promoted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

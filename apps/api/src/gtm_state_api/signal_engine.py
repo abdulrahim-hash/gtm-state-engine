@@ -12,6 +12,7 @@ from uuid import UUID, uuid5
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from gtm_state_api.current_evidence import current_evidence_condition
 from gtm_state_api.models import (
     Account,
     EvaluationEvidence,
@@ -256,6 +257,7 @@ def recompute_workspace_signals(
                     Evidence.classification == EvidenceClassification.FACT,
                     Evidence.fact_key == definition.input_fact_key,
                     Evidence.observed_at <= semantic_time,
+                    current_evidence_condition(),
                 )
                 .order_by(Evidence.observed_at, Evidence.id)
             ).all()

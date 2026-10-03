@@ -181,7 +181,7 @@ class AccountResponse(BaseModel):
     slug: str
     canonical_name: str
     domain: str
-    segment: str
+    segment: str | None
     is_synthetic: bool
     created_at: datetime
     updated_at: datetime

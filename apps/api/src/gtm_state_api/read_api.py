@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from gtm_state_api.database import get_session
+from gtm_state_api.demo_seed import DEMO_WORKSPACE_ID
 from gtm_state_api.models import Account, Evidence, StrategyVersion, Workspace
 from gtm_state_api.schemas import (
     AccountDetailResponse,
@@ -46,7 +47,10 @@ def _account_response(account: Account) -> AccountResponse:
 def _active_strategy(session: Session) -> StrategyVersion:
     statement = (
         select(StrategyVersion)
-        .where(StrategyVersion.status == StrategyStatus.ACTIVE)
+        .where(
+            StrategyVersion.status == StrategyStatus.ACTIVE,
+            StrategyVersion.workspace_id == DEMO_WORKSPACE_ID,
+        )
         .options(selectinload(StrategyVersion.workspace), selectinload(StrategyVersion.evidence))
     )
     strategy = session.scalar(statement)

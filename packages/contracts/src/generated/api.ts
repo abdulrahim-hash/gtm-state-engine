@@ -444,6 +444,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspaces/{workspace_id}/ingestion/batches/{batch_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Ingestion Batch */
+        get: operations["get_ingestion_batch_api_v1_workspaces__workspace_id__ingestion_batches__batch_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/ingestion/batches/{batch_id}/rows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Ingestion Batch Rows */
+        get: operations["get_ingestion_batch_rows_api_v1_workspaces__workspace_id__ingestion_batches__batch_id__rows_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/ingestion/evidence/{evidence_id}/origin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Imported Evidence Origin */
+        get: operations["get_imported_evidence_origin_api_v1_workspaces__workspace_id__ingestion_evidence__evidence_id__origin_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -585,7 +636,7 @@ export interface components {
             /** Is Synthetic */
             is_synthetic: boolean;
             /** Segment */
-            segment: string;
+            segment: string | null;
             /** Slug */
             slug: string;
             /**
@@ -1059,6 +1110,78 @@ export interface components {
             strategy: components["schemas"]["StrategyResponse"];
             workspace: components["schemas"]["WorkspaceResponse"];
         };
+        /** BatchInspectionResponse */
+        BatchInspectionResponse: {
+            /**
+             * Batch Id
+             * Format: uuid
+             */
+            batch_id: string;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Dataset Key */
+            dataset_key: string;
+            /** Expected Rows */
+            expected_rows: number;
+            /** File Sha256 */
+            file_sha256: string;
+            /** Identity Rule Version */
+            identity_rule_version: string;
+            /**
+             * Ingested At
+             * Format: date-time
+             */
+            ingested_at: string;
+            /** Mapper Key */
+            mapper_key: string;
+            /** Mapper Version */
+            mapper_version: string;
+            /** Schema Key */
+            schema_key: string;
+            /** Schema Version */
+            schema_version: string;
+            /** Source System Key */
+            source_system_key: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /** BatchRowInspectionResponse */
+        BatchRowInspectionResponse: {
+            /** Evidence Id */
+            evidence_id: string | null;
+            normalization: components["schemas"]["NormalizationInspectionResponse"] | null;
+            observation: components["schemas"]["ObservationInspectionResponse"] | null;
+            /** Ordinal */
+            ordinal: number;
+            outcome: components["schemas"]["IngestionRowOutcome"];
+            reason_code: components["schemas"]["IngestionReason"] | null;
+            /**
+             * Row Id
+             * Format: uuid
+             */
+            row_id: string;
+            /** Row Sha256 */
+            row_sha256: string;
+        };
+        /** BatchRowsResponse */
+        BatchRowsResponse: {
+            /**
+             * Batch Id
+             * Format: uuid
+             */
+            batch_id: string;
+            /** Items */
+            items: components["schemas"]["BatchRowInspectionResponse"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
         /**
          * CanonicalSignalResponse
          * @description Stable commercial-event identity independent of evaluation time.
@@ -1331,6 +1454,22 @@ export interface components {
             /** Items */
             items: components["schemas"]["EvidenceResponse"][];
         };
+        /** EvidenceOriginResponse */
+        EvidenceOriginResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            batch: components["schemas"]["BatchInspectionResponse"];
+            /**
+             * Evidence Id
+             * Format: uuid
+             */
+            evidence_id: string;
+            normalization: components["schemas"]["NormalizationInspectionResponse"];
+            observation: components["schemas"]["ObservationInspectionResponse"];
+        };
         /**
          * EvidenceResponse
          * @description Provenance-bearing evidence, with epistemic confidence only where applicable.
@@ -1413,6 +1552,16 @@ export interface components {
             detail?: components["schemas"]["ValidationError"][];
         };
         /**
+         * IngestionReason
+         * @enum {string}
+         */
+        IngestionReason: "INVALID_ROW" | "INVALID_DATE" | "INVALID_ASSERTION" | "INVALID_CITATION" | "FIELD_TOO_LARGE" | "UNSUPPORTED_FACT" | "EVENT_TIME_REQUIRED" | "MISSING_IDENTITY" | "AMBIGUOUS_IDENTITY" | "SOURCE_ID_CONFLICT" | "SOURCE_RECORD_CONFLICT" | "DUPLICATE_OBSERVATION";
+        /**
+         * IngestionRowOutcome
+         * @enum {string}
+         */
+        IngestionRowOutcome: "ACCEPTED" | "REJECTED" | "UNRESOLVED" | "DUPLICATE";
+        /**
          * LivenessResponse
          * @description Process-level liveness without infrastructure details.
          */
@@ -1431,6 +1580,69 @@ export interface components {
             status: "ok";
             /** Version */
             version: string;
+        };
+        /** NormalizationInspectionResponse */
+        NormalizationInspectionResponse: {
+            /** Account Id */
+            account_id: string | null;
+            /** Evidence Classification */
+            evidence_classification: string | null;
+            /** Fact Assertion */
+            fact_assertion: string | null;
+            /** Fact Key */
+            fact_key: string | null;
+            /** Fact Observed At */
+            fact_observed_at: string | null;
+            /** Identity Rule Version */
+            identity_rule_version: string;
+            /** Mapper Key */
+            mapper_key: string;
+            /** Mapper Version */
+            mapper_version: string;
+            /** Normalized Fact */
+            normalized_fact: string | null;
+            outcome: components["schemas"]["NormalizationOutcome"];
+            /** Output Schema Version */
+            output_schema_version: string;
+            /** Output Sha256 */
+            output_sha256: string | null;
+            reason_code: components["schemas"]["IngestionReason"] | null;
+            /**
+             * Result Id
+             * Format: uuid
+             */
+            result_id: string;
+        };
+        /**
+         * NormalizationOutcome
+         * @enum {string}
+         */
+        NormalizationOutcome: "ACCEPTED" | "REJECTED" | "UNRESOLVED" | "CONFLICT";
+        /** ObservationInspectionResponse */
+        ObservationInspectionResponse: {
+            /** External Record Id */
+            external_record_id: string;
+            /**
+             * First Batch Id
+             * Format: uuid
+             */
+            first_batch_id: string;
+            /**
+             * Observation Id
+             * Format: uuid
+             */
+            observation_id: string;
+            /** Original Fields */
+            original_fields: {
+                [key: string]: string;
+            };
+            /** Payload Sha256 */
+            payload_sha256: string;
+            /**
+             * Source Observed At
+             * Format: date-time
+             */
+            source_observed_at: string;
         };
         /**
          * PolicyDefinitionResponse
@@ -2644,6 +2856,105 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ActiveStrategyResponse"];
+                };
+            };
+        };
+    };
+    get_ingestion_batch_api_v1_workspaces__workspace_id__ingestion_batches__batch_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+                batch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchInspectionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ingestion_batch_rows_api_v1_workspaces__workspace_id__ingestion_batches__batch_id__rows_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                workspace_id: string;
+                batch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchRowsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_imported_evidence_origin_api_v1_workspaces__workspace_id__ingestion_evidence__evidence_id__origin_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+                evidence_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceOriginResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
