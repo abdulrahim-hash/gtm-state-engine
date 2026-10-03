@@ -60,7 +60,11 @@ export function AccountsScreen() {
                   <div>
                     <span className="record-label">Synthetic canonical account</span>
                     <h3>{account.canonical_name}</h3>
-                    <p>{account.segment}</p>
+                    {account.segment !== null ? (
+                      <p>{account.segment}</p>
+                    ) : (
+                      <p>Segment not assigned</p>
+                    )}
                   </div>
                   <div className="account-domain">
                     <span>{account.domain}</span>

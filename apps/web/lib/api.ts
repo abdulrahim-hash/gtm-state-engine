@@ -1,6 +1,8 @@
 import type { components } from "@gtm-state/contracts";
 
 export type ActiveStrategy = components["schemas"]["ActiveStrategyResponse"];
+export type BatchInspection = components["schemas"]["BatchInspectionResponse"];
+export type BatchRows = components["schemas"]["BatchRowsResponse"];
 export type AccountList = components["schemas"]["AccountListResponse"];
 export type AccountDetail = components["schemas"]["AccountDetailResponse"];
 export type EvidenceList = components["schemas"]["EvidenceListResponse"];
@@ -25,6 +27,17 @@ async function getJson<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+export function getIngestionBatch(workspaceId: string, batchId: string): Promise<BatchInspection> {
+  return getJson<BatchInspection>(
+    `/api/v1/workspaces/${encodeURIComponent(workspaceId)}/ingestion/batches/${encodeURIComponent(batchId)}`,
+  );
+}
+
+export function getIngestionBatchRows(workspaceId: string, batchId: string): Promise<BatchRows> {
+  return getJson<BatchRows>(
+    `/api/v1/workspaces/${encodeURIComponent(workspaceId)}/ingestion/batches/${encodeURIComponent(batchId)}/rows`,
+  );
+}
 export function getActiveStrategy(): Promise<ActiveStrategy> {
   return getJson<ActiveStrategy>("/api/v1/strategy/active");
 }

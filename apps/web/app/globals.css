@@ -1752,3 +1752,65 @@ footer p {
     grid-template-columns: 1fr;
   }
 }
+
+.import-main {
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+.import-summary,
+.import-rows {
+  padding: 32px 28px;
+  margin: 24px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+}
+
+.import-summary h2,
+.import-rows h2 {
+  margin: 0 0 20px;
+}
+
+.import-counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.import-counts div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+}
+
+.import-counts strong {
+  font-size: 1.7rem;
+}
+
+.import-counts span {
+  text-transform: capitalize;
+}
+
+.import-row-list {
+  display: grid;
+  gap: 16px;
+}
+
+.import-row-list .evidence-card {
+  max-width: none;
+}
+
+.import-row-list .mono,
+.import-summary .mono {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .import-counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

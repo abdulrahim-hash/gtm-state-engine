@@ -109,7 +109,11 @@ export function AccountDetailScreen({ accountId }: AccountDetailScreenProps) {
               <div>
                 <p className="eyebrow">Synthetic canonical account</p>
                 <h1 id="account-title">{accountData.account.canonical_name}</h1>
-                <p>{accountData.account.segment}</p>
+                {accountData.account.segment !== null ? (
+                  <p>{accountData.account.segment}</p>
+                ) : (
+                  <p>Segment not assigned</p>
+                )}
               </div>
               <dl className="snapshot-panel">
                 <div>
