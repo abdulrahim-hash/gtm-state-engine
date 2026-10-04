@@ -18,7 +18,7 @@ export function ProductShell({ active, children }: ProductShellProps) {
     <div className="site-shell product-shell">
       <div className="demo-banner" role="status">
         <span className="demo-dot" aria-hidden="true" />
-        Synthetic public demo
+        SYNTHETIC DEMO
         <span className="demo-divider" aria-hidden="true" />
         No prospect or client data
       </div>

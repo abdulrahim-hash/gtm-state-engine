@@ -7,7 +7,7 @@ describe("M1D product shell", () => {
   it("clearly labels the synthetic demo and local dry-run boundary", () => {
     render(<Home />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("Synthetic public demo");
+    expect(screen.getByRole("status")).toHaveTextContent("SYNTHETIC DEMO");
     expect(screen.getByRole("status")).toHaveTextContent("No prospect or client data");
     expect(screen.getByText("External execution remains off")).toBeInTheDocument();
     expect(screen.getByText("M1D / Local dry-run only")).toBeInTheDocument();
