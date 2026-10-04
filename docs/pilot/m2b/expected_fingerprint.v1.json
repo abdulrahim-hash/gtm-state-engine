@@ -1,0 +1,22 @@
+{
+  "object_counts": {
+    "account_state_snapshots": 20,
+    "accounts": 20,
+    "actions": 1,
+    "decision_definitions": 1,
+    "decision_evaluations": 20,
+    "evidence": 28,
+    "normalization_results": 22,
+    "policy_definitions": 1,
+    "policy_evaluations": 20,
+    "signal_definitions": 1,
+    "signal_evaluations": 20,
+    "source_observations": 22,
+    "strategy_fit_criteria": 1,
+    "strategy_versions": 1,
+    "workspaces": 1
+  },
+  "schema": "m2b_semantic_fingerprint/1.0.0",
+  "semantic_as_of": "2026-10-05T00:00:00+00:00",
+  "sha256": "0f4a444ce682e39178bfe9816f5a934634b108c4e1e971de18fddb9cd8c531aa"
+}

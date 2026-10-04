@@ -1,0 +1,1186 @@
+{
+  "cohorts": {
+    "BASE_SAMPLE": [
+      {
+        "account_id": "a923604c-b881-5df6-8519-ba5c2e7ae326",
+        "action": null,
+        "company_name": "trumpet",
+        "decision": {
+          "id": "9c7fe69e-91f5-57c9-8c15-0478f832db67",
+          "input_hash": "f64bf954e39345a771360256286f0bb8aadfc09049c9a465bb371ed33da997ee",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "791b0d25-75f6-502a-bc05-6f16417ebe7d"
+        },
+        "domain": "sendtrumpet.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "8fec9c6d-34ff-5bbb-a4e7-4f455eace56f",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "8752dd31-c5f4-5540-871d-e8989570674a",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Trumpet offers sales enablement software for rep training and approved content.",
+            "source_observation_id": "b6cc89e5-a82e-5419-bb77-af17bb0b8cb4",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.sendtrumpet.com/use-cases/enablement"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "9c7fe69e-91f5-57c9-8c15-0478f832db67",
+          "id": "b1f1adfc-187f-5176-8081-c6f1b6af0fc0",
+          "input_hash": "46fd783895ffdd81be7405bff2877187fcee3245ae1ea0ec4c1d5a9f5cf00cf9",
+          "result": "BLOCK",
+          "state_snapshot_id": "791b0d25-75f6-502a-bc05-6f16417ebe7d"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "e6bcaa7d-5a4f-571f-aa36-990dfc1f4d87",
+          "input_hash": "fd01682fa66be9db7568fd51b97a5ca737b4d3b382a50d9392e5ffe0991d8a61",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "8fec9c6d-34ff-5bbb-a4e7-4f455eace56f"
+          ],
+          "fit": "MATCH",
+          "id": "791b0d25-75f6-502a-bc05-6f16417ebe7d",
+          "input_hash": "683fc600bd35f53b93ef3fa7be00201a50a394a13101760a967fc77738b62290",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "e6bcaa7d-5a4f-571f-aa36-990dfc1f4d87"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "89c5ddbc-4b08-5e25-a23b-247933e206ce",
+        "action": null,
+        "company_name": "Showpad",
+        "decision": {
+          "id": "c8bbf0a4-1249-5370-ac19-3f09e8662c03",
+          "input_hash": "7abbe47e9820362e986bac618f799d2732d961fcf90d7a6b8a587614f159052b",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "9715acf5-c597-5edb-bc13-2185d51b5239"
+        },
+        "domain": "showpad.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "93df52dc-0d63-5ea1-9819-1a2168044b3b",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "73a396cd-30d8-50cd-9727-01bfbcad9dbe",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Showpad offers a sales enablement platform with content and coaching.",
+            "source_observation_id": "adc1cea4-d788-54df-bc4d-1e8b02188bf1",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.showpad.com/lp/sales-enablement"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "c8bbf0a4-1249-5370-ac19-3f09e8662c03",
+          "id": "29024120-a1de-5be9-84fb-7bb83df775e5",
+          "input_hash": "305c77dd820aede94b8c065b68bdbd10bfa5719ef8eee7dc81a9ce0d795e3cb6",
+          "result": "BLOCK",
+          "state_snapshot_id": "9715acf5-c597-5edb-bc13-2185d51b5239"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "5e0a05db-cb75-522c-b40e-954e9d02c7bd",
+          "input_hash": "f29d8afde4b70b779476420a806e78a73c3b5fd4369235c1e0c68545f7744209",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "93df52dc-0d63-5ea1-9819-1a2168044b3b"
+          ],
+          "fit": "MATCH",
+          "id": "9715acf5-c597-5edb-bc13-2185d51b5239",
+          "input_hash": "bbe3439d5590b8b9a2646b99cd1f0462b8fad168d551a2840b0694fc55edbc7d",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "5e0a05db-cb75-522c-b40e-954e9d02c7bd"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "d17fd617-784b-5ab6-8c80-5f318c3ce5ed",
+        "action": null,
+        "company_name": "Supademo",
+        "decision": {
+          "id": "b777e7ca-a1c4-5f99-9d0c-893ed1ecbe8e",
+          "input_hash": "e7223ffd214cc6f2f85b8e84636a3e63df5b483597e60b3b31e2e093a60cb2a0",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "155174b4-37fb-5db9-aa09-59345f8ff87d"
+        },
+        "domain": "supademo.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "b7ede101-0703-5643-a511-7df8d223cdef",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "1e6f66c2-9333-55d6-8166-b4d3f2771036",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Supademo offers interactive demo software for sales and enablement use.",
+            "source_observation_id": "aeb43dc5-1bce-5325-bb18-b61ebfe88ce5",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://supademo.com/features/personalization"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "b777e7ca-a1c4-5f99-9d0c-893ed1ecbe8e",
+          "id": "b0d61aa7-e993-52ef-815c-3196752f6bc2",
+          "input_hash": "4f2a438de5101803c9666ebab8e31781ce1b2376d81982672d238bcff9e2ecbe",
+          "result": "BLOCK",
+          "state_snapshot_id": "155174b4-37fb-5db9-aa09-59345f8ff87d"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "f7756f4c-ed16-5da1-91d6-fcbf0c9feb6d",
+          "input_hash": "dc8aa887ec7aa9512c502056e19ef7594336be93406b3b325ee65574108f6e7d",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "b7ede101-0703-5643-a511-7df8d223cdef"
+          ],
+          "fit": "MATCH",
+          "id": "155174b4-37fb-5db9-aa09-59345f8ff87d",
+          "input_hash": "a157f16d72e3a3764b5048e4055725fa5507f58f6864124f34a3f504a868d498",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "f7756f4c-ed16-5da1-91d6-fcbf0c9feb6d"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "15ebf6c3-efeb-5b58-9d15-e3037f60b020",
+        "action": null,
+        "company_name": "Dock",
+        "decision": {
+          "id": "a75d5e64-4548-5aa7-b407-d8b087659f93",
+          "input_hash": "8a9f3f045b2f6f43854d4a9aca9971d8ba000a9dee2917fbc48ba1dd6ac93f43",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "61e178ae-3221-57e2-a122-78a2888ae074"
+        },
+        "domain": "dock.us",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "1bdfed3f-d957-5665-9516-2dfae5f8722a",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "4e980c0f-5937-5fe1-833c-b363008704b9",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Dock offers a sales enablement platform with deal rooms and playbooks.",
+            "source_observation_id": "cc9cbdfc-5216-5e4f-b966-bb02c3cf7b8b",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.dock.us/solutions/sales-enablement"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "a75d5e64-4548-5aa7-b407-d8b087659f93",
+          "id": "6203184d-46cc-5c15-8970-4a3420e4e954",
+          "input_hash": "142278a0f47807d716e347aa4d5c6d9291eaefae7f31baa430040227080259e0",
+          "result": "BLOCK",
+          "state_snapshot_id": "61e178ae-3221-57e2-a122-78a2888ae074"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "f4fdc7c3-bccd-5fe4-b774-1afd18566637",
+          "input_hash": "685c62674cb8ff3761041bd3223d29ef2acb9963cc5b94393989a1615641ec06",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "1bdfed3f-d957-5665-9516-2dfae5f8722a"
+          ],
+          "fit": "MATCH",
+          "id": "61e178ae-3221-57e2-a122-78a2888ae074",
+          "input_hash": "294e3e993162b2749d6fabef2e0aaa545d0764257960c00e690595dd6257a8b4",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "f4fdc7c3-bccd-5fe4-b774-1afd18566637"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "c1b91fe9-d97f-5894-bc5d-b8b3eb1c19ac",
+        "action": null,
+        "company_name": "Dropbox",
+        "decision": {
+          "id": "3705806e-659b-5343-a179-338a96532f78",
+          "input_hash": "8ea7c3c642a90e94e8f428851d83e773b2ec359436311473686c11758c528d11",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "4aea9859-b703-52f9-9280-da6aea129705"
+        },
+        "domain": "dropbox.com",
+        "evidence": [
+          {
+            "assertion": "INCONCLUSIVE",
+            "evidence_id": "c86bb143-df45-5d56-9b00-ffbee0e13420",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "982eb705-b57b-525b-9dbd-d153bc7175a4",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Dropbox offers sales document tools; a sales enablement software offering is unclear.",
+            "source_observation_id": "761aa3cb-a18f-5b44-8267-fc72f077952f",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.dropbox.com/business/solutions/sales"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "3705806e-659b-5343-a179-338a96532f78",
+          "id": "784f19dc-21b9-56f6-a353-6b782a85fffa",
+          "input_hash": "fdf27ce11845e84ad24a9fe4181a86aae80c8395af61a3a67663a44f14a57f4d",
+          "result": "BLOCK",
+          "state_snapshot_id": "4aea9859-b703-52f9-9280-da6aea129705"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "8f11466f-c636-562a-a9c0-b8a3abfb27fd",
+          "input_hash": "1841f337b5e86ac22c50d0caf09713e6a6079e97ed2f90ddbfa3cc83d40d98ca",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "c86bb143-df45-5d56-9b00-ffbee0e13420"
+          ],
+          "fit": "INCONCLUSIVE",
+          "id": "4aea9859-b703-52f9-9280-da6aea129705",
+          "input_hash": "54b627b23ee1661fa5592920cb441f6d76cfd30a93b0759b3b2473b3b4cd5ed5",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "8f11466f-c636-562a-a9c0-b8a3abfb27fd"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "35e2fcfc-2ee7-5844-80d6-885b76b94aa0",
+        "action": null,
+        "company_name": "HubSpot",
+        "decision": {
+          "id": "4dce6e06-9aec-51d8-a004-ee026a587cdf",
+          "input_hash": "fbb222630224604df3eb3c2cb45b56c1dd1da8cf02480d5284adf8a540de1f9b",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "1ee8ce97-38c7-5343-b4a9-72f33622ae57"
+        },
+        "domain": "hubspot.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "13bf3c8e-4a1c-5685-ac38-07cd8bd41579",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "88baa91b-2f8e-5bfb-970b-1abb385c664a",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "HubSpot offers sales software including document tracking for enablement content.",
+            "source_observation_id": "2fc0c00f-bb7e-518f-a8c0-07656f919073",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.hubspot.com/products"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "4dce6e06-9aec-51d8-a004-ee026a587cdf",
+          "id": "4ddea42b-7361-5da0-83ee-7a9f3dd3f8df",
+          "input_hash": "2d5b76a3b3fd8b27d5a225a9301e797a434283b335f40fd0e2a8fd3db402c5de",
+          "result": "BLOCK",
+          "state_snapshot_id": "1ee8ce97-38c7-5343-b4a9-72f33622ae57"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "4d186b82-0271-583e-974f-fc43db93a390",
+          "input_hash": "93d75c198d3b04f476189f71362435038cd4643a1b69febe2396539cff399596",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "13bf3c8e-4a1c-5685-ac38-07cd8bd41579"
+          ],
+          "fit": "MATCH",
+          "id": "1ee8ce97-38c7-5343-b4a9-72f33622ae57",
+          "input_hash": "42629bfc1df8274b8866d526488823fa2a56089c2212bcceaa61608bf53155d8",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "4d186b82-0271-583e-974f-fc43db93a390"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "b93c8846-20aa-5799-9c80-f42dfedb7bc7",
+        "action": null,
+        "company_name": "Spekit",
+        "decision": {
+          "id": "b7c3e57e-9fee-5f07-bdab-4bae7f9b0691",
+          "input_hash": "d0cb3782b935982b193c7c1a4aaec669e42b48fef1a9d69994be7ecfcc32d95c",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "e61329b9-e3ad-5fd9-9502-1a4b4d5966b3"
+        },
+        "domain": "spekit.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "481a46a8-882f-5279-beac-35ddb0408226",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "9976d16d-3cef-5d9f-90a3-7fb005e22b9c",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Spekit offers sales enablement software with content and learning tools.",
+            "source_observation_id": "a200ecc1-8af6-5c80-afc0-7749eaf87502",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.spekit.com/solutions/sales-enablement"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "b7c3e57e-9fee-5f07-bdab-4bae7f9b0691",
+          "id": "f6220544-7323-5734-8ec1-3c205aa733a0",
+          "input_hash": "ebd274f730bf8c1580c0928a708ef1c48379e1accacbc319e95ae824c1d568ea",
+          "result": "BLOCK",
+          "state_snapshot_id": "e61329b9-e3ad-5fd9-9502-1a4b4d5966b3"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "b96b457d-a470-584e-be3e-a373bb253cbc",
+          "input_hash": "1ad7c2e389b27bf5f523e1158afc517a4dcfca8df1efe0a70bf47826517093d0",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "481a46a8-882f-5279-beac-35ddb0408226"
+          ],
+          "fit": "MATCH",
+          "id": "e61329b9-e3ad-5fd9-9502-1a4b4d5966b3",
+          "input_hash": "20322c74ba32d9ff9d81f01b80666bb0b0576e139734a24d6a11a3fa4bfd34c4",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "b96b457d-a470-584e-be3e-a373bb253cbc"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "aae58846-157f-554e-9e49-e353edeba6ea",
+        "action": null,
+        "company_name": "Mindtickle",
+        "decision": {
+          "id": "ac976866-19aa-58d2-9322-b5bc7c422a0c",
+          "input_hash": "1830c6f7246ae01111c965858151d183017e4fa3daac4f3178c0d7389b106f73",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "509602f7-b255-5a04-8700-2f8c2a6bddf2"
+        },
+        "domain": "mindtickle.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "6fe950b6-30f3-5976-9224-f30a9475f8f7",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "efe73b46-28ca-524f-90a0-be2d80f0b563",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Mindtickle offers a revenue enablement platform with training and content.",
+            "source_observation_id": "18bacf34-926e-5a2d-ab05-05a7498668e9",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.mindtickle.com/"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "ac976866-19aa-58d2-9322-b5bc7c422a0c",
+          "id": "8df10504-c551-5eb4-9d03-386e73c55d81",
+          "input_hash": "bf7e055833d8f5ec2c7837746f0a274956c548f4fdc7e0e88d155df0858902a3",
+          "result": "BLOCK",
+          "state_snapshot_id": "509602f7-b255-5a04-8700-2f8c2a6bddf2"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "cebf2355-0260-5cd8-b8fd-89bd7d84201c",
+          "input_hash": "74d67013375e49f9b5f08f833c2494abfd4fab85f0f8e4daaaa9362bfe566876",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "6fe950b6-30f3-5976-9224-f30a9475f8f7"
+          ],
+          "fit": "MATCH",
+          "id": "509602f7-b255-5a04-8700-2f8c2a6bddf2",
+          "input_hash": "d628235bfd89408ac6ae16112754a0f18967e0bda9cae262c45abcb33c32089a",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "cebf2355-0260-5cd8-b8fd-89bd7d84201c"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "73524f48-1ad3-5dbb-90a8-10d9d46bcb5e",
+        "action": null,
+        "company_name": "Accord",
+        "decision": {
+          "id": "b84e836c-6fd5-5753-9722-1830de36238d",
+          "input_hash": "31ad2437d5140afb711afff4df9bf81c205bd9145b3ace8995e61c024ee2d7f6",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "2ffbb460-9c19-5d9b-97cc-66fc810aaa10"
+        },
+        "domain": "inaccord.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "35be8406-f619-59d6-9d1d-d38a3e0141a4",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "27e3c312-b570-5c97-9688-0d666aec4ae3",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Accord offers software for sales playbooks and content enablement.",
+            "source_observation_id": "ca801c6e-83ef-56f6-aefd-2511372f69e3",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://inaccord.com/what-is-accord"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "b84e836c-6fd5-5753-9722-1830de36238d",
+          "id": "cac66018-4f10-538a-a0ec-2ca1ded0685a",
+          "input_hash": "815e82559890d7eeb8e6634dddbc27a1639e56356723e182ddc6825f20759ce4",
+          "result": "BLOCK",
+          "state_snapshot_id": "2ffbb460-9c19-5d9b-97cc-66fc810aaa10"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "d6ad6b54-376f-53e6-bf26-7d4c4344a5dc",
+          "input_hash": "8668d899ac3d4f0e4379ff492459a62197b4995b7ef60ecb138481a9488ff3de",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "35be8406-f619-59d6-9d1d-d38a3e0141a4"
+          ],
+          "fit": "MATCH",
+          "id": "2ffbb460-9c19-5d9b-97cc-66fc810aaa10",
+          "input_hash": "795e4526af6af5d8c3b4043eb7116b3045b8c597f8f31e755183393b09a204e3",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "d6ad6b54-376f-53e6-bf26-7d4c4344a5dc"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "001ea587-4fb7-53e7-8594-74598c560bba",
+        "action": null,
+        "company_name": "RELAYTO",
+        "decision": {
+          "id": "8fdbd177-c172-55e7-8a8d-cf2be5267c21",
+          "input_hash": "5623aaac604973e27456a2578e2a450d0f8fecfe9f0c85d58d1337aab888d058",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "9e437dd7-b7e9-5e98-9e0b-61098979d65b"
+        },
+        "domain": "relayto.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "334308c1-470c-59b0-8c36-4d7833b06872",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "108e54b1-ef22-5fdc-ad40-b669048f69da",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "RELAYTO offers interactive sales enablement content software.",
+            "source_observation_id": "52b59977-ae1c-5670-8b2a-83a99dbc3c4e",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://relayto.com/solutions/sales-enablement"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "8fdbd177-c172-55e7-8a8d-cf2be5267c21",
+          "id": "52e4c617-e558-57b2-88cd-e7fbc0cdcd7c",
+          "input_hash": "a44ba9242def6a6830a60826e41189ace3238406138e9659440343085cb44ef1",
+          "result": "BLOCK",
+          "state_snapshot_id": "9e437dd7-b7e9-5e98-9e0b-61098979d65b"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "09501914-75ff-59ca-8190-be665b80fe4a",
+          "input_hash": "4c3236b38128072d15203a0eaaee16d6a36e326780b4097295aecf374a0d24ac",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "334308c1-470c-59b0-8c36-4d7833b06872"
+          ],
+          "fit": "MATCH",
+          "id": "9e437dd7-b7e9-5e98-9e0b-61098979d65b",
+          "input_hash": "beb3655166060451ad2177f365c422f6f5de6fc7181b8a3255c4bd12f17a3012",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "09501914-75ff-59ca-8190-be665b80fe4a"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "eca31c9e-32d9-5d94-9d84-c84d774106a9",
+        "action": null,
+        "company_name": "Salesforce",
+        "decision": {
+          "id": "db84da95-3f8e-56ba-8900-647db9a6c41d",
+          "input_hash": "897d80d66fc5a8197330c0e1da346975b7401adbffd9e8ffb8f6e29f2ce38158",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "b345926e-abe9-5ffa-aa90-4226704b8f1a"
+        },
+        "domain": "salesforce.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "243e076a-a610-5cf3-bfbc-389383d24c33",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "4b67675e-50c6-5ced-a783-5f038399d555",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Salesforce offers sales programs and enablement software.",
+            "source_observation_id": "47e782eb-3815-5de4-9b14-30f89abe5d3b",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.salesforce.com/sales/enablement/"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "db84da95-3f8e-56ba-8900-647db9a6c41d",
+          "id": "7dc919c7-4965-5010-904b-6f21c5d22790",
+          "input_hash": "a8b0e50ec7489eedc5837bf7a4eda4d71f0a14a214b6aa79434079e1b03ad392",
+          "result": "BLOCK",
+          "state_snapshot_id": "b345926e-abe9-5ffa-aa90-4226704b8f1a"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "ff39d396-abda-5a30-96df-6bfa9ad8cd46",
+          "input_hash": "37f3db04661f0c18a83a75280bf41bfc508605561458e217d418419b0ce8cfce",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "243e076a-a610-5cf3-bfbc-389383d24c33"
+          ],
+          "fit": "MATCH",
+          "id": "b345926e-abe9-5ffa-aa90-4226704b8f1a",
+          "input_hash": "fc759b272137efc0ad57d0174b135ba4db66affa07d97fd46f0ce6b1cba0c909",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "ff39d396-abda-5a30-96df-6bfa9ad8cd46"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "67e5d673-2260-57db-a42a-2d823958c223",
+        "action": null,
+        "company_name": "Aligned",
+        "decision": {
+          "id": "79560de9-8f9a-522c-a60a-9bc92c8f6222",
+          "input_hash": "d4132cc67c058ff5052338fed889401334b3d05f7c4eff759d9eec787adc685d",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "73e3bcb2-0304-5444-a2fd-dceeaf6fc4b0"
+        },
+        "domain": "alignedup.com",
+        "evidence": [
+          {
+            "assertion": "INCONCLUSIVE",
+            "evidence_id": "b320c9f6-b3f1-53e4-bac5-f933519f7fd6",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "7cbad8fc-1d16-5f0b-82ba-9d5ece65673e",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Aligned offers a digital sales room; the narrow enablement criterion is unclear.",
+            "source_observation_id": "a70dae39-0fe9-51fd-90fb-39e8963380bf",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://alignedup.com/"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "79560de9-8f9a-522c-a60a-9bc92c8f6222",
+          "id": "de16c219-2461-5bc9-9dd5-781729f834dc",
+          "input_hash": "afd0d1f051997fb3e01100b97a1bece5f09f5bbfd7f7a3ce53fddebb3106935b",
+          "result": "BLOCK",
+          "state_snapshot_id": "73e3bcb2-0304-5444-a2fd-dceeaf6fc4b0"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "703f5c10-e4c8-5106-8be2-504031d88ea2",
+          "input_hash": "3994db0044ba164b4a2401949fb510ac6a65cdf02aae7127edbdaae23b5b45cc",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "b320c9f6-b3f1-53e4-bac5-f933519f7fd6"
+          ],
+          "fit": "INCONCLUSIVE",
+          "id": "73e3bcb2-0304-5444-a2fd-dceeaf6fc4b0",
+          "input_hash": "94b7c577ca48321045622036dbb6499e6a2757357c347ae477d3cd45d74f1252",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "703f5c10-e4c8-5106-8be2-504031d88ea2"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "dfe3c77d-5fab-5da2-81b7-29d13d56224e",
+        "action": null,
+        "company_name": "Allego",
+        "decision": {
+          "id": "0aa3dfea-fcf7-58af-9044-99e41bf59b41",
+          "input_hash": "9a774002d7f3496a64bcb1740414ab1c2ee203bfae135cf08b716a24bf9f58e2",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "9d426721-8c7f-5d18-a352-d3866e9ff2ae"
+        },
+        "domain": "allego.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "b9a62f62-badc-550f-bbbb-86814c9181cb",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "facacc63-6e4d-5c0c-b688-d4b790d80270",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Allego describes itself as a sales enablement software provider.",
+            "source_observation_id": "fd72976e-b441-577d-971c-c1824725dd37",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.allego.com/about/"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "0aa3dfea-fcf7-58af-9044-99e41bf59b41",
+          "id": "7e24fa70-d659-5ad9-9b4a-b468f4c96d06",
+          "input_hash": "5aae384353233daad1e06891c8fd9a982add7e4929423a9270405cb66a8d3562",
+          "result": "BLOCK",
+          "state_snapshot_id": "9d426721-8c7f-5d18-a352-d3866e9ff2ae"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "f5aba6ad-050e-5ada-ad15-dce175d01a07",
+          "input_hash": "0d69329e0caf7ba94854635737b10922908457fa03422a8ac6aa94de07beee78",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "b9a62f62-badc-550f-bbbb-86814c9181cb"
+          ],
+          "fit": "MATCH",
+          "id": "9d426721-8c7f-5d18-a352-d3866e9ff2ae",
+          "input_hash": "f175fb4ae0dadea5f2eb927fa4b544d0f35976f5f77b038efbe17499686dba5c",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "f5aba6ad-050e-5ada-ad15-dce175d01a07"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "459fe164-6bf1-5ee5-9d07-66e907f21e38",
+        "action": null,
+        "company_name": "Seismic",
+        "decision": {
+          "id": "4b3833b9-c2ab-593f-ad58-3b8ee848d242",
+          "input_hash": "43ac82045b53a1261928ec03cc1581ce75787061499b850230bfa49b56fe461b",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "e8e9facc-b9d2-5b3a-8b9b-c31abe26122f"
+        },
+        "domain": "seismic.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "25ccb812-3a55-583e-afca-345968e6f0a8",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "c3c3e53e-5191-5f3b-b158-e92a4cc22e88",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Seismic offers an enablement software platform for sales teams.",
+            "source_observation_id": "29536896-6dfc-5f17-9be6-b8005f465f13",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://seismic.com/products/enablement-cloud/"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "4b3833b9-c2ab-593f-ad58-3b8ee848d242",
+          "id": "6297a616-3d30-574b-b522-2d2a45adb00b",
+          "input_hash": "8b36b45bc5736e3ffae5513a86cd9eb3a2d0aa8de0673e4abf4a5d22ae7adf2c",
+          "result": "BLOCK",
+          "state_snapshot_id": "e8e9facc-b9d2-5b3a-8b9b-c31abe26122f"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "64b3b16a-edc9-538f-976e-ae5c074e1fb8",
+          "input_hash": "65dfda74dea3d1751172d956ea421b45eff23d6eace78cac70e2f1016e04528a",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "25ccb812-3a55-583e-afca-345968e6f0a8"
+          ],
+          "fit": "MATCH",
+          "id": "e8e9facc-b9d2-5b3a-8b9b-c31abe26122f",
+          "input_hash": "3c38568c2dc44646699d424c6f8e9852809d0086970c643aa7a99ad4bf7dfb7c",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "64b3b16a-edc9-538f-976e-ae5c074e1fb8"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "1558c51a-0a4f-5b87-8586-e7a238fc635e",
+        "action": null,
+        "company_name": "Supered",
+        "decision": {
+          "id": "5457506e-7535-56d2-bcd9-83a74119aca3",
+          "input_hash": "4535726434ff88496e9c507b3eeeafde53f04f0e2bd0d294d79840f21e6be116",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "b3fb4c28-0404-5fee-886a-b815f9f9dc6e"
+        },
+        "domain": "supered.io",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "b96316cd-ab4b-547b-b13c-97cc8cd402d6",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "4535159f-e026-58f3-a3a7-48d2bbd87dfc",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Supered offers in-workflow software for sales process enablement.",
+            "source_observation_id": "e7b5c9ec-7ce6-5bb8-b6d2-c8a67f432b67",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.supered.io/"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "5457506e-7535-56d2-bcd9-83a74119aca3",
+          "id": "46fb8b32-5c4c-5a84-97f3-9c2a25e32650",
+          "input_hash": "8f681b73c7b95f244d12b336f4911226835d4d244202da3e28d8f93cf7d0552a",
+          "result": "BLOCK",
+          "state_snapshot_id": "b3fb4c28-0404-5fee-886a-b815f9f9dc6e"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "9ba84f4c-2a3f-59f8-a83a-52c02ade42c8",
+          "input_hash": "cc4d38f344b68696951469f65b9f1d693c03151f3b49fa9e28886ffd26042925",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "b96316cd-ab4b-547b-b13c-97cc8cd402d6"
+          ],
+          "fit": "MATCH",
+          "id": "b3fb4c28-0404-5fee-886a-b815f9f9dc6e",
+          "input_hash": "dbe17ec60f5747af38b0dcf869e191264572b098fd24e0f0a5377361cb57587e",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "9ba84f4c-2a3f-59f8-a83a-52c02ade42c8"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "eefe2183-c17a-513b-8789-576b9bb9c413",
+        "action": null,
+        "company_name": "GetAccept",
+        "decision": {
+          "id": "713c184b-5fe0-585b-9909-2eb91106def9",
+          "input_hash": "9f56e978340ab5c9577684470d63fc195f10f3746aa2e8b06d8fc4011e267575",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "1f841eb6-c029-5ad5-833b-b005ad2926ae"
+        },
+        "domain": "getaccept.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "dcb83bfb-2612-58cb-9094-0deb498874b4",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "2923d02c-b3e6-5ee5-b199-fa10b9c1222e",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "GetAccept offers sales enablement content software.",
+            "source_observation_id": "5749ce7b-e1b0-5548-a678-16edcb6cc372",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.getaccept.com/use-cases/sales-enablement-software"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "713c184b-5fe0-585b-9909-2eb91106def9",
+          "id": "e679a7ea-e292-587a-b04d-217a55222309",
+          "input_hash": "0df877723ed1236fc0967587ee7e209eeb4a5e92b4b584dfde541613e13450f0",
+          "result": "BLOCK",
+          "state_snapshot_id": "1f841eb6-c029-5ad5-833b-b005ad2926ae"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "67e4ac41-6b63-5ff4-903c-575718a28ed5",
+          "input_hash": "d2fd615576c0ec6111778dba8ac6a1c19236b683e429850bc1ace32deb2578d8",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "dcb83bfb-2612-58cb-9094-0deb498874b4"
+          ],
+          "fit": "MATCH",
+          "id": "1f841eb6-c029-5ad5-833b-b005ad2926ae",
+          "input_hash": "34f3fb19738190dff34642d08e9edb914de93c977e872544b44aff914dccc8cc",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "67e4ac41-6b63-5ff4-903c-575718a28ed5"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "10333a69-f6b1-51be-8948-3095a16614c5",
+        "action": {
+          "id": "c8d89666-91c6-5c55-a6be-ed6cde995f62",
+          "input_hash": "ea3581851e7b58c794567fd8a2870cb090b73245ccd778bb3b0979bb433a6b03",
+          "policy_evaluation_id": "d892c7dc-472e-5e67-a5c5-f7d3e0086c4c",
+          "type": "REQUEST_RESEARCH"
+        },
+        "company_name": "Consensus",
+        "decision": {
+          "id": "e52eca89-a558-5a30-81d9-87cf06000ac7",
+          "input_hash": "69e0021dc2ed47c7d5d10235742ecedeca45fd79e3f22b3f69c4a86bd6471240",
+          "result": "ENGAGE",
+          "state_snapshot_id": "2a5be4f8-ae84-504b-9aec-f7c660f64c72"
+        },
+        "domain": "goconsensus.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "52a19061-4209-5d79-bb27-6a43c1c555b3",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "146b5532-cff4-5204-8d77-b6a784bc5fb2",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Consensus describes its demo platform as sales enablement software.",
+            "source_observation_id": "fe8459cb-9f54-57f1-b08d-5274a2121462",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://goconsensus.com/solutions/sales"
+          },
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "293a4655-1ec8-53c5-a1ad-07ef85b6d003",
+            "fact_key": "commercial_event.new_revenue_leader",
+            "normalization_result_id": "0252878c-afd4-5899-8255-3f0deaf3d2fc",
+            "observed_at": "2026-09-22T00:00:00+00:00",
+            "paraphrase": "Consensus announced a new chief revenue officer on September 22, 2026.",
+            "source_observation_id": "936467d3-2eb3-5eb6-b693-936a9bd39311",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://goconsensus.com/press-release/consensus-welcomes-new-cro"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "e52eca89-a558-5a30-81d9-87cf06000ac7",
+          "id": "d892c7dc-472e-5e67-a5c5-f7d3e0086c4c",
+          "input_hash": "71e64f5490c206ee5cedd270cda4cb3e265cfada852f044423ce69e17938f252",
+          "result": "REQUIRE_REVIEW",
+          "state_snapshot_id": "2a5be4f8-ae84-504b-9aec-f7c660f64c72"
+        },
+        "signal": {
+          "evidence_ids": [
+            "293a4655-1ec8-53c5-a1ad-07ef85b6d003"
+          ],
+          "id": "cabcf3f3-1f6f-5c37-b50f-ed2db861be1f",
+          "input_hash": "66bdd5e7b103d895188e6fa014912a23d9e60489982b82023aaaa789077b2645",
+          "reason": "QUALIFYING_EVENT_WITHIN_WINDOW",
+          "result": "DETECTED"
+        },
+        "state": {
+          "evidence_ids": [
+            "52a19061-4209-5d79-bb27-6a43c1c555b3"
+          ],
+          "fit": "MATCH",
+          "id": "2a5be4f8-ae84-504b-9aec-f7c660f64c72",
+          "input_hash": "9a0a4a0331bd432a66ca3df99368d3ef2b879cb55b33468db02e489982bf747d",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "cabcf3f3-1f6f-5c37-b50f-ed2db861be1f"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "ACTIVE"
+        }
+      },
+      {
+        "account_id": "3800f409-6598-5b60-b7ee-87356c838831",
+        "action": null,
+        "company_name": "Adobe",
+        "decision": {
+          "id": "b510750f-8fa3-5bd8-b981-20fd0c02c8db",
+          "input_hash": "f305060676af89a4d59b7948c31ab9348de26f00d5d0f90b9566721a4f0944f0",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "8bf1f4ee-0bd0-597e-8279-ade4b497a638"
+        },
+        "domain": "adobe.com",
+        "evidence": [
+          {
+            "assertion": "INCONCLUSIVE",
+            "evidence_id": "2815ac88-e66e-5dd7-a097-c806f7cadb93",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "dd75ee05-ebd7-5860-946e-45634f0d04c5",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Adobe discusses sales enablement tools; the narrow offering criterion is unclear.",
+            "source_observation_id": "6b116ded-1ee3-5913-b969-87756acfa623",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.adobe.com/uk/express/learn/blog/sales-enablement"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "b510750f-8fa3-5bd8-b981-20fd0c02c8db",
+          "id": "03e792e7-3751-5407-a345-f1faafc35f17",
+          "input_hash": "30b4a9d9685933a038154fd2a0a133ef9ec40204775a63070fb352b0943027af",
+          "result": "BLOCK",
+          "state_snapshot_id": "8bf1f4ee-0bd0-597e-8279-ade4b497a638"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "622a396e-1e0c-565f-9478-eaf12f8f8bc9",
+          "input_hash": "0aa0738d8067279fa73a86fdb2aab81cbf27515b4731635c1a49a2b014384f1b",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "2815ac88-e66e-5dd7-a097-c806f7cadb93"
+          ],
+          "fit": "INCONCLUSIVE",
+          "id": "8bf1f4ee-0bd0-597e-8279-ade4b497a638",
+          "input_hash": "298a6f3e0bacd85a628b85adcaf56e137cc0db8f5e426d913dd772fd56cf7421",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "622a396e-1e0c-565f-9478-eaf12f8f8bc9"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      }
+    ],
+    "TRACE_COVERAGE": [
+      {
+        "account_id": "38aa755d-ad8c-528a-b44e-62e462f87551",
+        "action": null,
+        "company_name": "Letter AI",
+        "decision": {
+          "id": "0c21e712-8100-5889-837b-980f510abee4",
+          "input_hash": "2e01e8488642c5e85db3d34e1d310f2492bdf01026f2f107ee0f884ce869d0ad",
+          "result": "ABSTAIN",
+          "state_snapshot_id": "82addcb7-b891-597d-8d7d-1ee7d0d20dad"
+        },
+        "domain": "letter.ai",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "fb373aa5-c119-52ce-abd6-04a91e12036f",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "0b789f89-bccc-5c31-80a0-c0252cb879ab",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Letter AI offers revenue enablement software for sales teams.",
+            "source_observation_id": "e43097ce-cff9-567e-a612-5fbc87c4e9bb",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.letter.ai/use-cases"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "0c21e712-8100-5889-837b-980f510abee4",
+          "id": "29e087e6-6e95-550b-8242-fdc8a04a05d1",
+          "input_hash": "44df4403632a32d3fec238f88ee8e0c12ebbd2b6b29fe6b2f65d96c8a77d5fe4",
+          "result": "BLOCK",
+          "state_snapshot_id": "82addcb7-b891-597d-8d7d-1ee7d0d20dad"
+        },
+        "signal": {
+          "evidence_ids": [],
+          "id": "66f019ab-886f-5917-b656-fb8f8b68e51b",
+          "input_hash": "8318d032bb6350f66574c81ea634891435f1d7f2207dbf3429a009bb5a88eed6",
+          "reason": "REQUIRED_EVIDENCE_MISSING",
+          "result": "INCONCLUSIVE"
+        },
+        "state": {
+          "evidence_ids": [
+            "fb373aa5-c119-52ce-abd6-04a91e12036f"
+          ],
+          "fit": "MATCH",
+          "id": "82addcb7-b891-597d-8d7d-1ee7d0d20dad",
+          "input_hash": "feefb5b3b1880179349f2772a0d8512196c988da85b1de84980bf59296d6896f",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "66f019ab-886f-5917-b656-fb8f8b68e51b"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "UNKNOWN"
+        }
+      },
+      {
+        "account_id": "4cf074df-24e7-5bf0-9f49-9469dc72da9f",
+        "action": null,
+        "company_name": "Salesloft",
+        "decision": {
+          "id": "f7d19387-8719-5889-8416-f169cb78a518",
+          "input_hash": "202b7d9229eeec0967a3ef58e61558bde90422fa2f2a331f4a44a7b4c8df92b6",
+          "result": "HOLD",
+          "state_snapshot_id": "ab001579-4e2c-5558-bb72-22435281e56b"
+        },
+        "domain": "salesloft.com",
+        "evidence": [
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "73155c45-cee6-5002-83aa-8664b8c7658a",
+            "fact_key": "account_profile.offers_sales_enablement_software",
+            "normalization_result_id": "ad6fec94-b441-537f-a99c-5d4d158781e6",
+            "observed_at": "2026-10-04T10:19:27+00:00",
+            "paraphrase": "Salesloft offers sales enablement analytics within its sales platform.",
+            "source_observation_id": "f32ac879-043e-5b92-8b06-5b9033b97438",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.salesloft.com/platform/sales-acceleration"
+          },
+          {
+            "assertion": "PRESENT",
+            "evidence_id": "6951f5d4-67da-5967-9ff7-029101e1c83a",
+            "fact_key": "commercial_event.new_revenue_leader",
+            "normalization_result_id": "06fd6b5b-74b0-5659-86a6-cef081e23c36",
+            "observed_at": "2026-05-13T00:00:00+00:00",
+            "paraphrase": "Clari plus Salesloft announced a new chief revenue officer on May 13, 2026.",
+            "source_observation_id": "09fc1cf0-5da3-510a-bd5f-c311205f4d75",
+            "source_observed_at": "2026-10-04T10:19:27+00:00",
+            "source_url": "https://www.salesloft.com/company/newsroom/clari-salesloft-doubles-down-on-revenue-execution-and-ai-capabilities-with-cro-and-cto-appointments"
+          }
+        ],
+        "policy": {
+          "decision_evaluation_id": "f7d19387-8719-5889-8416-f169cb78a518",
+          "id": "12daddef-6750-557e-b773-e1aca8243dbb",
+          "input_hash": "f8c679895bc4806a71af60f0e9747195a94f2c82d26f6c36a3d2f5b0126bc1a9",
+          "result": "BLOCK",
+          "state_snapshot_id": "ab001579-4e2c-5558-bb72-22435281e56b"
+        },
+        "signal": {
+          "evidence_ids": [
+            "6951f5d4-67da-5967-9ff7-029101e1c83a"
+          ],
+          "id": "6854351d-81fb-5a58-a51f-41a1d7996b42",
+          "input_hash": "e97a1cd66bd74db20b3bb87366a5da8f70d751d8f0c8b0301e2573d43fca63a5",
+          "reason": "QUALIFYING_EVENT_OUTSIDE_WINDOW",
+          "result": "STALE"
+        },
+        "state": {
+          "evidence_ids": [
+            "73155c45-cee6-5002-83aa-8664b8c7658a"
+          ],
+          "fit": "MATCH",
+          "id": "ab001579-4e2c-5558-bb72-22435281e56b",
+          "input_hash": "55785ea331ab2f36fe35041d6f876d908b66190b5e9b39e74a60e21f778f2375",
+          "relationship": "UNKNOWN",
+          "signal_evaluation_ids": [
+            "6854351d-81fb-5a58-a51f-41a1d7996b42"
+          ],
+          "sufficiency": "PARTIAL",
+          "timing": "STALE"
+        }
+      }
+    ]
+  },
+  "coverage_status": "PILOT_COVERAGE_NOT_MET",
+  "fingerprint": {
+    "object_counts": {
+      "account_state_snapshots": 20,
+      "accounts": 20,
+      "actions": 1,
+      "decision_definitions": 1,
+      "decision_evaluations": 20,
+      "evidence": 28,
+      "normalization_results": 22,
+      "policy_definitions": 1,
+      "policy_evaluations": 20,
+      "signal_definitions": 1,
+      "signal_evaluations": 20,
+      "source_observations": 22,
+      "strategy_fit_criteria": 1,
+      "strategy_versions": 1,
+      "workspaces": 1
+    },
+    "schema": "m2b_semantic_fingerprint/1.0.0",
+    "semantic_as_of": "2026-10-05T00:00:00+00:00",
+    "sha256": "0f4a444ce682e39178bfe9816f5a934634b108c4e1e971de18fddb9cd8c531aa"
+  },
+  "label": "REAL PUBLIC-DATA PILOT",
+  "limits": "System outcomes only. No outreach, CRM write, seller task, reply, meeting, or revenue occurred. Fit MATCH is only the narrow official public page criterion. STALE means stale based on verified pilot evidence.",
+  "schema": "m2b_local_trace/2.0.0",
+  "semantic_as_of": "2026-10-05T00:00:00Z",
+  "strategy_status": "HYPOTHESIS / COMMERCIALLY UNVALIDATED",
+  "summaries": {
+    "BASE_SAMPLE": {
+      "accounts": 18,
+      "action": {
+        "NONE": 17,
+        "REQUEST_RESEARCH": 1
+      },
+      "decision": {
+        "ABSTAIN": 17,
+        "ENGAGE": 1
+      },
+      "fit": {
+        "INCONCLUSIVE": 3,
+        "MATCH": 15
+      },
+      "policy": {
+        "BLOCK": 17,
+        "REQUIRE_REVIEW": 1
+      },
+      "relationship": {
+        "UNKNOWN": 18
+      },
+      "signal": {
+        "DETECTED": 1,
+        "INCONCLUSIVE": 17
+      },
+      "timing": {
+        "ACTIVE": 1,
+        "UNKNOWN": 17
+      }
+    },
+    "TRACE_COVERAGE": {
+      "accounts": 2,
+      "action": {
+        "NONE": 2
+      },
+      "decision": {
+        "ABSTAIN": 1,
+        "HOLD": 1
+      },
+      "fit": {
+        "MATCH": 2
+      },
+      "policy": {
+        "BLOCK": 2
+      },
+      "relationship": {
+        "UNKNOWN": 2
+      },
+      "signal": {
+        "INCONCLUSIVE": 1,
+        "STALE": 1
+      },
+      "timing": {
+        "STALE": 1,
+        "UNKNOWN": 1
+      }
+    }
+  }
+}

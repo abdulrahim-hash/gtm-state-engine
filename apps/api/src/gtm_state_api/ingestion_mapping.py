@@ -74,6 +74,39 @@ def normalize_public_leader_event(value: SourceObservationInput) -> NormalizedFa
     )
 
 
+def normalize_public_profile(value: SourceObservationInput) -> NormalizedFact:
+    """Record a dated official-company profile observation, never an invented event."""
+
+    if value.fact_code != "offers_sales_enablement_software":
+        raise MappingRejection(IngestionReason.UNSUPPORTED_FACT)
+    try:
+        assertion = EvidenceAssertion(value.assertion)
+    except ValueError as exc:
+        raise MappingRejection(IngestionReason.INVALID_ASSERTION) from exc
+    if assertion not in PROFILE_MAPPER.allowed_assertions:
+        raise MappingRejection(IngestionReason.INVALID_ASSERTION)
+    if value.event_at is not None:
+        raise MappingRejection(IngestionReason.INVALID_DATE)
+    statement = f"Official company page assertion {assertion.value}: {value.excerpt}"
+    output = {
+        "fact_key": PROFILE_MAPPER.supported_fact_key,
+        "assertion": assertion.value,
+        "classification": PROFILE_MAPPER.classification.value,
+        "normalized_fact": statement,
+        "observed_at": value.observed_utc.isoformat(),
+        "output_schema_version": PROFILE_MAPPER.output_schema_version,
+    }
+    return NormalizedFact(
+        fact_key=PROFILE_MAPPER.supported_fact_key,
+        assertion=assertion,
+        classification=PROFILE_MAPPER.classification,
+        normalized_fact=statement,
+        observed_at=value.observed_utc,
+        output_schema_version=PROFILE_MAPPER.output_schema_version,
+        output_sha256=canonical_hash(output),
+    )
+
+
 LEADER_MAPPER = MapperSpec(
     schema_key="company_public_event",
     schema_version="1.0.0",
@@ -98,6 +131,22 @@ LEADER_MAPPER = MapperSpec(
     normalize=normalize_public_leader_event,
 )
 
+
+PROFILE_MAPPER = MapperSpec(
+    schema_key="company_public_profile",
+    schema_version="1.0.0",
+    mapper_key="public_sales_enablement_profile",
+    mapper_version="1.0.0",
+    output_schema_version="1.0.0",
+    supported_fact_key="account_profile.offers_sales_enablement_software",
+    supported_fact_code="offers_sales_enablement_software",
+    allowed_assertions=frozenset({EvidenceAssertion.PRESENT, EvidenceAssertion.INCONCLUSIVE}),
+    classification=EvidenceClassification.FACT,
+    source_fields=LEADER_MAPPER.source_fields,
+    required_timestamps=("source_observed_at",),
+    normalize=normalize_public_profile,
+)
+
 MAPPER_REGISTRY: dict[tuple[str, str, str, str], MapperSpec] = {
     (
         LEADER_MAPPER.schema_key,
@@ -105,6 +154,12 @@ MAPPER_REGISTRY: dict[tuple[str, str, str, str], MapperSpec] = {
         LEADER_MAPPER.mapper_key,
         LEADER_MAPPER.mapper_version,
     ): LEADER_MAPPER,
+    (
+        PROFILE_MAPPER.schema_key,
+        PROFILE_MAPPER.schema_version,
+        PROFILE_MAPPER.mapper_key,
+        PROFILE_MAPPER.mapper_version,
+    ): PROFILE_MAPPER,
 }
 
 

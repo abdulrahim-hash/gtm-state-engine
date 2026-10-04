@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from hashlib import sha256
 from json import dumps
@@ -50,6 +50,9 @@ from gtm_state_api.types import (
 STATE_SNAPSHOT_NAMESPACE = UUID("1a1206b7-243c-4f22-8d7f-53aa00000701")
 STATE_ENGINE_KEY = "deterministic_account_state"
 STATE_ENGINE_VERSION = "1.0.0"
+PILOT_STATE_ENGINE_VERSION = "1.1.0"
+PILOT_PROFILE_FACT_KEY = "account_profile.offers_sales_enablement_software"
+PILOT_PROFILE_WINDOW_DAYS = 14
 STATE_INPUT_SCHEMA_VERSION = "1.0.0"
 RELATIONSHIP_FACT_KEY = "relationship.existing_relationship"
 
@@ -79,7 +82,13 @@ STATE_ENGINE_REGISTRY: Mapping[str, StateEngineManifest] = {
         timing=("signal_evaluation_rollup", "1.0.0"),
         relationship=("latest_relationship_assertion", "1.0.0"),
         evidence_sufficiency=("facet_coverage", "1.0.0"),
-    )
+    ),
+    PILOT_STATE_ENGINE_VERSION: StateEngineManifest(
+        fit=("pilot_profile_observation_window", "1.0.0"),
+        timing=("signal_evaluation_rollup", "1.0.0"),
+        relationship=("latest_relationship_assertion", "1.0.0"),
+        evidence_sufficiency=("facet_coverage", "1.0.0"),
+    ),
 }
 
 
@@ -152,6 +161,8 @@ def _aggregate_coverage(values: Sequence[Coverage]) -> Coverage:
 def evaluate_fit_context(
     criteria: Sequence[StrategyFitCriterion],
     evidence: Sequence[Evidence],
+    *,
+    pilot_state_as_of: datetime | None = None,
 ) -> FitDecision:
     """Evaluate required exact-key criteria without parsing strategy prose."""
 
@@ -160,6 +171,12 @@ def evaluate_fit_context(
 
     criterion_decisions: list[FitCriterionDecision] = []
     for criterion in sorted(criteria, key=lambda item: item.stable_key):
+        if pilot_state_as_of is not None and (
+            len(criteria) != 1
+            or criterion.input_fact_key != PILOT_PROFILE_FACT_KEY
+            or criterion.expected_assertion is not EvidenceAssertion.PRESENT
+        ):
+            raise ValueError("pilot fit requires one exact public profile criterion")
         relevant = tuple(
             sorted(
                 (item for item in evidence if item.fact_key == criterion.input_fact_key),
@@ -200,7 +217,17 @@ def evaluate_fit_context(
         assertion = assertions.pop()
         if assertion is None:
             raise ValueError("fit evidence must carry a fact assertion")
-        if any(item.freshness is not EvidenceFreshness.CURRENT for item in latest):
+        if pilot_state_as_of is None:
+            current = all(item.freshness is EvidenceFreshness.CURRENT for item in latest)
+        else:
+            current = all(
+                timedelta(0)
+                <= pilot_state_as_of - item.observed_at
+                <= timedelta(days=PILOT_PROFILE_WINDOW_DAYS)
+                and item.freshness is EvidenceFreshness.UNKNOWN
+                for item in latest
+            )
+        if not current:
             criterion_decisions.append(
                 FitCriterionDecision(
                     criterion=criterion,
@@ -753,6 +780,7 @@ def recompute_workspace_account_states(
     *,
     state_as_of: datetime | None = None,
     computed_at: datetime | None = None,
+    state_engine_version: str = STATE_ENGINE_VERSION,
 ) -> list[AccountStateSnapshot]:
     """Materialize idempotent snapshots after same-time signal recomputation."""
 
@@ -760,6 +788,9 @@ def recompute_workspace_account_states(
     if workspace is None:
         raise ValueError("workspace not found")
     semantic_time = _resolve_state_as_of(workspace, state_as_of)
+    manifest = STATE_ENGINE_REGISTRY.get(state_engine_version)
+    if manifest is None:
+        raise ValueError("unsupported state engine version")
     execution_time = computed_at or datetime.now(UTC)
     evaluations = recompute_workspace_signals(
         session,
@@ -838,7 +869,15 @@ def recompute_workspace_account_states(
             )
             .order_by(Evidence.observed_at, Evidence.id)
         ).all()
-        fit = evaluate_fit_context(criteria, account_evidence)
+        fit = evaluate_fit_context(
+            criteria,
+            account_evidence,
+            pilot_state_as_of=(
+                semantic_time
+                if manifest.fit == ("pilot_profile_observation_window", "1.0.0")
+                else None
+            ),
+        )
         timing = evaluate_timing_state(
             definitions,
             evaluations_by_account.get(account.id, []),
@@ -859,6 +898,7 @@ def recompute_workspace_account_states(
             account_evidence=account_evidence,
             definitions=definitions,
             evaluations=timing.evaluations,
+            state_engine_version=state_engine_version,
         )
         snapshot_id = uuid5(STATE_SNAPSHOT_NAMESPACE, input_hash)
         snapshot = session.get(AccountStateSnapshot, snapshot_id)
@@ -882,7 +922,7 @@ def recompute_workspace_account_states(
             state_as_of=semantic_time,
             computed_at=execution_time,
             input_hash=input_hash,
-            state_engine_version=STATE_ENGINE_VERSION,
+            state_engine_version=state_engine_version,
             fit_context=fit.value,
             timing_state=timing.value,
             relationship_state=relationship.value,

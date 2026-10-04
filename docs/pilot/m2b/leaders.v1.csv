@@ -1,0 +1,3 @@
+source_record_id,source_account_id,company_name,company_domain,source_observed_at,event_at,source_url,fact_code,assertion,source_excerpt
+leader:goconsensus.com:v1,goconsensus-com,Consensus,goconsensus.com,2026-10-04T10:19:27Z,2026-09-22T00:00:00Z,https://goconsensus.com/press-release/consensus-welcomes-new-cro,new_revenue_leader,PRESENT,"Consensus announced a new chief revenue officer on September 22, 2026."
+leader:salesloft.com:v1,salesloft-com,Salesloft,salesloft.com,2026-10-04T10:19:27Z,2026-05-13T00:00:00Z,https://www.salesloft.com/company/newsroom/clari-salesloft-doubles-down-on-revenue-execution-and-ai-capabilities-with-cro-and-cto-appointments,new_revenue_leader,PRESENT,"Clari plus Salesloft announced a new chief revenue officer on May 13, 2026."

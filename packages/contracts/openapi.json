@@ -4267,6 +4267,30 @@
         ]
       }
     },
+    "/api/v1/pilot/m2b/trace": {
+      "get": {
+        "description": "Serve the verified semantic trace only from a local application process.",
+        "operationId": "get_local_pilot_trace_api_v1_pilot_m2b_trace_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Local Pilot Trace Api V1 Pilot M2B Trace Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Local Pilot Trace",
+        "tags": [
+          "M2B local pilot"
+        ]
+      }
+    },
     "/api/v1/policy-evaluations/{policy_evaluation_id}": {
       "get": {
         "description": "Return one immutable Policy, its Decision, and exact snapshot reference.",

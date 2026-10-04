@@ -25,6 +25,7 @@ CSV_SCHEMA_VERSION = "1.0.0"
 SOURCE_SYSTEM_KEY = "local_csv"
 DATASET_REGISTRY: dict[str, tuple[str, str]] = {
     "company_public_events": (CSV_SCHEMA_KEY, CSV_SCHEMA_VERSION),
+    "company_public_profiles": ("company_public_profile", "1.0.0"),
 }
 CSV_HEADER = (
     "source_record_id",

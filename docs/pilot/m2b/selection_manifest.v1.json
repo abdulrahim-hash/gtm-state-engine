@@ -1,0 +1,58 @@
+{
+  "base_candidates": [
+    "sendtrumpet.com",
+    "showpad.com",
+    "supademo.com",
+    "dock.us",
+    "dropbox.com",
+    "hubspot.com",
+    "spekit.com",
+    "mindtickle.com",
+    "inaccord.com",
+    "relayto.com",
+    "salesforce.com",
+    "alignedup.com",
+    "allego.com",
+    "seismic.com",
+    "supered.io",
+    "getaccept.com",
+    "goconsensus.com",
+    "adobe.com"
+  ],
+  "collection_cutoff": "2026-10-04T12:00:00Z",
+  "coverage_failure_rule": "If either event slot is unavailable, select the next distinct eligible queue domain by hash order, label the unmet goal PILOT_COVERAGE_NOT_MET, and do not imply the selected account has the missing event.",
+  "distribution_rule": "Report BASE_SAMPLE and TRACE_COVERAGE separately; combined counts are pilot execution counts only.",
+  "eligibility": "company-domain identity may be established from the seller listing and the official company site; no exclusion based on Fit, Signal, prestige, Decision, or expected Action",
+  "evaluation_as_of": "2026-10-04T12:00:00Z",
+  "manifest_schema": "m2b_selection_manifest/1.0.0",
+  "manifest_version": "1.0.0",
+  "market": "B2B sales enablement software vendors",
+  "profile_window_days": 14,
+  "readiness_note": "This limited featured-page frame may fail to contain a qualifying fresh or stale event; preserve that result.",
+  "roster_canonicalization": "normalize www prefix; lowercase; sort domains lexicographically; join with LF and final LF",
+  "roster_count": 23,
+  "roster_observed_at": "2026-10-04T09:54:39Z",
+  "roster_sha256": "68fe503a35cfa85f642f6b8f9ecd2cbe63e873b1ee120456c236f9a689808cef",
+  "roster_source_urls": [
+    "https://www.g2.com/categories/sales-enablement",
+    "https://www.g2.com/categories/sales-enablement/enterprise",
+    "https://www.g2.com/categories/sales-enablement/small-business"
+  ],
+  "sampling_frame": "Distinct company domains of seller entries visibly featured on three G2 Sales Enablement category pages at the recorded retrieval time; this is a featured-page frame, not the full 194-product category.",
+  "selection_key": "SHA-256(UTF-8('gtm-m2b-v1:' + normalized_domain)); ascending hexadecimal; domain tie break",
+  "signal_window_days": 90,
+  "source_claim_rule": "Only manually verified official company-level sources become imported FACT; no silence-derived ABSENT.",
+  "state_as_of": "2026-10-04T12:00:00Z",
+  "status": "FROZEN_FOR_SCREENING",
+  "trace_coverage_screening_queue": [
+    "letter.ai",
+    "saleshood.com",
+    "salesloft.com",
+    "dealhub.ai",
+    "qwilr.com"
+  ],
+  "trace_coverage_slots": [
+    "first eligible fresh new-revenue-leader event in queue order",
+    "first eligible stale new-revenue-leader event in queue order"
+  ]
+}

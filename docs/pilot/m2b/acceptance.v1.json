@@ -1,0 +1,41 @@
+{
+  "account_count": 20,
+  "batches": {
+    "company_public_events": {
+      "batch_id": "6b56cbdc-7094-5d3d-a5d3-77bd181e4d7a",
+      "counts": {
+        "accepted": 2,
+        "duplicate": 0,
+        "rejected": 0,
+        "unresolved": 0
+      },
+      "file_sha256": "a9461b0363af00236726dbb5de12191bd2386efc48167b15ee55a22ffc879f44",
+      "identity_rule_version": "1.0.0",
+      "mapper_key": "public_company_leader_event",
+      "mapper_version": "1.0.0"
+    },
+    "company_public_profiles": {
+      "batch_id": "c5f1ddbb-deab-5f95-a1f0-1d97af364594",
+      "counts": {
+        "accepted": 20,
+        "duplicate": 0,
+        "rejected": 0,
+        "unresolved": 0
+      },
+      "file_sha256": "b65c0ec799ef48160b9a695f4a19a7cdb37dbabb657d1770331b0e42a6ad163b",
+      "identity_rule_version": "1.0.0",
+      "mapper_key": "public_sales_enablement_profile",
+      "mapper_version": "1.0.0"
+    }
+  },
+  "identity_rule_version": "1.0.0",
+  "manifest_sha256": "5644d8aea3519e67a6966f27fa5f371613e5a41413f35d8f8e039b9beb229a84",
+  "manifest_version": "2.0.0",
+  "manual_source_verification_sha256": "08db8b41bf50d5609447f7d57ea68083707732df4d20d4e9cf9ea2d64091c934",
+  "roster_sha256": "68fe503a35cfa85f642f6b8f9ecd2cbe63e873b1ee120456c236f9a689808cef",
+  "schema": "m2b_local_acceptance/1.0.0",
+  "semantic_as_of": "2026-10-05T00:00:00Z",
+  "strategy_version": "0.1.0",
+  "strategy_version_id": "460fce62-b797-5713-b4bc-2476f8e772d3",
+  "workspace_id": "a30904a2-1e01-5220-864e-7efdf09eb3e5"
+}
