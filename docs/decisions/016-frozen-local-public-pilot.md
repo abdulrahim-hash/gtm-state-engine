@@ -1,0 +1,34 @@
+﻿# ADR-016: Frozen local public-data reasoning pilot
+
+## Context
+
+M2A accepts bounded public-company observations but does not verify their truth or invoke downstream reasoning. M1B.2 through M1D have deterministic Signal, State, Decision, Policy, and governed Action semantics. A real-data pilot must test those semantics without presenting public company claims as validated ICP or commercial outcomes. The hosted application has no authentication for real pilot data.
+
+## Decision
+
+M2B uses a separate local workspace labelled **REAL PUBLIC-DATA PILOT** and StrategyVersion `0.1.0`, explicitly **HYPOTHESIS / COMMERCIALLY UNVALIDATED**. The market is B2B sales enablement software vendors. Fit has exactly one criterion, an official public page supporting `account_profile.offers_sales_enablement_software = PRESENT`. `MATCH` means only that the narrow public criterion is supported. It does not establish commercial fit, willingness to buy, or market demand. Strategy Evidence contains one bounded market-listing FACT and five explicitly labelled GTM HYPOTHESES. Account Evidence contains only manually verified public-company claims and never validates the market hypotheses.
+
+The frozen sampling frame is 23 distinct seller domains visibly featured on three G2 Sales Enablement category pages at the recorded observation time. This is **not** the full category or a representative market sample. After lowercasing and stripping `www`, domains are sorted by `SHA-256("gtm-m2b-v1:" + domain)`, with domain tie break. The first 18 are selection-blind `BASE_SAMPLE`; the remaining five form an ordered coverage screening queue. Two `TRACE_COVERAGE` accounts are disclosed separately. The fresh coverage slot was unavailable from verified queue evidence, so `PILOT_COVERAGE_NOT_MET` remains visible; the base sample contains a qualifying fresh event. No account was replaced for an inconclusive, stale, blocked, or abstained result. Distribution reports always separate the two cohorts.
+
+Manifest v2 superseded v1 before continuing leadership screening because the initial cutoff was too early for manual verification. The roster and hash order did not change. The immutable v2 semantic time is `2026-10-05T00:00:00Z` for Signal evaluation and State, with Decision and Policy derived from that State. The timestamp is explicit and never uses wall-clock now. Source observation and event times remain separate from ingestion, processing, and evaluation clocks. The fixed semantic cutoff is later than the manual collection on 2026-10-04; the pilot is a frozen evaluation of the verified evidence available to it, not a claim that public observations were complete through the cutoff.
+
+The existing versioned leader-event mapper remains `public_company_leader_event/1.0.0`. M2B registers one additional source contract, `company_public_profile/1.0.0`, and mapper `public_sales_enablement_profile/1.0.0`, producing only `account_profile.offers_sales_enablement_software`, with PRESENT or INCONCLUSIVE. It records `source_observed_at` as the profile fact observation time, requires a company-owned HTTPS host under the existing strict rule, and leaves Evidence freshness UNKNOWN. No host exception was needed. The pilot-specific State engine version `1.1.0` evaluates that profile observation relative to explicit `state_as_of`: 0 through 14 days inclusive can support the narrow Fit result, while future or older observations yield UNKNOWN. The State input hash includes as_of and version; the same observation cannot remain CURRENT at arbitrary future snapshots. The M1B.2 `1.0.0` engine and Northstar rules remain unchanged.
+
+Only the existing `new_revenue_leader` Signal is enabled in the pilot, with the existing inclusive 90-day evaluator. Missing events remain INCONCLUSIVE; STALE means only stale based on verified pilot evidence, and no ABSENT claim is inferred from silence. Relationship remains UNKNOWN without positive evidence. Existing Decision, Policy, and Action evaluators are unchanged. A fresh leader event with narrow Fit MATCH can yield ENGAGE, REQUIRE_REVIEW, and REQUEST_RESEARCH, which are local system outputs only.
+
+Manual source verification, exact CSV validation, M2A import, inspection of every row and result, and a deterministic local acceptance record precede all downstream stages. The record binds manifest version/hash, roster hash, exact CSV hashes, ingestion batch IDs, mapper and identity-rule versions, source-verification ledger hash, workspace, strategy, and semantic as_of. It is a local acknowledgement, not authentication or a new database review workflow. Each stage is explicit: Signals, inspect Signals, State, inspect State, Decisions, Policies, Actions, export. State internally recomputes Signals, so its run asserts exact Signal evaluation IDs, input hashes, results, and snapshot links against the inspected stage. Divergence fails.
+
+The semantic fingerprint schema `m2b_semantic_fingerprint/1.0.0` hashes canonically sorted workspace, strategy, definitions, Accounts, observations, normalization results, current Evidence, Signal evaluations, State snapshots, Decision evaluations, Policy evaluations, and Action proposals. It excludes ingestion/creation/evaluation operational clocks, review records, attempts, and outcomes. A first accepted complete run establishes the expected fingerprint; replay must reproduce it. Descriptive summaries separate base and coverage accounts. The local read API returns 404 in production, and the Next.js pilot page returns not-found before fetch in a production web process. No real pilot database is exposed on the hosted site. No external action is performed.
+
+## Consequences and limits
+
+- Public company pages are manually verified for identity, claim, date, and bounded paraphrase. The importer itself never fetches URLs. A source URL is a citation, not automatic truth verification.
+- The featured-page frame is small and convenience constrained. Its frequencies do not estimate market prevalence or Fit quality. Coverage selection is deliberately outcome screened and cannot be combined with base counts for prevalence.
+- A profile fact has a bounded pilot freshness interpretation; future snapshots need fresh observations. Leadership STALE does not prove there was no newer event.
+- `REQUEST_RESEARCH` is a governed local Action proposal. It does not create a seller task, contact a company, write to CRM, or imply a commercial outcome.
+- The committed artifact contains short original company-level paraphrases and URLs, not full directory contents, web pages, contact data, or executive names. The complete third-party roster is not republished.
+- This decision does not authorize M2C, live suppliers, scraping, contact ingestion, external execution, or public live pilot deployment.
+
+## Status
+
+Accepted for local M2B implementation. The frozen artifacts, acceptance record, and runbook are versioned in `docs/pilot/m2b/`.

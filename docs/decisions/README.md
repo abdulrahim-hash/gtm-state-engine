@@ -16,3 +16,4 @@
 - [ADR-014: Governed canonical Action proposals and local operational Outcomes](014-governed-action-outcome-trace.md)
 
 - [ADR-015: Controlled source observations and explicit Evidence promotion](015-controlled-source-observations.md)
+- [ADR-016: Frozen local public-data reasoning pilot](016-frozen-local-public-pilot.md)
