@@ -71,7 +71,7 @@ describe("local real public-data pilot", () => {
           strategy_status: "HYPOTHESIS / COMMERCIALLY UNVALIDATED",
           semantic_as_of: "2026-10-05T00:00:00Z",
           coverage_status: "PILOT_COVERAGE_NOT_MET",
-          fingerprint: { schema: "m2b_semantic_fingerprint/1.0.0", sha256: "abc" },
+          fingerprint: { schema: "m2b_semantic_fingerprint/1.1.0", sha256: "abc" },
           summaries: {
             BASE_SAMPLE: {
               accounts: 18,

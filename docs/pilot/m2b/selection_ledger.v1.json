@@ -47,7 +47,7 @@
     }
   ],
   "eligibility_skips": [],
-  "manifest_sha256": "5644d8aea3519e67a6966f27fa5f371613e5a41413f35d8f8e039b9beb229a84",
+  "manifest_sha256": "d054a819ceed1fd7a0c8b478b8a9a319311bf2a653c91bf252dfce22c3203127",
   "notes": "The fresh coverage slot was not filled by this frozen queue. Consensus in BASE_SAMPLE has a verified fresh event. Queue screening is limited to cited verified pilot evidence; silence never becomes ABSENT.",
   "post_result_replacements": [],
   "roster_sha256": "68fe503a35cfa85f642f6b8f9ecd2cbe63e873b1ee120456c236f9a689808cef",

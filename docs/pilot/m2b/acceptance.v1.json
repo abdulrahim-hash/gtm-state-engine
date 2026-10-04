@@ -29,9 +29,9 @@
     }
   },
   "identity_rule_version": "1.0.0",
-  "manifest_sha256": "5644d8aea3519e67a6966f27fa5f371613e5a41413f35d8f8e039b9beb229a84",
+  "manifest_sha256": "d054a819ceed1fd7a0c8b478b8a9a319311bf2a653c91bf252dfce22c3203127",
   "manifest_version": "2.0.0",
-  "manual_source_verification_sha256": "08db8b41bf50d5609447f7d57ea68083707732df4d20d4e9cf9ea2d64091c934",
+  "manual_source_verification_sha256": "9c8d6724b742ad02dd1723ffbf36a07fe145079f2c71007b0fa89396392d5a31",
   "roster_sha256": "68fe503a35cfa85f642f6b8f9ecd2cbe63e873b1ee120456c236f9a689808cef",
   "schema": "m2b_local_acceptance/1.0.0",
   "semantic_as_of": "2026-10-05T00:00:00Z",

@@ -54,9 +54,9 @@ from gtm_state_api.state_engine import (
     PILOT_STATE_ENGINE_VERSION,
     recompute_workspace_account_states,
 )
-from gtm_state_api.types import IngestionRowOutcome
+from gtm_state_api.types import EvidenceClassification, IngestionRowOutcome
 
-FINGERPRINT_SCHEMA = "m2b_semantic_fingerprint/1.0.0"
+FINGERPRINT_SCHEMA = "m2b_semantic_fingerprint/1.1.0"
 ACCEPTANCE_SCHEMA = "m2b_local_acceptance/1.0.0"
 DATASETS = (
     ("profiles.v1.csv", "company_public_profiles", "public_sales_enablement_profile"),
@@ -251,6 +251,27 @@ def acceptance_payload(
     accounts = session.scalars(select(Account).where(Account.workspace_id == WORKSPACE_ID)).all()
     if sorted(account.domain for account in accounts) != sorted(expected_domains(manifest, ledger)):
         raise ValueError("imported Account set differs from frozen selection")
+    hypotheses = session.scalars(
+        select(Evidence).where(
+            Evidence.strategy_version_id == STRATEGY_ID,
+            Evidence.classification == EvidenceClassification.HYPOTHESIS,
+        )
+    ).all()
+    expected_reference = f"pilot-manifest:{manifest_hash}"
+    if len(hypotheses) != 5 or any(
+        item.strategy_topic is None
+        or item.source_reference != expected_reference
+        or item.raw_payload_hash
+        != canonical_hash(
+            {
+                "topic": item.strategy_topic.value,
+                "claim": item.normalized_fact,
+                "source": expected_reference,
+            }
+        )
+        for item in hypotheses
+    ):
+        raise ValueError("pilot Strategy Evidence does not attest to canonical manifest bytes")
     return {
         "schema": ACCEPTANCE_SCHEMA,
         "manifest_version": manifest["manifest_version"],
@@ -547,6 +568,20 @@ def semantic_record(instance: Any) -> dict[str, Any]:
     }
 
 
+def semantic_fingerprint_record(instance: Any) -> dict[str, Any]:
+    record = semantic_record(instance)
+    if (
+        isinstance(instance, Evidence)
+        and instance.strategy_version_id is not None
+        and instance.classification is EvidenceClassification.HYPOTHESIS
+        and instance.source_reference.startswith("pilot-manifest:")
+    ):
+        # Exact manifest bytes are attested by acceptance, not by this semantic digest.
+        record.pop("source_reference")
+        record.pop("raw_payload_hash")
+    return record
+
+
 def fingerprint(session: Session, semantic_time: datetime) -> dict[str, Any]:
     require_local_ingestion()
     buckets: dict[str, list[dict[str, Any]]] = {}
@@ -601,7 +636,7 @@ def fingerprint(session: Session, semantic_time: datetime) -> dict[str, Any]:
                 continue
             if model is AccountStateSnapshot and row.state_as_of != semantic_time:
                 continue
-            selected.append(semantic_record(row))
+            selected.append(semantic_fingerprint_record(row))
         buckets[model.__tablename__] = sorted(
             selected, key=lambda item: dumps(item, sort_keys=True)
         )

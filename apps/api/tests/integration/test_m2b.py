@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from gtm_state_api import pilot_m2b_run as pilot_run
 from gtm_state_api.database import get_engine
 from gtm_state_api.demo_seed import DEMO_WORKSPACE_ID
-from gtm_state_api.models import Account, Action, ActionAttempt, ActionOutcome
+from gtm_state_api.models import Account, Action, ActionAttempt, ActionOutcome, Evidence
 from gtm_state_api.pilot_m2b import load_manifest, setup
 
 pytestmark = pytest.mark.integration
@@ -87,6 +87,20 @@ def test_complete_pilot_replay_and_acceptance_gate(
             pilot_run.verify_acceptance(session, tmp_path, manifest, manifest_hash, ledger)
             == accepted
         )
+    with session_for(isolated_connection) as session:
+        hypothesis = session.scalar(
+            select(Evidence).where(
+                Evidence.strategy_version_id == test_strategy,
+                Evidence.source_reference.like("pilot-manifest:%"),
+            )
+        )
+        assert hypothesis is not None
+        hypothesis.source_reference = "pilot-manifest:stale-byte-hash"
+        session.flush()
+        with pytest.raises(ValueError, match="Strategy Evidence does not attest"):
+            pilot_run.verify_acceptance(session, tmp_path, manifest, manifest_hash, ledger)
+        session.rollback()
+
     first: dict[str, dict[str, object]] = {}
     for stage in ("signals", "state", "decisions", "policies", "actions"):
         with session_for(isolated_connection) as session:

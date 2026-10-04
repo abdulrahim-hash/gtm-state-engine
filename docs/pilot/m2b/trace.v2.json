@@ -1115,9 +1115,9 @@
       "strategy_versions": 1,
       "workspaces": 1
     },
-    "schema": "m2b_semantic_fingerprint/1.0.0",
+    "schema": "m2b_semantic_fingerprint/1.1.0",
     "semantic_as_of": "2026-10-05T00:00:00+00:00",
-    "sha256": "0f4a444ce682e39178bfe9816f5a934634b108c4e1e971de18fddb9cd8c531aa"
+    "sha256": "2e1d730d76b376678f71421fab7d617c20ae2a385dadc369c10201b3c81d0767"
   },
   "label": "REAL PUBLIC-DATA PILOT",
   "limits": "System outcomes only. No outreach, CRM write, seller task, reply, meeting, or revenue occurred. Fit MATCH is only the narrow official public page criterion. STALE means stale based on verified pilot evidence.",

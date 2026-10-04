@@ -19,7 +19,7 @@ from gtm_state_api.local_csv import parse_local_csv
 from gtm_state_api.main import app
 from gtm_state_api.models import Evidence, StrategyFitCriterion
 from gtm_state_api.pilot_m2b import load_manifest
-from gtm_state_api.pilot_m2b_run import validate_dataset
+from gtm_state_api.pilot_m2b_run import semantic_fingerprint_record, validate_dataset
 from gtm_state_api.state_engine import evaluate_fit_context
 from gtm_state_api.types import (
     AccountFitContext,
@@ -27,6 +27,7 @@ from gtm_state_api.types import (
     EvidenceClassification,
     EvidenceFreshness,
     IngestionReason,
+    StrategyTopic,
 )
 
 ROOT = Path(__file__).resolve().parents[3] / "docs" / "pilot" / "m2b"
@@ -49,6 +50,74 @@ def test_frozen_manifest_hash_order_and_cohort_separation() -> None:
     assert ledger["trace_coverage"][0]["coverage_status"] == "PILOT_COVERAGE_NOT_MET"
     assert not ledger["eligibility_skips"] and not ledger["post_result_replacements"]
     assert validate_dataset(ROOT, manifest, ledger)["company_public_profiles"]["rows"] == 20
+
+
+def test_all_hash_addressed_pilot_artifacts_have_canonical_lf_bytes() -> None:
+    attributes = (ROOT.parents[2] / ".gitattributes").read_text(encoding="utf-8")
+    assert "docs/pilot/m2b/*.json text eol=lf" in attributes.splitlines()
+    assert "docs/pilot/m2b/*.csv text eol=lf" in attributes.splitlines()
+    artifacts = sorted((*ROOT.glob("*.json"), *ROOT.glob("*.csv")))
+    assert len(artifacts) == 9
+    for path in artifacts:
+        contents = path.read_bytes()
+        assert b"\r" not in contents, path.name
+        assert contents.endswith(b"\n"), path.name
+
+    manifest_hash = sha256((ROOT / "selection_manifest.v2.json").read_bytes()).hexdigest()
+    ledger = json.loads((ROOT / "selection_ledger.v1.json").read_text(encoding="utf-8"))
+    acceptance = json.loads((ROOT / "acceptance.v1.json").read_text(encoding="utf-8"))
+    assert ledger["manifest_sha256"] == acceptance["manifest_sha256"] == manifest_hash
+    assert (
+        acceptance["manual_source_verification_sha256"]
+        == sha256((ROOT / "source_verification.v1.json").read_bytes()).hexdigest()
+    )
+    for filename, dataset in (
+        ("profiles.v1.csv", "company_public_profiles"),
+        ("leaders.v1.csv", "company_public_events"),
+    ):
+        file_hash, _ = parse_local_csv(ROOT / filename, dataset_key=dataset)
+        assert file_hash == acceptance["batches"][dataset]["file_sha256"]
+    expected = json.loads((ROOT / "expected_fingerprint.v1.json").read_text(encoding="utf-8"))
+    trace = json.loads((ROOT / "trace.v2.json").read_text(encoding="utf-8"))
+    assert expected == trace["fingerprint"]
+    assert expected["schema"] == "m2b_semantic_fingerprint/1.1.0"
+    assert expected["sha256"] == "2e1d730d76b376678f71421fab7d617c20ae2a385dadc369c10201b3c81d0767"
+
+
+def test_newline_conversion_cannot_pass_manifest_byte_attestation(tmp_path: Path) -> None:
+    canonical = (ROOT / "selection_manifest.v2.json").read_bytes()
+    converted = tmp_path / "selection_manifest.v2.json"
+    converted.write_bytes(canonical.replace(b"\n", b"\r\n"))
+    _, converted_hash = load_manifest(converted)
+    ledger = json.loads((ROOT / "selection_ledger.v1.json").read_text(encoding="utf-8"))
+    assert converted_hash != ledger["manifest_sha256"]
+
+
+def test_semantic_fingerprint_excludes_manifest_file_byte_hash_only() -> None:
+    evidence = Evidence(
+        id=uuid4(),
+        strategy_version_id=uuid4(),
+        account_id=None,
+        strategy_topic=StrategyTopic.ICP,
+        classification=EvidenceClassification.HYPOTHESIS,
+        source_provider="manual_pilot_strategy",
+        source_reference="pilot-manifest:old-byte-hash",
+        source_uri=None,
+        observed_at=AS_OF,
+        ingested_at=AS_OF,
+        normalized_fact="Narrow pilot hypothesis",
+        raw_payload_hash="old-transport-hash",
+        freshness=EvidenceFreshness.UNKNOWN,
+        confidence=None,
+        fact_key=None,
+        fact_assertion=None,
+    )
+    before = semantic_fingerprint_record(evidence)
+    evidence.source_reference = "pilot-manifest:new-byte-hash"
+    evidence.raw_payload_hash = "new-transport-hash"
+    assert semantic_fingerprint_record(evidence) == before
+    evidence.normalized_fact = "Changed hypothesis"
+    assert semantic_fingerprint_record(evidence) != before
 
 
 def test_manifest_revisions_cannot_be_silently_substituted(tmp_path: Path) -> None:

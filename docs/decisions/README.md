@@ -17,3 +17,4 @@
 
 - [ADR-015: Controlled source observations and explicit Evidence promotion](015-controlled-source-observations.md)
 - [ADR-016: Frozen local public-data reasoning pilot](016-frozen-local-public-pilot.md)
+- [ADR-017: Canonical bytes for M2B pilot artifacts](017-canonical-pilot-artifact-bytes.md)
