@@ -37,7 +37,7 @@ class SourceObservationInput:
     company_domain: str | None
     source_observed_at: datetime
     event_at: datetime | None
-    citation_url: str
+    citation_url: str | None
     fact_code: str
     assertion: str
     excerpt: str

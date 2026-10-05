@@ -140,6 +140,8 @@ def _batch_response(session: Session, batch: IngestionBatch) -> BatchInspectionR
 
 
 def _observation_response(observation: SourceObservation) -> ObservationInspectionResponse:
+    if observation.first_batch_id is None:
+        raise HTTPException(status_code=404, detail="M2A observation not found")
     return ObservationInspectionResponse(
         observation_id=observation.id,
         external_record_id=observation.external_record_id,
@@ -240,6 +242,8 @@ def get_imported_evidence_origin(
     observation = session.get(SourceObservation, result.source_observation_id)
     if observation is None:
         raise RuntimeError("import origin is incomplete")
+    if observation.first_batch_id is None:
+        raise HTTPException(status_code=404, detail="M2A import origin not found")
     batch = _batch(session, workspace_id, observation.first_batch_id)
     return EvidenceOriginResponse(
         evidence_id=evidence.id,

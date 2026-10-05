@@ -1374,6 +1374,58 @@ class IngestionBatch(Base):
     ingested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class SourceReadRun(Base):
+    """One local, bounded private-provider read; never an Action outcome."""
+
+    __tablename__ = "source_read_runs"
+    __table_args__ = (
+        UniqueConstraint(
+            "id",
+            "workspace_id",
+            "source_system_key",
+            "dataset_key",
+            name="uq_source_read_runs_scope",
+        ),
+        CheckConstraint("scope_sha256 ~ '^[a-f0-9]{64}$'", name="ck_source_read_runs_scope_hash"),
+        CheckConstraint(
+            "request_sha256 ~ '^[a-f0-9]{64}$'", name="ck_source_read_runs_request_hash"
+        ),
+        CheckConstraint(
+            "status IN ('RUNNING', 'SUCCEEDED', 'NOT_FOUND', 'UNRESOLVED', "
+            "'REJECTED', 'CONFLICT', 'FAILED')",
+            name="ck_source_read_runs_status",
+        ),
+        CheckConstraint(
+            "accepted_count BETWEEN 0 AND 1 AND unresolved_count BETWEEN 0 AND 1 "
+            "AND rejected_count BETWEEN 0 AND 1 AND retry_count BETWEEN 0 AND 2",
+            name="ck_source_read_runs_counts",
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(
+        ForeignKey("workspaces.workspace_id", ondelete="RESTRICT"), nullable=False
+    )
+    source_system_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    dataset_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    adapter_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    adapter_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    mapping_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    scope_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    request_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    response_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    accepted_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    unresolved_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    rejected_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    retry_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    failure_code: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    provider_correlation_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    observation_id: Mapped[UUID | None] = mapped_column(nullable=True)
+
+
 class SourceObservation(Base):
     """Deduplicated version of a source record, independent of Account resolution."""
 
@@ -1389,6 +1441,21 @@ class SourceObservation(Base):
             ],
             name="fk_source_observations_first_batch_scope",
             ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["source_read_run_id", "workspace_id", "source_system_key", "dataset_key"],
+            [
+                "source_read_runs.id",
+                "source_read_runs.workspace_id",
+                "source_read_runs.source_system_key",
+                "source_read_runs.dataset_key",
+            ],
+            name="fk_source_observations_read_run_scope",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "(first_batch_id IS NOT NULL) <> (source_read_run_id IS NOT NULL)",
+            name="ck_source_observations_one_origin",
         ),
         UniqueConstraint("id", "workspace_id", name="uq_source_observations_scope"),
         UniqueConstraint(
@@ -1433,7 +1500,8 @@ class SourceObservation(Base):
     source_observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     original_fields: Mapped[dict[str, str]] = mapped_column(JSONB, nullable=False)
     payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
-    first_batch_id: Mapped[UUID] = mapped_column(nullable=False)
+    first_batch_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    source_read_run_id: Mapped[UUID | None] = mapped_column(nullable=True)
     first_row_ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 

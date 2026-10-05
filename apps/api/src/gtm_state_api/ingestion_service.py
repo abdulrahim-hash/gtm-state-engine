@@ -165,7 +165,7 @@ def create_imported_evidence(
     existing = session.scalar(select(Evidence).where(Evidence.normalization_result_id == result.id))
     if existing is not None:
         return existing
-    source_url = observation.original_fields["source_url"]
+    source_url = observation.original_fields.get("source_url")
     evidence_input = EvidenceValidationInput(
         account_id=result.account_id,
         classification=EvidenceClassification(result.evidence_classification),
