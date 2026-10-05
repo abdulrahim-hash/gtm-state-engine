@@ -150,7 +150,7 @@ def test_action_mapping_uses_only_exact_m1c_results_and_reasons() -> None:
         ordered_reason_codes=(PolicyReasonCode.DECISION_DOES_NOT_SUPPORT_ACTIVATION,),
     )
     assert blocked.projection is ActionCurrentProjection.BLOCKED_BY_POLICY
-    assert blocked.action_type is blocked.payload is None
+    assert blocked.action_type is None and blocked.payload is None
 
 
 def test_unsupported_review_reason_abstains_and_allow_remains_local_only() -> None:

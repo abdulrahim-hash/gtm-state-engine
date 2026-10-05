@@ -8,7 +8,7 @@ from enum import Enum
 from hashlib import sha256
 from json import dumps, loads
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from sqlalchemy import select
@@ -86,7 +86,7 @@ def expected_domains(manifest: dict[str, Any], ledger: dict[str, Any]) -> list[s
         raise ValueError("pilot cohort shape differs from frozen selection")
     if any(domain not in manifest["trace_coverage_screening_queue"] for domain in coverage):
         raise ValueError("coverage account outside frozen queue")
-    return base + coverage
+    return cast(list[str], base + coverage)
 
 
 def validate_dataset(
@@ -320,7 +320,7 @@ def verify_acceptance(
     expected = acceptance_payload(session, root, manifest, manifest_hash, ledger)
     if actual != expected:
         raise ValueError("pilot acceptance record does not match manifest, CSV, or database")
-    return actual
+    return cast(dict[str, Any], actual)
 
 
 def stage_rows(

@@ -147,6 +147,75 @@ PROFILE_MAPPER = MapperSpec(
     normalize=normalize_public_profile,
 )
 
+
+def normalize_crm_customer_status(value: SourceObservationInput) -> NormalizedFact:
+    """A positive CRM-reported stage observation, with no negative implication."""
+
+    if value.fact_code != "crm_reports_customer_status":
+        raise MappingRejection(IngestionReason.UNSUPPORTED_FACT)
+    fields = value.original_fields
+    if (
+        value.event_at is not None
+        or value.citation_url is not None
+        or not fields.get("stage_mapping_version")
+        or not fields.get("configured_customer_stage")
+        or "lifecycle_stage" not in fields
+    ):
+        raise MappingRejection(IngestionReason.UNSUPPORTED_FACT)
+    is_customer = fields["lifecycle_stage"] == fields["configured_customer_stage"]
+    assertion = EvidenceAssertion.PRESENT if is_customer else EvidenceAssertion.INCONCLUSIVE
+    if value.assertion != assertion.value:
+        raise MappingRejection(IngestionReason.INVALID_ASSERTION)
+    statement = (
+        "CRM reported the configured Customer lifecycle stage at observation time."
+        if is_customer
+        else "CRM reported a different or empty lifecycle stage; relationship is unknown."
+    )
+    output = {
+        "fact_key": CRM_CUSTOMER_MAPPER.supported_fact_key,
+        "assertion": assertion.value,
+        "classification": EvidenceClassification.FACT.value,
+        "normalized_fact": statement,
+        "observed_at": value.observed_utc.isoformat(),
+        "output_schema_version": CRM_CUSTOMER_MAPPER.output_schema_version,
+        "stage_mapping_version": fields["stage_mapping_version"],
+        "configured_customer_stage": fields["configured_customer_stage"],
+        "lifecycle_stage": fields["lifecycle_stage"],
+    }
+    return NormalizedFact(
+        fact_key=CRM_CUSTOMER_MAPPER.supported_fact_key,
+        assertion=assertion,
+        classification=EvidenceClassification.FACT,
+        normalized_fact=statement,
+        observed_at=value.observed_utc,
+        output_schema_version=CRM_CUSTOMER_MAPPER.output_schema_version,
+        output_sha256=canonical_hash(output),
+    )
+
+
+CRM_CUSTOMER_MAPPER = MapperSpec(
+    schema_key="crm_company_lifecycle",
+    schema_version="1.0.0",
+    mapper_key="crm_customer_stage",
+    mapper_version="1.0.0",
+    output_schema_version="1.0.0",
+    supported_fact_key="relationship.crm_reports_customer_status",
+    supported_fact_code="crm_reports_customer_status",
+    allowed_assertions=frozenset({EvidenceAssertion.PRESENT, EvidenceAssertion.INCONCLUSIVE}),
+    classification=EvidenceClassification.FACT,
+    source_fields=(
+        "company_name",
+        "company_domain",
+        "lifecycle_stage",
+        "configured_customer_stage",
+        "stage_mapping_version",
+        "provider_updated_at",
+    ),
+    required_timestamps=("source_observed_at",),
+    normalize=normalize_crm_customer_status,
+)
+
+
 MAPPER_REGISTRY: dict[tuple[str, str, str, str], MapperSpec] = {
     (
         LEADER_MAPPER.schema_key,
@@ -160,6 +229,12 @@ MAPPER_REGISTRY: dict[tuple[str, str, str, str], MapperSpec] = {
         PROFILE_MAPPER.mapper_key,
         PROFILE_MAPPER.mapper_version,
     ): PROFILE_MAPPER,
+    (
+        CRM_CUSTOMER_MAPPER.schema_key,
+        CRM_CUSTOMER_MAPPER.schema_version,
+        CRM_CUSTOMER_MAPPER.mapper_key,
+        CRM_CUSTOMER_MAPPER.mapper_version,
+    ): CRM_CUSTOMER_MAPPER,
 }
 
 

@@ -55,6 +55,9 @@ PILOT_PROFILE_FACT_KEY = "account_profile.offers_sales_enablement_software"
 PILOT_PROFILE_WINDOW_DAYS = 14
 STATE_INPUT_SCHEMA_VERSION = "1.0.0"
 RELATIONSHIP_FACT_KEY = "relationship.existing_relationship"
+CRM_REPORTED_CUSTOMER_FACT_KEY = "relationship.crm_reports_customer_status"
+CRM_RELATIONSHIP_WINDOW_HOURS = 24
+CRM_STATE_ENGINE_VERSION = "1.2.0"
 
 
 class Coverage(StrEnum):
@@ -87,6 +90,12 @@ STATE_ENGINE_REGISTRY: Mapping[str, StateEngineManifest] = {
         fit=("pilot_profile_observation_window", "1.0.0"),
         timing=("signal_evaluation_rollup", "1.0.0"),
         relationship=("latest_relationship_assertion", "1.0.0"),
+        evidence_sufficiency=("facet_coverage", "1.0.0"),
+    ),
+    CRM_STATE_ENGINE_VERSION: StateEngineManifest(
+        fit=("pilot_profile_observation_window", "1.0.0"),
+        timing=("signal_evaluation_rollup", "1.0.0"),
+        relationship=("crm_reported_customer_observation_window", "1.0.0"),
         evidence_sufficiency=("facet_coverage", "1.0.0"),
     ),
 }
@@ -457,6 +466,53 @@ def evaluate_relationship_state(evidence: Sequence[Evidence]) -> RelationshipDec
     return RelationshipDecision(
         value=AccountRelationshipState.NO_EXISTING_RELATIONSHIP,
         reason_codes=(AccountStateReasonCode.EXISTING_RELATIONSHIP_ABSENT,),
+        coverage=Coverage.COMPLETE,
+        evidence=relevant,
+    )
+
+
+def evaluate_crm_reported_relationship(
+    evidence: Sequence[Evidence], *, state_as_of: datetime
+) -> RelationshipDecision:
+    """Infer only a fresh CRM-reported positive; later non-Customer reads revoke it."""
+
+    relevant = tuple(
+        sorted(
+            (item for item in evidence if item.fact_key == CRM_REPORTED_CUSTOMER_FACT_KEY),
+            key=lambda item: (item.observed_at, str(item.id)),
+        )
+    )
+    if not relevant:
+        return RelationshipDecision(
+            value=AccountRelationshipState.UNKNOWN,
+            reason_codes=(AccountStateReasonCode.RELATIONSHIP_EVIDENCE_MISSING,),
+            coverage=Coverage.MISSING,
+            evidence=(),
+        )
+    latest_at = max(item.observed_at for item in relevant)
+    latest = tuple(item for item in relevant if item.observed_at == latest_at)
+    age = state_as_of - latest_at
+    if not timedelta(0) <= age <= timedelta(hours=CRM_RELATIONSHIP_WINDOW_HOURS):
+        return RelationshipDecision(
+            value=AccountRelationshipState.UNKNOWN,
+            reason_codes=(AccountStateReasonCode.RELATIONSHIP_EVIDENCE_NOT_CURRENT,),
+            coverage=Coverage.PARTIAL,
+            evidence=relevant,
+        )
+    if (
+        len(latest) != 1
+        or latest[0].freshness is not EvidenceFreshness.UNKNOWN
+        or latest[0].fact_assertion is not EvidenceAssertion.PRESENT
+    ):
+        return RelationshipDecision(
+            value=AccountRelationshipState.UNKNOWN,
+            reason_codes=(AccountStateReasonCode.RELATIONSHIP_EVIDENCE_AMBIGUOUS,),
+            coverage=Coverage.PARTIAL,
+            evidence=relevant,
+        )
+    return RelationshipDecision(
+        value=AccountRelationshipState.EXISTING_RELATIONSHIP,
+        reason_codes=(AccountStateReasonCode.EXISTING_RELATIONSHIP_PRESENT,),
         coverage=Coverage.COMPLETE,
         evidence=relevant,
     )
@@ -847,7 +903,11 @@ def recompute_workspace_account_states(
     ).all()
     relevant_fact_keys = {
         *(item.input_fact_key for item in criteria),
-        RELATIONSHIP_FACT_KEY,
+        (
+            CRM_REPORTED_CUSTOMER_FACT_KEY
+            if state_engine_version == CRM_STATE_ENGINE_VERSION
+            else RELATIONSHIP_FACT_KEY
+        ),
     }
 
     evaluations_by_account: dict[UUID, list[SignalEvaluation]] = {}
@@ -882,7 +942,11 @@ def recompute_workspace_account_states(
             definitions,
             evaluations_by_account.get(account.id, []),
         )
-        relationship = evaluate_relationship_state(account_evidence)
+        relationship = (
+            evaluate_crm_reported_relationship(account_evidence, state_as_of=semantic_time)
+            if state_engine_version == CRM_STATE_ENGINE_VERSION
+            else evaluate_relationship_state(account_evidence)
+        )
         sufficiency = evaluate_evidence_sufficiency(
             fit=fit.coverage,
             timing=timing.coverage,

@@ -1,6 +1,7 @@
 """PostgreSQL integration tests for deterministic M1C Decision and Policy."""
 
 from datetime import datetime, timedelta
+from typing import cast
 from uuid import UUID, uuid4
 
 import pytest
@@ -89,7 +90,7 @@ def _current_snapshot(session: object, account_id: UUID) -> AccountStateSnapshot
         .limit(1)
     )
     assert candidate is not None
-    return candidate
+    return cast(AccountStateSnapshot, candidate)
 
 
 def test_demo_decision_policy_matrix_and_exact_ordered_reasons() -> None:

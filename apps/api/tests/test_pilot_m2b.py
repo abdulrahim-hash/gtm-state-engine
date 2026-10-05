@@ -168,7 +168,7 @@ def test_profile_mapper_is_versioned_dated_and_rejects_absent_or_event_time() ->
     assert fact.assertion is EvidenceAssertion.PRESENT
     assert fact.observed_at == observation.source_observed_at
     assert PROFILE_MAPPER.mapper_version == "1.0.0"
-    assert len(MAPPER_REGISTRY) == 2
+    assert len(MAPPER_REGISTRY) == 3
     with pytest.raises(MappingRejection) as rejected:
         PROFILE_MAPPER.normalize(replace(observation, assertion="ABSENT"))
     assert rejected.value.reason is IngestionReason.INVALID_ASSERTION
