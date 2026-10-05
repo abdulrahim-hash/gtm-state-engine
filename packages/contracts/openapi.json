@@ -4291,6 +4291,96 @@
         ]
       }
     },
+    "/api/v1/pilot/m2c/runs/{run_id}": {
+      "get": {
+        "operationId": "get_source_read_run_api_v1_pilot_m2c_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Source Read Run Api V1 Pilot M2C Runs  Run Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Source Read Run",
+        "tags": [
+          "M2C local CRM test"
+        ]
+      }
+    },
+    "/api/v1/pilot/m2c/trace": {
+      "get": {
+        "operationId": "get_crm_test_trace_api_v1_pilot_m2c_trace_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "as_of",
+            "required": true,
+            "schema": {
+              "format": "date-time",
+              "title": "As Of",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Crm Test Trace Api V1 Pilot M2C Trace Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Crm Test Trace",
+        "tags": [
+          "M2C local CRM test"
+        ]
+      }
+    },
     "/api/v1/policy-evaluations/{policy_evaluation_id}": {
       "get": {
         "description": "Return one immutable Policy, its Decision, and exact snapshot reference.",

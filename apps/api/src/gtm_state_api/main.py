@@ -8,6 +8,7 @@ from gtm_state_api.config import get_settings
 from gtm_state_api.decision_api import router as decision_router
 from gtm_state_api.health import router as health_router
 from gtm_state_api.ingestion_api import router as ingestion_router
+from gtm_state_api.m2c_api import router as m2c_router
 from gtm_state_api.pilot_api import router as pilot_router
 from gtm_state_api.read_api import router as read_router
 from gtm_state_api.signals_api import router as signals_router
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
     application.include_router(read_router)
     application.include_router(ingestion_router)
     application.include_router(pilot_router)
+    application.include_router(m2c_router)
     application.include_router(signals_router)
     application.include_router(state_router)
     application.include_router(decision_router)
