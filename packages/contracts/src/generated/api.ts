@@ -418,6 +418,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pilot/m5a/executions/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Execution */
+        get: operations["get_execution_api_v1_pilot_m5a_executions__plan_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/policy-evaluations/{policy_evaluation_id}": {
         parameters: {
             query?: never;
@@ -1566,6 +1583,104 @@ export interface components {
             strategy_topic: components["schemas"]["StrategyTopic"] | null;
             /** Strategy Version Id */
             strategy_version_id: string | null;
+        };
+        /** ExecutionEventResponse */
+        ExecutionEventResponse: {
+            /** From */
+            from: string | null;
+            /** Reason */
+            reason: string;
+            /** To */
+            to: string;
+        };
+        /** ExecutionTraceResponse */
+        ExecutionTraceResponse: {
+            /** Action Id */
+            action_id: string;
+            /**
+             * Action Type
+             * @constant
+             */
+            action_type: "CREATE_SELLER_TASK";
+            /** Adapter Version */
+            adapter_version: string;
+            /** Attempt Id */
+            attempt_id: string | null;
+            /** Attempt Status */
+            attempt_status: string | null;
+            /** Authority Assurance */
+            authority_assurance: "LOCAL_OPERATOR_ATTESTATION" | null;
+            /** Authorization Id */
+            authorization_id: string | null;
+            /** Authorized */
+            authorized: boolean;
+            /** Company Id */
+            company_id: string;
+            /** Decision Evaluation Id */
+            decision_evaluation_id: string;
+            /** Delivery Duration Ms */
+            delivery_duration_ms?: number | null;
+            /** Events */
+            events: components["schemas"]["ExecutionEventResponse"][];
+            /**
+             * Label
+             * @constant
+             */
+            label: "DEVELOPER TEST EXECUTION";
+            /** Message */
+            message: string;
+            /** Operational Outcome */
+            operational_outcome: "CRM_TASK_CONFIRMED_CREATED" | null;
+            /** Operational Outcome Id */
+            operational_outcome_id: string | null;
+            /** Physical Post Count */
+            physical_post_count: number;
+            /** Plan Hash */
+            plan_hash: string;
+            /** Plan Id */
+            plan_id: string;
+            /** Plan Schema Version */
+            plan_schema_version: string;
+            /** Policy Evaluation Id */
+            policy_evaluation_id: string;
+            /** Portal Scope Hash */
+            portal_scope_hash: string;
+            /** Provider Task Id */
+            provider_task_id: string | null;
+            /** Read Back */
+            read_back: string | null;
+            /** Receipt Id */
+            receipt_id: string | null;
+            /** Receipt Recorded */
+            receipt_recorded: boolean;
+            /** Receipt Result Class */
+            receipt_result_class: string | null;
+            /** Reconciliation Ids */
+            reconciliation_ids: string[];
+            /** Reconciliations */
+            reconciliations: string[];
+            /** Relationship Evidence Id */
+            relationship_evidence_id: string | null;
+            /** Review Id */
+            review_id: string | null;
+            /** Reviewed */
+            reviewed: boolean;
+            /** Source Observation Id */
+            source_observation_id: string | null;
+            /** Source Read Run Id */
+            source_read_run_id: string | null;
+            /** State Snapshot Id */
+            state_snapshot_id: string;
+            /**
+             * Synthetic
+             * @constant
+             */
+            synthetic: true;
+            /**
+             * Synthetic Company
+             * @constant
+             */
+            synthetic_company: "M2C Customer Test";
         };
         /**
          * FitCriterionResult
@@ -2887,6 +3002,37 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_execution_api_v1_pilot_m5a_executions__plan_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecutionTraceResponse"];
                 };
             };
             /** @description Validation Error */

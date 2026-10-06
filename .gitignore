@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.example
+.m5a-scopes.local.json
 .cache/
 .venv/
 __pycache__/

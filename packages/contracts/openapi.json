@@ -1963,6 +1963,355 @@
         "title": "EvidenceResponse",
         "type": "object"
       },
+      "ExecutionEventResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "to": {
+            "title": "To",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "reason"
+        ],
+        "title": "ExecutionEventResponse",
+        "type": "object"
+      },
+      "ExecutionTraceResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action_id": {
+            "title": "Action Id",
+            "type": "string"
+          },
+          "action_type": {
+            "const": "CREATE_SELLER_TASK",
+            "title": "Action Type",
+            "type": "string"
+          },
+          "adapter_version": {
+            "title": "Adapter Version",
+            "type": "string"
+          },
+          "attempt_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "attempt_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Status"
+          },
+          "authority_assurance": {
+            "anyOf": [
+              {
+                "const": "LOCAL_OPERATOR_ATTESTATION",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authority Assurance"
+          },
+          "authorization_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorization Id"
+          },
+          "authorized": {
+            "title": "Authorized",
+            "type": "boolean"
+          },
+          "company_id": {
+            "title": "Company Id",
+            "type": "string"
+          },
+          "decision_evaluation_id": {
+            "title": "Decision Evaluation Id",
+            "type": "string"
+          },
+          "delivery_duration_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Duration Ms"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutionEventResponse"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "label": {
+            "const": "DEVELOPER TEST EXECUTION",
+            "title": "Label",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "operational_outcome": {
+            "anyOf": [
+              {
+                "const": "CRM_TASK_CONFIRMED_CREATED",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operational Outcome"
+          },
+          "operational_outcome_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operational Outcome Id"
+          },
+          "physical_post_count": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Physical Post Count",
+            "type": "integer"
+          },
+          "plan_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Plan Hash",
+            "type": "string"
+          },
+          "plan_id": {
+            "title": "Plan Id",
+            "type": "string"
+          },
+          "plan_schema_version": {
+            "title": "Plan Schema Version",
+            "type": "string"
+          },
+          "policy_evaluation_id": {
+            "title": "Policy Evaluation Id",
+            "type": "string"
+          },
+          "portal_scope_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Portal Scope Hash",
+            "type": "string"
+          },
+          "provider_task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Task Id"
+          },
+          "read_back": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read Back"
+          },
+          "receipt_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Id"
+          },
+          "receipt_recorded": {
+            "title": "Receipt Recorded",
+            "type": "boolean"
+          },
+          "receipt_result_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Result Class"
+          },
+          "reconciliation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reconciliation Ids",
+            "type": "array"
+          },
+          "reconciliations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reconciliations",
+            "type": "array"
+          },
+          "relationship_evidence_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationship Evidence Id"
+          },
+          "review_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Id"
+          },
+          "reviewed": {
+            "title": "Reviewed",
+            "type": "boolean"
+          },
+          "source_observation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Observation Id"
+          },
+          "source_read_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Read Run Id"
+          },
+          "state_snapshot_id": {
+            "title": "State Snapshot Id",
+            "type": "string"
+          },
+          "synthetic": {
+            "const": true,
+            "title": "Synthetic",
+            "type": "boolean"
+          },
+          "synthetic_company": {
+            "const": "M2C Customer Test",
+            "title": "Synthetic Company",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "synthetic",
+          "message",
+          "action_id",
+          "action_type",
+          "review_id",
+          "policy_evaluation_id",
+          "decision_evaluation_id",
+          "state_snapshot_id",
+          "relationship_evidence_id",
+          "source_observation_id",
+          "source_read_run_id",
+          "plan_id",
+          "plan_hash",
+          "plan_schema_version",
+          "adapter_version",
+          "synthetic_company",
+          "company_id",
+          "portal_scope_hash",
+          "reviewed",
+          "authority_assurance",
+          "authorization_id",
+          "authorized",
+          "attempt_id",
+          "attempt_status",
+          "physical_post_count",
+          "events",
+          "provider_task_id",
+          "receipt_recorded",
+          "receipt_id",
+          "receipt_result_class",
+          "reconciliations",
+          "reconciliation_ids",
+          "read_back",
+          "operational_outcome",
+          "operational_outcome_id"
+        ],
+        "title": "ExecutionTraceResponse",
+        "type": "object"
+      },
       "FitCriterionResult": {
         "description": "One criterion's non-numeric result inside a fit evaluation.",
         "enum": [
@@ -4378,6 +4727,49 @@
         "summary": "Get Crm Test Trace",
         "tags": [
           "M2C local CRM test"
+        ]
+      }
+    },
+    "/api/v1/pilot/m5a/executions/{plan_id}": {
+      "get": {
+        "operationId": "get_execution_api_v1_pilot_m5a_executions__plan_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Plan Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionTraceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Execution",
+        "tags": [
+          "M5A local execution trace"
         ]
       }
     },

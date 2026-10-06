@@ -7,6 +7,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import (
+    BigInteger,
     CheckConstraint,
     DateTime,
     Enum,
@@ -1682,3 +1683,265 @@ class EvidenceSupersession(Base):
         nullable=False,
     )
     promoted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ExecutionPlan(Base):
+    """Immutable provider-scoped translation of one canonical Action."""
+
+    __tablename__ = "execution_plans"
+    __table_args__ = (
+        UniqueConstraint("plan_hash", name="uq_execution_plans_hash"),
+        UniqueConstraint("marker", name="uq_execution_plans_marker"),
+        UniqueConstraint("id", "action_id", name="uq_execution_plans_action_scope"),
+        ForeignKeyConstraint(
+            ["action_id", "workspace_id", "account_id"],
+            ["actions.action_id", "actions.workspace_id", "actions.account_id"],
+            name="fk_execution_plans_action_scope",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint("plan_hash ~ '^[a-f0-9]{64}$'", name="ck_execution_plans_hash"),
+        CheckConstraint(
+            "portal_scope_hash ~ '^[a-f0-9]{64}$'", name="ck_execution_plans_portal_hash"
+        ),
+        CheckConstraint("operation = 'CREATE_SELLER_TASK'", name="ck_execution_plans_operation"),
+        CheckConstraint(
+            "jsonb_typeof(task_fields) = 'object'", name="ck_execution_plans_task_object"
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    action_id: Mapped[UUID] = mapped_column(ForeignKey("actions.action_id", ondelete="RESTRICT"))
+    action_hash: Mapped[str] = mapped_column(String(64))
+    policy_evaluation_id: Mapped[UUID] = mapped_column()
+    policy_hash: Mapped[str] = mapped_column(String(64))
+    decision_evaluation_id: Mapped[UUID] = mapped_column()
+    state_snapshot_id: Mapped[UUID] = mapped_column()
+    workspace_id: Mapped[UUID] = mapped_column()
+    account_id: Mapped[UUID] = mapped_column()
+    adapter_key: Mapped[str] = mapped_column(String(80))
+    adapter_version: Mapped[str] = mapped_column(String(32))
+    api_version: Mapped[str] = mapped_column(String(16))
+    operation: Mapped[str] = mapped_column(String(40))
+    portal_scope_hash: Mapped[str] = mapped_column(String(64))
+    provider_company_id: Mapped[str] = mapped_column(String(30))
+    provider_owner_id: Mapped[str] = mapped_column(String(30))
+    association_type_id: Mapped[int] = mapped_column(Integer)
+    task_fields: Mapped[dict[str, str]] = mapped_column(JSONB)
+    marker: Mapped[str] = mapped_column(String(40))
+    schema_version: Mapped[str] = mapped_column(String(16))
+    plan_hash: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ExecutionAuthorization(Base):
+    """Local attestation for one exact provider plan, distinct from M1D Review."""
+
+    __tablename__ = "execution_authorizations"
+    __table_args__ = (
+        UniqueConstraint("execution_plan_id", name="uq_execution_authorizations_plan"),
+        UniqueConstraint("id", "execution_plan_id", name="uq_execution_authorizations_plan_scope"),
+        ForeignKeyConstraint(
+            ["execution_plan_id", "action_id"],
+            ["execution_plans.id", "execution_plans.action_id"],
+            name="fk_execution_authorizations_plan_action",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "assurance_type = 'LOCAL_OPERATOR_ATTESTATION'",
+            name="ck_execution_authorizations_assurance",
+        ),
+        CheckConstraint(
+            "status IN ('ACTIVE','REVOKED')", name="ck_execution_authorizations_status"
+        ),
+        CheckConstraint("expires_at > authorized_at", name="ck_execution_authorizations_expiry"),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    execution_plan_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_plans.id", ondelete="RESTRICT")
+    )
+    action_id: Mapped[UUID] = mapped_column()
+    action_hash: Mapped[str] = mapped_column(String(64))
+    plan_hash: Mapped[str] = mapped_column(String(64))
+    portal_scope_hash: Mapped[str] = mapped_column(String(64))
+    provider_company_id: Mapped[str] = mapped_column(String(30))
+    provider_owner_id: Mapped[str] = mapped_column(String(30))
+    operation: Mapped[str] = mapped_column(String(40))
+    assurance_type: Mapped[str] = mapped_column(String(40))
+    operator_ref: Mapped[str] = mapped_column(String(120))
+    status: Mapped[str] = mapped_column(String(16))
+    authorized_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ExecutionAttempt(Base):
+    """Durable intent and conservative one-dispatch state."""
+
+    __tablename__ = "execution_attempts"
+    __table_args__ = (
+        UniqueConstraint("execution_plan_id", name="uq_execution_attempts_plan"),
+        UniqueConstraint("action_id", name="uq_execution_attempts_action_one_delivery"),
+        UniqueConstraint("authorization_id", name="uq_execution_attempts_authorization"),
+        ForeignKeyConstraint(
+            ["execution_plan_id", "action_id"],
+            ["execution_plans.id", "execution_plans.action_id"],
+            name="fk_execution_attempts_plan_action",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["authorization_id", "execution_plan_id"],
+            ["execution_authorizations.id", "execution_authorizations.execution_plan_id"],
+            name="fk_execution_attempts_authorization_plan",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "physical_post_count BETWEEN 0 AND 1", name="ck_execution_attempts_one_post"
+        ),
+        CheckConstraint(
+            "delivery_duration_ms IS NULL OR delivery_duration_ms >= 0",
+            name="ck_execution_attempts_duration",
+        ),
+        CheckConstraint(
+            """status IN (
+                'NOT_ATTEMPTED','IN_FLIGHT','PROVIDER_ACCEPTED','CONFIRMED',
+                'REJECTED_NO_WRITE','UNKNOWN_DELIVERY','MISMATCH'
+            )""",
+            name="ck_execution_attempts_status",
+        ),
+        CheckConstraint(
+            """(status = 'NOT_ATTEMPTED' AND physical_post_count = 0) OR
+               (status <> 'NOT_ATTEMPTED' AND physical_post_count = 1)""",
+            name="ck_execution_attempts_dispatch_count",
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    execution_plan_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_plans.id", ondelete="RESTRICT")
+    )
+    action_id: Mapped[UUID] = mapped_column()
+    authorization_id: Mapped[UUID] = mapped_column()
+    status: Mapped[str] = mapped_column(String(24))
+    dispatch_id: Mapped[UUID | None] = mapped_column(unique=True)
+    physical_post_count: Mapped[int] = mapped_column(Integer)
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    dispatched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    failure_code: Mapped[str | None] = mapped_column(String(64))
+    safe_correlation: Mapped[str | None] = mapped_column(String(120))
+    delivery_duration_ms: Mapped[int | None] = mapped_column(BigInteger)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ExecutionAttemptEvent(Base):
+    """Append-only audit of every external-attempt state transition."""
+
+    __tablename__ = "execution_attempt_events"
+    __table_args__ = (
+        UniqueConstraint(
+            "execution_attempt_id", "sequence", name="uq_execution_attempt_events_sequence"
+        ),
+        CheckConstraint("sequence >= 0", name="ck_execution_attempt_events_sequence"),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    execution_attempt_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_attempts.id", ondelete="RESTRICT")
+    )
+    sequence: Mapped[int] = mapped_column(Integer)
+    previous_state: Mapped[str | None] = mapped_column(String(24))
+    new_state: Mapped[str] = mapped_column(String(24))
+    reason_code: Mapped[str] = mapped_column(String(64))
+    safe_correlation: Mapped[str | None] = mapped_column(String(120))
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ProviderReceipt(Base):
+    """Bounded proof that HubSpot accepted and identified a Task."""
+
+    __tablename__ = "provider_receipts"
+    __table_args__ = (
+        UniqueConstraint("execution_attempt_id", name="uq_provider_receipts_attempt"),
+        UniqueConstraint(
+            "portal_scope_hash", "provider_object_id", name="uq_provider_receipts_task"
+        ),
+        CheckConstraint(
+            "provider_type = 'HUBSPOT' AND provider_object_type = 'TASK'",
+            name="ck_provider_receipts_kind",
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    execution_plan_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_plans.id", ondelete="RESTRICT")
+    )
+    execution_attempt_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_attempts.id", ondelete="RESTRICT")
+    )
+    provider_type: Mapped[str] = mapped_column(String(20))
+    portal_scope_hash: Mapped[str] = mapped_column(String(64))
+    provider_object_type: Mapped[str] = mapped_column(String(20))
+    provider_object_id: Mapped[str] = mapped_column(String(30))
+    request_correlation: Mapped[str | None] = mapped_column(String(120))
+    http_result_class: Mapped[str] = mapped_column(String(24))
+    provider_timestamp: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    adapter_version: Mapped[str] = mapped_column(String(32))
+    api_version: Mapped[str] = mapped_column(String(16))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    response_hash: Mapped[str] = mapped_column(String(64))
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ExecutionReconciliation(Base):
+    """One bounded read-back conclusion, including negative and uncertain results."""
+
+    __tablename__ = "execution_reconciliations"
+    __table_args__ = (
+        CheckConstraint(
+            "result IN ('CONFIRMED','NOT_FOUND','MISMATCH','UNKNOWN')",
+            name="ck_execution_reconciliations_result",
+        ),
+        CheckConstraint(
+            "read_count BETWEEN 0 AND 20", name="ck_execution_reconciliations_read_count"
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    execution_attempt_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_attempts.id", ondelete="RESTRICT")
+    )
+    provider_receipt_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("provider_receipts.id", ondelete="RESTRICT")
+    )
+    result: Mapped[str] = mapped_column(String(16))
+    reason_code: Mapped[str] = mapped_column(String(64))
+    provider_task_id: Mapped[str | None] = mapped_column(String(30))
+    read_count: Mapped[int] = mapped_column(Integer)
+    observed_hash: Mapped[str | None] = mapped_column(String(64))
+    reconciled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class OperationalOutcome(Base):
+    """Verified external Task creation only; never a seller/commercial outcome."""
+
+    __tablename__ = "operational_outcomes"
+    __table_args__ = (
+        UniqueConstraint("execution_plan_id", name="uq_operational_outcomes_plan"),
+        UniqueConstraint("execution_attempt_id", name="uq_operational_outcomes_attempt"),
+        CheckConstraint(
+            "reason_code = 'CRM_TASK_CONFIRMED_CREATED'", name="ck_operational_outcomes_reason"
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    execution_plan_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_plans.id", ondelete="RESTRICT")
+    )
+    execution_attempt_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_attempts.id", ondelete="RESTRICT")
+    )
+    execution_reconciliation_id: Mapped[UUID] = mapped_column(
+        ForeignKey("execution_reconciliations.id", ondelete="RESTRICT")
+    )
+    reason_code: Mapped[str] = mapped_column(String(64))
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

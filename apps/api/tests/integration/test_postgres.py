@@ -28,5 +28,5 @@ def test_m2c_migration_is_applied() -> None:
     assert "ck_source_observations_one_origin" in checks
     with engine.connect() as connection:
         assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-            "20261005_0008"
+            "20261006_0009"
         )
