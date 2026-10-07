@@ -8,7 +8,7 @@ trustworthy account state and producing auditable, policy-governed GTM decisions
 This repository is intentionally not an AI SDR, lead scraper, CRM replacement, email generator, or
 vendor workflow showcase.
 
-## Current status: M2A controlled local Evidence ingestion
+## Current status: M5A governed CRM execution architecture (live exit pending)
 
 M0 established:
 
@@ -190,7 +190,7 @@ Apache-2.0.
 
 ## Current build status
 
-The project is currently at **M2A - Controlled local CSV ingestion into canonical Evidence**.
+The project is currently at **M5A - Controlled developer-test task execution (implementation checkpoint)**. The governed execution architecture is implemented and CI-green; the live HubSpot exit remains pending one verified developer-test Task POST, provider receipt, read-back/reconciliation, and zero-duplicate replay.
 
 ### Working today
 
@@ -243,11 +243,4 @@ Local dry-run Outcome
 
 ### Current boundary
 
-M2A imports registered local CSV observations into canonical Evidence with conservative Account
-identity, bounded provenance, and explicit replay/promotion. Ingestion success does not mean
-downstream reasoning is current. Reprocessing does not promote. Source identity is distinct from
-canonical Account identity. M1D still ends at an immutable Action proposal, explicit review
-authority where required, and a local canonical-validation Outcome. `ALLOW`, review approval, and dry-run success do not authorize
-external execution. Contacts, owners, messages, live activation, commercial outcomes, AI
-authority, and external providers remain intentionally out of scope.
-
+The system now combines controlled public Evidence, read-only CRM relationship context, deterministic State/Decision/Policy reasoning, and a separate governed execution ledger. M5A can plan, authorize, reserve, receipt, reconcile, and record a truthful operational outcome for one developer-test `CREATE_SELLER_TASK` path. The live provider write remains disabled until the exact test owner, scopes, fresh M2C chain, plan, authorization, and preflight gates pass. No seller engagement, meeting, opportunity, pipeline, or revenue outcome is claimed.
