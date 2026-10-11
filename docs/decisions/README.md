@@ -20,3 +20,4 @@
 - [ADR-017: Canonical bytes for M2B pilot artifacts](017-canonical-pilot-artifact-bytes.md)
 - [ADR-018: Controlled CRM relationship read](018-controlled-crm-relationship-read.md)
 - [ADR-019: Controlled developer-test Task execution](019-controlled-developer-test-task-execution.md)
+- [ADR-020: Resolve effective CRM Relationship Evidence from snapshot history](020-effective-crm-relationship-provenance-for-execution.md)

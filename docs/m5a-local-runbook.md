@@ -48,6 +48,8 @@ Then run `.venv\Scripts\python.exe scripts\m5a_task.py` with one stage at a time
 8. Run `reconcile --plan-id <uuid> --plan-hash <hash>`. This uses only bounded GETs, verifies the exact Company association and owner, and records `CONFIRMED`, `MISMATCH`, `NOT_FOUND`, or `UNKNOWN`.
 9. Run `inspect-execution --plan-id <uuid> --plan-hash <hash>` or inspect `/crm-execution?plan_id=<uuid>` locally. Repeat the `dispatch` command only as a negative replay check: it must stop before POST. Verify the marker finds exactly one Task in the developer-test portal.
 
+M2C snapshots may retain expired historical CRM Relationship Evidence. M5A selects the unique latest CRM relationship observation linked to the exact snapshot and still requires a fresh, positive, source-scoped observation at plan and execution validation. An equal or newer competing canonical observation blocks the older Action. Reuse an existing reviewed Action only while its snapshot remains the latest eligible snapshot and all current gates pass; do not reinterpret the M1D Review as provider-write authority.
+
 `NOT_FOUND` after a possible delivery is **not** permission to POST again. A timeout, process death, ambiguous HTTP response, or receipt persistence failure requires read-only reconciliation. A second POST requires a future explicit repair process and is outside M5A.
 
 ## Truth boundary

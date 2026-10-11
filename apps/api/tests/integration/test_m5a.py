@@ -40,12 +40,25 @@ from gtm_state_api.m5a_execution import (
     record_write_result,
     validate_plan,
 )
-from gtm_state_api.models import Action, ExecutionAttempt, ExecutionPlan, OperationalOutcome
+from gtm_state_api.models import (
+    AccountStateSnapshot,
+    Action,
+    Evidence,
+    ExecutionAttempt,
+    ExecutionPlan,
+    OperationalOutcome,
+    PolicyEvaluation,
+    StateSnapshotEvidence,
+)
 from gtm_state_api.private_company_read import CustomerStageMapping, read_company_into_evidence
 from gtm_state_api.types import (
+    AccountStateFacet,
     ActionActorKind,
     ActionReviewReasonCode,
     ActionReviewResolution,
+    EvidenceAssertion,
+    EvidenceClassification,
+    EvidenceFreshness,
 )
 
 pytestmark = pytest.mark.integration
@@ -68,6 +81,8 @@ def session_for(connection: Connection) -> Session:
 def prepared(
     connection: Connection,
     monkeypatch: pytest.MonkeyPatch,
+    *,
+    history: bool = False,
 ) -> tuple[UUID, UUID, datetime, UUID]:
     start = datetime.now(UTC) - timedelta(minutes=3)
     observed = start + timedelta(minutes=1)
@@ -85,6 +100,33 @@ def prepared(
     with session_for(connection) as session:
         m2c_workspace.setup(session, fixture_as_of=start)
     runs = []
+    if history:
+        expired_at = observed - timedelta(days=3)
+        historical = CompanyRecord(
+            provider_company_id="123",
+            company_name="M2C Customer Test",
+            company_domain="m2c-customer.example.com",
+            lifecycle_stage="customer",
+            provider_updated_at=expired_at,
+        )
+
+        def historical_reader(company_id: str, *, credential: str) -> CompanyRead:
+            assert company_id == "123" and credential == "fixture-token"
+            return CompanyRead(historical, 0, None)
+
+        with session_for(connection) as session:
+            runs.append(
+                read_company_into_evidence(
+                    session,
+                    workspace_id=workspace,
+                    portal_id="12345",
+                    company_id="123",
+                    credential="fixture-token",
+                    mapping=CustomerStageMapping("customer", "1.0.0"),
+                    observed_at=expired_at,
+                    reader=historical_reader,
+                )
+            )
     for company_id, stage, name, domain in (
         ("123", "customer", "M2C Customer Test", "m2c-customer.example.com"),
         ("456", "lead", "M2C Lead Test", "m2c-lead.example.com"),
@@ -152,6 +194,230 @@ def plan_for(session: Session, action_id: UUID, now: datetime) -> ExecutionPlan:
         due_at=now + timedelta(hours=2),
         now=now,
     )
+
+
+def snapshot_for_action(session: Session, action_id: UUID) -> AccountStateSnapshot:
+    action = session.get(Action, action_id)
+    assert action is not None
+    policy = session.get(PolicyEvaluation, action.policy_evaluation_id)
+    assert policy is not None
+    snapshot = session.get(AccountStateSnapshot, policy.state_snapshot_id)
+    assert snapshot is not None
+    return snapshot
+
+
+def add_customer_observation(
+    connection: Connection, *, workspace: UUID, stage: str, observed_at: datetime
+) -> None:
+    record = CompanyRecord(
+        provider_company_id="123",
+        company_name="M2C Customer Test",
+        company_domain="m2c-customer.example.com",
+        lifecycle_stage=stage,
+        provider_updated_at=observed_at,
+    )
+
+    def reader(company_id: str, *, credential: str) -> CompanyRead:
+        assert company_id == "123" and credential == "fixture-token"
+        return CompanyRead(record, 0, None)
+
+    with session_for(connection) as session:
+        read_company_into_evidence(
+            session,
+            workspace_id=workspace,
+            portal_id="12345",
+            company_id="123",
+            credential="fixture-token",
+            mapping=CustomerStageMapping("customer", "1.0.0"),
+            observed_at=observed_at,
+            reader=reader,
+        )
+
+
+def link_relationship_evidence(
+    session: Session, snapshot: AccountStateSnapshot, evidence: Evidence
+) -> None:
+    session.add(
+        StateSnapshotEvidence(
+            state_snapshot_id=snapshot.state_snapshot_id,
+            evidence_id=evidence.id,
+            facet=AccountStateFacet.RELATIONSHIP_STATE,
+            account_id=snapshot.account_id,
+            fit_criterion_id=None,
+        )
+    )
+    session.flush()
+
+
+def competing_relationship_evidence(
+    *, account_id: UUID, observed_at: datetime, ingested_at: datetime
+) -> Evidence:
+    return Evidence(
+        id=uuid4(),
+        account_id=account_id,
+        classification=EvidenceClassification.FACT,
+        source_provider="synthetic-test",
+        source_reference="same-time competing relationship observation",
+        source_uri=None,
+        observed_at=observed_at,
+        ingested_at=ingested_at,
+        normalized_fact="synthetic competing observation",
+        raw_payload_hash="a" * 64,
+        freshness=EvidenceFreshness.UNKNOWN,
+        fact_key="relationship.crm_reports_customer_status",
+        fact_assertion=EvidenceAssertion.PRESENT,
+    )
+
+
+def test_historical_relationship_provenance_selects_fresh_effective_evidence(
+    isolated_connection: Connection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    action_id, _, now, _ = prepared(isolated_connection, monkeypatch, history=True)
+    with session_for(isolated_connection) as session:
+        snapshot = snapshot_for_action(session, action_id)
+        linked = session.scalars(
+            select(Evidence)
+            .join(StateSnapshotEvidence, StateSnapshotEvidence.evidence_id == Evidence.id)
+            .where(
+                StateSnapshotEvidence.state_snapshot_id == snapshot.state_snapshot_id,
+                StateSnapshotEvidence.facet == AccountStateFacet.RELATIONSHIP_STATE,
+            )
+            .order_by(Evidence.observed_at)
+        ).all()
+        assert len(linked) == 2
+        assert now - linked[0].observed_at > timedelta(hours=24)
+        plan = plan_for(session, action_id, now)
+        validate_plan(plan)
+        assert m5a_execution.execution_trace(session, plan.id)["relationship_evidence_id"] == str(
+            linked[1].id
+        )
+        trace = m2c_run.export_trace(session, as_of=snapshot.state_as_of)
+        customer = next(
+            item for item in trace["accounts"] if item["account_id"] == str(snapshot.account_id)
+        )
+        assert {item["evidence_id"] for item in customer["relationship_evidence"]} == {
+            str(item.id) for item in linked
+        }
+        assert {item["freshness_at_as_of"] for item in customer["relationship_evidence"]} == {
+            "EXPIRED",
+            "WITHIN_24_HOURS",
+        }
+
+
+def test_fresh_inconclusive_latest_link_blocks_historical_positive(
+    isolated_connection: Connection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    action_id, _, now, workspace = prepared(isolated_connection, monkeypatch, history=True)
+    with session_for(isolated_connection) as session:
+        snapshot = snapshot_for_action(session, action_id)
+        later = snapshot.state_as_of - timedelta(seconds=1)
+        account_id = snapshot.account_id
+        snapshot_id = snapshot.state_snapshot_id
+    add_customer_observation(
+        isolated_connection, workspace=workspace, stage="lead", observed_at=later
+    )
+    with session_for(isolated_connection) as session:
+        loaded_snapshot = session.get(AccountStateSnapshot, snapshot_id)
+        assert loaded_snapshot is not None
+        inconclusive = session.scalar(
+            select(Evidence).where(
+                Evidence.account_id == account_id,
+                Evidence.observed_at == later,
+                Evidence.fact_assertion == EvidenceAssertion.INCONCLUSIVE,
+            )
+        )
+        assert inconclusive is not None and inconclusive.normalization_result_id is not None
+        link_relationship_evidence(session, loaded_snapshot, inconclusive)
+        with pytest.raises(ExecutionGateError, match="RELATIONSHIP_EVIDENCE_INVALID"):
+            plan_for(session, action_id, now)
+        assert (
+            session.scalar(select(ExecutionPlan.id).where(ExecutionPlan.action_id == action_id))
+            is None
+        )
+
+
+def test_equal_latest_relationship_links_are_ambiguous(
+    isolated_connection: Connection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    action_id, _, now, _ = prepared(isolated_connection, monkeypatch, history=True)
+    with session_for(isolated_connection) as session:
+        snapshot = snapshot_for_action(session, action_id)
+        selected = session.scalar(
+            select(Evidence)
+            .join(StateSnapshotEvidence, StateSnapshotEvidence.evidence_id == Evidence.id)
+            .where(
+                StateSnapshotEvidence.state_snapshot_id == snapshot.state_snapshot_id,
+                StateSnapshotEvidence.facet == AccountStateFacet.RELATIONSHIP_STATE,
+            )
+            .order_by(Evidence.observed_at.desc())
+        )
+        assert selected is not None
+        competing = competing_relationship_evidence(
+            account_id=snapshot.account_id, observed_at=selected.observed_at, ingested_at=now
+        )
+        session.add(competing)
+        session.flush()
+        link_relationship_evidence(session, snapshot, competing)
+        with pytest.raises(ExecutionGateError, match="RELATIONSHIP_TRACE_AMBIGUOUS"):
+            plan_for(session, action_id, now)
+        assert (
+            session.scalar(select(ExecutionPlan.id).where(ExecutionPlan.action_id == action_id))
+            is None
+        )
+
+
+def test_equal_canonical_relationship_evidence_outside_snapshot_blocks(
+    isolated_connection: Connection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    action_id, _, now, _ = prepared(isolated_connection, monkeypatch, history=True)
+    with session_for(isolated_connection) as session:
+        snapshot = snapshot_for_action(session, action_id)
+        latest_at = session.scalar(
+            select(Evidence.observed_at)
+            .join(StateSnapshotEvidence, StateSnapshotEvidence.evidence_id == Evidence.id)
+            .where(
+                StateSnapshotEvidence.state_snapshot_id == snapshot.state_snapshot_id,
+                StateSnapshotEvidence.facet == AccountStateFacet.RELATIONSHIP_STATE,
+            )
+            .order_by(Evidence.observed_at.desc())
+        )
+        assert latest_at is not None
+        session.add(
+            competing_relationship_evidence(
+                account_id=snapshot.account_id, observed_at=latest_at, ingested_at=now
+            )
+        )
+        session.flush()
+        with pytest.raises(ExecutionGateError, match="NEWER_RELATIONSHIP_EVIDENCE"):
+            plan_for(session, action_id, now)
+        assert (
+            session.scalar(select(ExecutionPlan.id).where(ExecutionPlan.action_id == action_id))
+            is None
+        )
+
+
+def test_latest_link_stale_at_execution_with_historical_provenance(
+    isolated_connection: Connection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    action_id, _, _, _ = prepared(isolated_connection, monkeypatch, history=True)
+    with session_for(isolated_connection) as session:
+        snapshot = snapshot_for_action(session, action_id)
+        latest_at = session.scalar(
+            select(Evidence.observed_at)
+            .join(StateSnapshotEvidence, StateSnapshotEvidence.evidence_id == Evidence.id)
+            .where(
+                StateSnapshotEvidence.state_snapshot_id == snapshot.state_snapshot_id,
+                StateSnapshotEvidence.facet == AccountStateFacet.RELATIONSHIP_STATE,
+            )
+            .order_by(Evidence.observed_at.desc())
+        )
+        assert latest_at is not None
+        with pytest.raises(ExecutionGateError, match="RELATIONSHIP_STALE"):
+            plan_for(session, action_id, latest_at + timedelta(hours=24, microseconds=1))
+        assert (
+            session.scalar(select(ExecutionPlan.id).where(ExecutionPlan.action_id == action_id))
+            is None
+        )
 
 
 def test_exact_chain_review_plan_and_lead_block(
@@ -600,7 +866,7 @@ def test_newer_conflicting_relationship_evidence_blocks_old_action(
     isolated_connection: Connection,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    action_id, _, now, workspace = prepared(isolated_connection, monkeypatch)
+    action_id, _, now, workspace = prepared(isolated_connection, monkeypatch, history=True)
     later = now + timedelta(seconds=1)
     changed = CompanyRecord(
         provider_company_id="123",

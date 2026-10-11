@@ -56,6 +56,10 @@ from gtm_state_api.models import (
     StateSnapshotEvidence,
 )
 from gtm_state_api.private_company_read import portal_scope_hash, scoped_dataset_key
+from gtm_state_api.state_engine import (
+    CRM_RELATIONSHIP_WINDOW_HOURS,
+    CRM_REPORTED_CUSTOMER_FACT_KEY,
+)
 from gtm_state_api.types import (
     AccountFitContext,
     AccountRelationshipState,
@@ -66,6 +70,8 @@ from gtm_state_api.types import (
     ActionType,
     DecisionResult,
     EvidenceAssertion,
+    EvidenceClassification,
+    EvidenceFreshness,
     PolicyResult,
 )
 
@@ -105,6 +111,29 @@ def _hubspot_task_time(value: str) -> datetime:
     if value.isdecimal() and len(value) == 13:
         return datetime.fromtimestamp(int(value) / 1000, tz=UTC)
     return _utc(datetime.fromisoformat(value.replace("Z", "+00:00")))
+
+
+def _select_snapshot_relationship_evidence(
+    session: Session, *, snapshot_id: UUID, account_id: UUID
+) -> Evidence:
+    """Select the unique latest CRM observation without dropping historical provenance."""
+
+    relevant = session.scalars(
+        select(Evidence)
+        .join(StateSnapshotEvidence, StateSnapshotEvidence.evidence_id == Evidence.id)
+        .where(
+            StateSnapshotEvidence.state_snapshot_id == snapshot_id,
+            StateSnapshotEvidence.facet == AccountStateFacet.RELATIONSHIP_STATE,
+            StateSnapshotEvidence.account_id == account_id,
+            Evidence.account_id == account_id,
+            Evidence.fact_key == CRM_REPORTED_CUSTOMER_FACT_KEY,
+        )
+    ).all()
+    _require(bool(relevant), "RELATIONSHIP_EVIDENCE_MISSING")
+    latest_at = max(item.observed_at for item in relevant)
+    latest = [item for item in relevant if item.observed_at == latest_at]
+    _require(len(latest) == 1, "RELATIONSHIP_TRACE_AMBIGUOUS")
+    return latest[0]
 
 
 def _chain(
@@ -230,32 +259,31 @@ def _chain(
         )
     )
     _require(binding is not None, "COMPANY_BINDING_MISSING")
-    linked_ids = session.scalars(
-        select(StateSnapshotEvidence.evidence_id).where(
-            StateSnapshotEvidence.state_snapshot_id == snapshot.state_snapshot_id,
-            StateSnapshotEvidence.facet == AccountStateFacet.RELATIONSHIP_STATE,
-        )
-    ).all()
-    _require(len(linked_ids) == 1, "RELATIONSHIP_TRACE_AMBIGUOUS")
-    evidence = session.get(Evidence, linked_ids[0])
+    evidence = _select_snapshot_relationship_evidence(
+        session, snapshot_id=snapshot.state_snapshot_id, account_id=action.account_id
+    )
     _require(
-        evidence is not None
-        and evidence.fact_key == "relationship.crm_reports_customer_status"
+        evidence.classification is EvidenceClassification.FACT
+        and evidence.freshness is EvidenceFreshness.UNKNOWN
         and evidence.fact_assertion is EvidenceAssertion.PRESENT
         and evidence.normalization_result_id is not None,
         "RELATIONSHIP_EVIDENCE_INVALID",
     )
-    assert evidence is not None and evidence.normalization_result_id is not None
+    assert evidence.normalization_result_id is not None
     _require(
-        timedelta(0) <= snapshot.state_as_of - evidence.observed_at <= timedelta(hours=24)
-        and timedelta(0) <= now - evidence.observed_at <= timedelta(hours=24),
+        timedelta(0)
+        <= snapshot.state_as_of - evidence.observed_at
+        <= timedelta(hours=CRM_RELATIONSHIP_WINDOW_HOURS)
+        and timedelta(0)
+        <= now - evidence.observed_at
+        <= timedelta(hours=CRM_RELATIONSHIP_WINDOW_HOURS),
         "RELATIONSHIP_STALE",
     )
     newer = session.scalar(
         select(Evidence.id)
         .where(
             Evidence.account_id == action.account_id,
-            Evidence.fact_key == "relationship.crm_reports_customer_status",
+            Evidence.fact_key == CRM_REPORTED_CUSTOMER_FACT_KEY,
             Evidence.observed_at >= evidence.observed_at,
             Evidence.id != evidence.id,
         )
@@ -879,15 +907,10 @@ def execution_trace(session: Session, plan_id: UUID) -> dict[str, object]:
     outcome = session.scalar(
         select(OperationalOutcome).where(OperationalOutcome.execution_plan_id == plan_id)
     )
-    linked_evidence_id = session.scalar(
-        select(StateSnapshotEvidence.evidence_id).where(
-            StateSnapshotEvidence.state_snapshot_id == plan.state_snapshot_id,
-            StateSnapshotEvidence.facet == AccountStateFacet.RELATIONSHIP_STATE,
-        )
+    relationship_evidence = _select_snapshot_relationship_evidence(
+        session, snapshot_id=plan.state_snapshot_id, account_id=plan.account_id
     )
-    relationship_evidence = (
-        session.get(Evidence, linked_evidence_id) if linked_evidence_id else None
-    )
+    linked_evidence_id = relationship_evidence.id
     normalization = (
         session.get(NormalizationResult, relationship_evidence.normalization_result_id)
         if relationship_evidence and relationship_evidence.normalization_result_id
